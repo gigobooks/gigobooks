@@ -6,11 +6,10 @@ export enum AccountType {
     Expense = "expense",
 }
 
-export class Account {
-    // id: number
-    // title: string
-    // type: AccountType
-    constructor(public id: number, public title: string, public type: AccountType) {
+export default class Account {
+    updatedAt: Date
+
+    constructor(public id: number, public title: string, public type: AccountType, public createdAt: Date = new Date(), updatedAt?: Date) {
+        this.updatedAt = updatedAt === undefined ? createdAt : updatedAt
     }
 }
-
