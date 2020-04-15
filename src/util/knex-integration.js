@@ -3,13 +3,14 @@ import * as Client_SQLite3 from 'knex/lib/dialects/sqlite3'
 
 // Some magic:
 // * Modify the sqlite3 dialect so it works with our sqlite API
+//   This affects all knex sqlite3 objects, not just this one.
 // * Return a knex object that uses the supplied database/connection
-export function makeKnex(filename, connection) {
+export function makeKnex(filename, preExistingConnection) {
     const modifications = {
         modified: true,
-        acquireRawConnection: () => {
+        acquireRawConnection: (config) => {
             return new Promise((resolve, reject) => {
-              resolve(connection)
+              resolve(config.preExistingConnection)
             })
         },
         destroyRawConnection(connection) {
@@ -60,5 +61,6 @@ export function makeKnex(filename, connection) {
         },
         useNullAsDefault: true,
         client: Client_SQLite3,
+        preExistingConnection
     })
 }
