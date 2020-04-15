@@ -1,0 +1,20 @@
+diff --git a/node_modules/knex/lib/util/parse-connection.js b/node_modules/knex/lib/util/parse-connection.js
+index 27df84c..9bfdb86 100644
+--- a/node_modules/knex/lib/util/parse-connection.js
++++ b/node_modules/knex/lib/util/parse-connection.js
+@@ -1,6 +1,4 @@
+ const url = require('url');
+-const { parse } = require('pg-connection-string');
+-const parsePG = parse;
+ const isWindows = process && process.platform && process.platform === 'win32';
+ 
+ module.exports = function parseConnectionString(str) {
+@@ -23,7 +21,7 @@ module.exports = function parseConnectionString(str) {
+ 
+   return {
+     client: protocol,
+-    connection: isPG ? parsePG(str) : connectionObject(parsed),
++    connection: connectionObject(parsed),
+   };
+ };
+ 

@@ -13,6 +13,7 @@
   "private": true,
   "dependencies": {
     "@types/react-sidebar": "^3.0.0",
+    "knex": "^0.20.14",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-sidebar": "^3.0.2"
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "patch-package": "^6.2.2",
     "source-map-loader": "^0.2.4",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
