@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "postinstall": "patch-package"
   },
   "keywords": [],
   "author": "Beng Tan",
@@ -22,6 +23,7 @@
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0",
     "source-map-loader": "^0.2.4",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
