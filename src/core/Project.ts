@@ -1,5 +1,5 @@
 import schema from './schema/schema0'
-import {makeKnex} from '../util/knex-integration'
+import { makeKnex } from '../util/knex-integration'
 import { Model } from 'objection'
 
 async function initSchema(db: sqlite.Database): Promise<void> {
