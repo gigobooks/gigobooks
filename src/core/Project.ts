@@ -1,5 +1,6 @@
 import schema from './schema/schema0'
 import {makeKnex} from '../util/knex-integration'
+import { Model } from 'objection'
 
 async function initSchema(db: sqlite.Database): Promise<void> {
     for (let q of schema) {
@@ -22,6 +23,7 @@ export class Project {
         try {
             await initSchema(project.database)
             project.knex = makeKnex(':memory:', project.database)
+            Model.knex(project.knex)
             project.isModified = true
         }
         catch (e) {
@@ -36,7 +38,9 @@ export class Project {
         await srcDb.open()
         try {
             const newDb = await srcDb.backupTo(':memory:')
-            return new Project(filename, newDb, makeKnex(filename, newDb))
+            const project = new Project(filename, newDb, makeKnex(filename, newDb))
+            Model.knex(project.knex)
+            return project
         }
         finally {
             srcDb.close()

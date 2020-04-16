@@ -1,5 +1,6 @@
 import * as Knex from 'knex'
 import * as Client_SQLite3 from 'knex/lib/dialects/sqlite3'
+import { knexSnakeCaseMappers } from 'objection'
 
 // Some magic:
 // * Modify the sqlite3 dialect so it works with our sqlite API
@@ -61,6 +62,7 @@ export function makeKnex(filename, preExistingConnection) {
         },
         useNullAsDefault: true,
         client: Client_SQLite3,
-        preExistingConnection
+        preExistingConnection,
+        ...knexSnakeCaseMappers()
     })
 }
