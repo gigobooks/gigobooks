@@ -23,6 +23,7 @@ export class Project {
         try {
             await initSchema(project.database)
             project.knex = makeKnex(':memory:', project.database)
+            Project.bind(project)
             Model.knex(project.knex)
             project.isModified = true
         }
@@ -39,6 +40,7 @@ export class Project {
         try {
             const newDb = await srcDb.backupTo(':memory:')
             const project = new Project(filename, newDb, makeKnex(filename, newDb))
+            Project.bind(project)
             Model.knex(project.knex)
             return project
         }
@@ -63,5 +65,13 @@ export class Project {
         this.isModified = false
         destDb.close()
         return true
+    }
+
+    // Store references to a database/knex so other code can use them globally
+    static database: sqlite.Database
+    static knex: any
+    static bind(p: Project): void {
+        Project.database = p.database
+        Project.knex = p.knex
     }
 }

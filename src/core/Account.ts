@@ -1,6 +1,6 @@
 import { Model } from 'objection'
 
-export enum AccountType {
+enum AccountType {
     Asset = "asset",
     Liability = "liability",
     Equity = "equity",
@@ -8,7 +8,7 @@ export enum AccountType {
     Expense = "expense",
 }
 
-interface AccountFields {
+export interface AccountFields {
     id?: number,
     title: string,
     type: AccountType,
@@ -17,6 +17,12 @@ interface AccountFields {
 }
 
 export class Account extends Model {
+    static Asset = AccountType.Asset
+    static Liability = AccountType.Liability
+    static Equity = AccountType.Equity
+    static Revenue = AccountType.Revenue
+    static Expense = AccountType.Expense
+
     // Object variables must all be optional since there is no constructor
     id?: number
     title?: string
@@ -40,6 +46,12 @@ export class Account extends Model {
     }
 
     static tableName = 'account'
+
+    async save() {
+        this.updatedAt = new Date()
+        return this.id === undefined ? Account.query().insert(this)
+            : Account.query().update(this)
+    }
 }
 
 export default Account
