@@ -6,6 +6,12 @@ const schema = [
         updated_at TEXT,
         created_at TEXT
     )`,
+    `CREATE TABLE variable (
+        name TEXT NOT NULL PRIMARY KEY,
+        value TEXT,
+        updated_at TEXT,
+        created_at TEXT
+    )`,
 ]
 
 export default schema
