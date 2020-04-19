@@ -1,11 +1,37 @@
 import { Model } from 'objection'
 
-enum AccountType {
-    Asset = "asset",
-    Liability = "liability",
-    Equity = "equity",
-    Revenue = "revenue",
-    Expense = "expense",
+export enum AccountType {
+    Asset = 'asset',
+    LongTermAsset = 'long-term-asset',
+    Liability = 'liability',
+    LongTermLiability = 'long-term-liability',
+    Equity = 'equity',
+    Revenue = 'revenue',
+    Expense = 'expense',
+    InterestExpense = 'interest-expense',
+    TaxExpense = 'tax-expense',
+    DepreciationExpense = 'depreciation-expense',
+    Gain = 'gain',
+    Loss = 'loss',
+}
+
+export const AccountTypeInfo = {
+    'asset': { label: 'asset' },
+    'long-term-asset': { label: 'long term asset',
+        description: 'A long term (more than 12 months) asset' },
+    'liability': { label: 'liability' },
+    'long-term-liability': { label: 'long term liability',
+        description: 'A long term (more than 12 months) liability' },
+    'equity': { label: 'equity' },
+    'revenue': { label: 'revenue' },
+    'expense': { label: 'expense' },
+    'interest-expense': { label: 'interest expense' },
+    'tax-expense': { label: 'tax expense' },
+    'depreciation-expense': { label: 'depreciation expense' },
+    'gain': { label: 'gain',
+        description: 'A one-off gain from the sale or disposal of an asset' },
+    'loss': { label: 'loss',
+        description: 'A one-off loss from the sale or disposal of an asset' },
 }
 
 export interface AccountFields {
@@ -18,10 +44,17 @@ export interface AccountFields {
 
 export class Account extends Model {
     static Asset = AccountType.Asset
+    static LongTermAsset = AccountType.LongTermAsset
     static Liability = AccountType.Liability
+    static LongTermLiability = AccountType.LongTermLiability
     static Equity = AccountType.Equity
     static Revenue = AccountType.Revenue
     static Expense = AccountType.Expense
+    static InterestExpense = AccountType.InterestExpense
+    static TaxExpense = AccountType.TaxExpense
+    static DepreciationExpense = AccountType.DepreciationExpense
+    static Gain = AccountType.Gain
+    static Loss = AccountType.Loss
 
     // Object variables must all be optional since there is no constructor
     id?: number
