@@ -1,12 +1,6 @@
-import schema from './schema/schema0'
 import { makeKnex } from '../util/knex-integration'
 import { Model } from 'objection'
-
-async function initSchema(db: sqlite.Database): Promise<void> {
-    for (let q of schema) {
-        await db.exec(q)
-    }
-}
+import prepopulate from './prepopulate'
 
 export class Project {
     isModified: boolean
@@ -21,8 +15,8 @@ export class Project {
         const project = new Project('', new sqlite.Database(':memory:'))
         await project.database.open()
         try {
-            await initSchema(project.database)
             project.knex = makeKnex(':memory:', project.database)
+            await prepopulate(project.database, project.knex)
             Project.bind(project)
             Model.knex(project.knex)
             project.isModified = true
