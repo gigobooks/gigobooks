@@ -79,6 +79,7 @@ export class Account extends Model {
     }
 
     static tableName = 'account'
+    static get useLimitInFirst() { return true }
 
     async save() {
         this.updatedAt = new Date()

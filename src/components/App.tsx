@@ -1,6 +1,8 @@
 import * as React from 'react'
 import Sidebar from 'react-sidebar'
-import { HashRouter, Link, Route, Switch } from "react-router-dom"
+import { HashRouter, Link, Route, Switch, useParams } from "react-router-dom"
+import AccountOverview from './AccountOverview'
+import AccountDetail from './AccountDetail'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -64,13 +66,21 @@ const Main = () => {
         <Route path="/account/new">
             <h1>New account</h1>
         </Route>
+        <Route path="/account/:id">
+            <AccountDetailDispatch />
+        </Route>
         <Route path="/account">
-            <h1>Accounts</h1>
+            <AccountOverview />
         </Route>
         <Route path="/">
             <h1>Front page</h1>
         </Route>
     </Switch>
+}
+
+function AccountDetailDispatch() {
+    let { id } = useParams()
+    return <AccountDetail id={id} />
 }
 
 export default App;
