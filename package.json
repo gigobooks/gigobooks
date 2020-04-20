@@ -18,13 +18,17 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
-    "react-sidebar": "^3.0.2"
+    "react-sidebar": "^3.0.2",
+    "react-table": "^7.0.4",
+    "styled-components": "^5.1.0"
   },
   "devDependencies": {
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "@types/react-router-dom": "^5.1.4",
     "@types/react-sidebar": "^3.0.0",
+    "@types/react-table": "^7.0.16",
+    "@types/styled-components": "^5.1.0",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
     "source-map-loader": "^0.2.4",
