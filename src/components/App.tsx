@@ -67,7 +67,7 @@ const Main = () => {
             <h1>New account</h1>
         </Route>
         <Route path="/account/:id">
-            <AccountDetailDispatch />
+            <DispatchWithParams element="AccountDetail" />
         </Route>
         <Route path="/account">
             <AccountOverview />
@@ -78,9 +78,16 @@ const Main = () => {
     </Switch>
 }
 
-function AccountDetailDispatch() {
-    let { id } = useParams()
-    return <AccountDetail id={id} />
+
+// For some reason, useParams() doesn't work inside Main() so we have this
+// extra level of indirection here.
+function DispatchWithParams(props: {element: string}) {
+    const components = {
+        AccountDetail,
+    }
+    
+    const E = (components as any)[props.element]
+    return React.createElement(E, useParams())
 }
 
 export default App;
