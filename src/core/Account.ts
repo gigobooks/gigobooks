@@ -15,22 +15,22 @@ export enum AccountType {
     Loss = 'loss',
 }
 
-export const AccountTypeInfo = {
-    'asset': { label: 'asset' },
-    'long-term-asset': { label: 'long term asset',
+export const AccountTypeInfo: any = {
+    'asset': { label: 'Asset' },
+    'long-term-asset': { label: 'Long term asset',
         description: 'A long term (more than 12 months) asset' },
-    'liability': { label: 'liability' },
-    'long-term-liability': { label: 'long term liability',
+    'liability': { label: 'Liability' },
+    'long-term-liability': { label: 'Long term liability',
         description: 'A long term (more than 12 months) liability' },
-    'equity': { label: 'equity' },
-    'revenue': { label: 'revenue' },
-    'expense': { label: 'expense' },
-    'interest-expense': { label: 'interest expense' },
-    'tax-expense': { label: 'tax expense' },
-    'depreciation-expense': { label: 'depreciation expense' },
-    'gain': { label: 'gain',
+    'equity': { label: 'Equity' },
+    'revenue': { label: 'Revenue' },
+    'expense': { label: 'Expense' },
+    'interest-expense': { label: 'Interest expense' },
+    'tax-expense': { label: 'Tax expense' },
+    'depreciation-expense': { label: 'Depreciation expense' },
+    'gain': { label: 'Gain',
         description: 'A one-off gain from the sale or disposal of an asset' },
-    'loss': { label: 'loss',
+    'loss': { label: 'Loss',
         description: 'A one-off loss from the sale or disposal of an asset' },
 }
 

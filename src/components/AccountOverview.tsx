@@ -23,7 +23,7 @@ export default function AccountOverview() {
 
     const [data, setData] = React.useState([] as object[])
     React.useEffect(() => {
-        Account.query().limit(10).then((data: object[]) => {
+        Account.query().then((data: object[]) => {
             setData(data)
         })
     }, [])
