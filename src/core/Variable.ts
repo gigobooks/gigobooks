@@ -1,6 +1,6 @@
 import { Project } from './Project'
 
-const defaults = {
+const defaults: any = {
 }
 
 export class Variable {
@@ -24,7 +24,7 @@ export class Variable {
     }
 
     static async get(name: string, knex = Project.knex): Promise<any> {
-        let value = (defaults as any)[name]
+        let value = defaults[name]
         const results = await knex('variable').select('value').where('name', name)
         if (results.length > 0) {
             try {

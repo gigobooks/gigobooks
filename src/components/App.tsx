@@ -82,11 +82,11 @@ const Main = () => {
 // For some reason, useParams() doesn't work inside Main() so we have this
 // extra level of indirection here.
 function DispatchWithParams(props: {element: string}) {
-    const components = {
+    const components: any = {
         AccountDetail,
     }
     
-    const E = (components as any)[props.element]
+    const E = components[props.element]
     return React.createElement(E, useParams())
 }
 

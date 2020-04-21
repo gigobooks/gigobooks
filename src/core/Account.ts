@@ -34,7 +34,7 @@ export const AccountTypeInfo: any = {
         description: 'A one-off loss from the sale or disposal of an asset' },
 }
 
-export interface AccountFields {
+export interface IAccount {
     id?: number,
     title: string,
     type: AccountType,
@@ -65,7 +65,7 @@ export class Account extends Model {
 
     // Model subclasses can't have constructors which take arguments
     // This is a substitute
-    static construct(fields: AccountFields): Account {
+    static construct(fields: IAccount): Account {
         const obj = new Account()
         Object.assign(obj, fields)
 

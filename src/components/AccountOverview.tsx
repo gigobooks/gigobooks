@@ -10,7 +10,7 @@ function LinkToAccount({cell}: any) {
 }
 
 export default function AccountOverview() {
-    const tableConfig = React.useMemo(() => {
+    const tableConfig: any = React.useMemo(() => {
         return {
             getRowId: getRowId,
             columns: [
@@ -19,7 +19,7 @@ export default function AccountOverview() {
                 { Header: 'Type', accessor: 'type'},
             ],
         }
-    }, []) as any
+    }, [])
 
     const [data, setData] = React.useState([] as object[])
     React.useEffect(() => {
