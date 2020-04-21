@@ -3,6 +3,7 @@ import Sidebar from 'react-sidebar'
 import { HashRouter, Link, Route, Switch, useParams } from "react-router-dom"
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
+import AccountNew from './AccountNew'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -64,7 +65,7 @@ const Menu = () => {
 const Main = () => {
     return <Switch>
         <Route path="/account/new">
-            <h1>New account</h1>
+            <AccountNew />
         </Route>
         <Route path="/account/:id">
             <DispatchWithParams element="AccountDetail" />
