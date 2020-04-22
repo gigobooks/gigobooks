@@ -1,4 +1,4 @@
-import { Model } from 'objection'
+import { Base } from './Base'
 import { prefixPreservingIncrement } from '../util/util'
 
 export enum AccountType {
@@ -52,7 +52,7 @@ export interface IAccount {
     createdAt?: Date,
 }
 
-export class Account extends Model {
+export class Account extends Base {
     static Asset = AccountType.Asset
     static LongTermAsset = AccountType.LongTermAsset
     static Liability = AccountType.Liability
@@ -66,35 +66,17 @@ export class Account extends Model {
     static Gain = AccountType.Gain
     static Loss = AccountType.Loss
 
-    // Object variables must all be optional since there is no constructor
+    // Object variables must all be optional since there is no constructor to assign them
     id?: number
     title?: string
     type?: AccountType
-    updatedAt?: Date
-    createdAt?: Date
-
-    // Model subclasses can't have constructors which take arguments
-    // This is a substitute
-    static construct(fields: IAccount): Account {
-        const obj = new Account()
-        Object.assign(obj, fields)
-
-        if (obj.createdAt == undefined) {
-            obj.createdAt = new Date()
-        }
-        if (obj.updatedAt == undefined) {
-            obj.updatedAt = obj.createdAt
-        }
-        return obj
-    }
 
     static tableName = 'account'
-    static get useLimitInFirst() { return true }
 
     async save() {
         this.updatedAt = new Date()
         if (this.id == undefined) {
-            return Model.transaction(async trx => {
+            return Base.transaction(async trx => {
                 const typeInfo = AccountTypeInfo[this.type!]
                 const highest: Account[] = await Account.query(trx)
                     .select('id')
