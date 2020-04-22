@@ -1,4 +1,5 @@
 import { Model } from 'objection'
+import { prefixPreservingIncrement } from '../util/util'
 
 export enum AccountType {
     Asset = 'asset',
@@ -15,22 +16,31 @@ export enum AccountType {
     Loss = 'loss',
 }
 
+// Account types whose account Id's start with the same digit
+const PrefixGroup: any = {
+    'asset': ['asset', 'long-term-asset'],
+    'liability': ['liability', 'long-term-liability'],
+    'equity': ['equity'],
+    'revenue': ['revenue', 'gain'],
+    'expense': ['expense', 'interest-expense', 'tax-expense', 'depreciation-expense', 'loss']
+}
+
 export const AccountTypeInfo: any = {
-    'asset': { label: 'Asset' },
-    'long-term-asset': { label: 'Long term asset',
+    'asset': { label: 'Asset', prefix: 1, prefixGroup: PrefixGroup.asset },
+    'long-term-asset': { label: 'Long term asset', prefix: 1, prefixGroup: PrefixGroup.asset,
         description: 'A long term (more than 12 months) asset' },
-    'liability': { label: 'Liability' },
-    'long-term-liability': { label: 'Long term liability',
+    'liability': { label: 'Liability', prefix: 2, prefixGroup: PrefixGroup.liability },
+    'long-term-liability': { label: 'Long term liability', prefix: 2, prefixGroup: PrefixGroup.liability,
         description: 'A long term (more than 12 months) liability' },
-    'equity': { label: 'Equity' },
-    'revenue': { label: 'Revenue' },
-    'expense': { label: 'Expense' },
-    'interest-expense': { label: 'Interest expense' },
-    'tax-expense': { label: 'Tax expense' },
-    'depreciation-expense': { label: 'Depreciation expense' },
-    'gain': { label: 'Gain',
+    'equity': { label: 'Equity', prefix: 3, prefixGroup: PrefixGroup.equity },
+    'revenue': { label: 'Revenue', prefix: 4, prefixGroup: PrefixGroup.revenue },
+    'expense': { label: 'Expense', prefix: 5, prefixGroup: PrefixGroup.expense },
+    'interest-expense': { label: 'Interest expense', prefix: 5, prefixGroup: PrefixGroup.expense },
+    'tax-expense': { label: 'Tax expense', prefix: 5, prefixGroup: PrefixGroup.expense },
+    'depreciation-expense': { label: 'Depreciation expense', prefix: 5, },
+    'gain': { label: 'Gain', prefix: 4, prefixGroup: PrefixGroup.revenue,
         description: 'A one-off gain from the sale or disposal of an asset' },
-    'loss': { label: 'Loss',
+    'loss': { label: 'Loss', prefix: 5, prefixGroup: PrefixGroup.expense,
         description: 'A one-off loss from the sale or disposal of an asset' },
 }
 
@@ -83,8 +93,22 @@ export class Account extends Model {
 
     async save() {
         this.updatedAt = new Date()
-        return this.id === undefined ? Account.query().insert(this)
-            : Account.query().update(this)
+        if (this.id == undefined) {
+            return Model.transaction(async trx => {
+                const typeInfo = AccountTypeInfo[this.type!]
+                const highest: Account[] = await Account.query(trx)
+                    .select('id')
+                    .whereIn('type', typeInfo.prefixGroup)
+                    .orderBy('id', 'desc')
+                    .limit(1)
+                const floor: number = highest.length > 0 ? highest[0].id! : 0
+                this.id = prefixPreservingIncrement(floor, typeInfo.prefix)
+                return Account.query(trx).insert(this)
+            })
+        }
+        else {
+            return Account.query().patch(this).where('id', this.id)
+        }
     }
 }
 

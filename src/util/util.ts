@@ -1,7 +1,7 @@
 // Given a positive integer, returns the smallest integer that is strictly larger
 // than n and also starts with the digit `prefix`.
 // `prefix` must be between 1 and 9 inclusive
-function prefixPreservingIncrement(n: number, prefix: number): number {
+export function prefixPreservingIncrement(n: number, prefix: number): number {
     if (n < 1 || prefix < 1 || prefix > 9) {
         return -1
     }
