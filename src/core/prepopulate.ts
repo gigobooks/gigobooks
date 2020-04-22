@@ -22,7 +22,7 @@ export default async function prepopulate(db: sqlite.Database, knex: any): Promi
         { id: 401, title: 'Project Revenue', type: 'revenue', updatedAt: now, createdAt: now },
         { id: 402, title: 'Recurring Revenue', type: 'revenue', updatedAt: now, createdAt: now },
         { id: 403, title: 'Reimbursed Expenses', type: 'revenue', updatedAt: now, createdAt: now },
-        { id: 404, title: 'Other Revenu', type: 'revenue', updatedAt: now, createdAt: now },
+        { id: 404, title: 'Other Revenue', type: 'revenue', updatedAt: now, createdAt: now },
         { id: 500, title: 'Bank and Financial Charges', type: 'expense', updatedAt: now, createdAt: now },
         { id: 501, title: 'Books and Publications', type: 'expense', updatedAt: now, createdAt: now },
         { id: 502, title: 'Expensed Equipment', type: 'expense', updatedAt: now, createdAt: now },
