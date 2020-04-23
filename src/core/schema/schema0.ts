@@ -12,6 +12,23 @@ const schema = [
         updated_at TEXT,
         created_at TEXT
     )`,
+    `CREATE TABLE txn (
+        id INTEGER NOT NULL PRIMARY KEY,
+        description TEXT,
+        type TEXT,
+        date TEXT,
+        updated_at TEXT,
+        created_at TEXT
+    )`,
+    `CREATE TABLE txn_entry (
+        id INTEGER NOT NULL PRIMARY KEY,
+        transaction_id INTEGER,
+        description TEXT,
+        account_id INTEGER,
+        debit REAL,
+        updated_at TEXT,
+        created_at TEXT
+    )`,
 ]
 
 export default schema

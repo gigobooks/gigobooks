@@ -4,6 +4,7 @@ import { HashRouter, Link, Route, Switch, useParams } from "react-router-dom"
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
 import AccountNew from './AccountNew'
+import ContributeCapital from './ContributeCapital'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -59,11 +60,15 @@ const Menu = () => {
         <Link to="/"><h2>Home</h2></Link>
         <Link to="/account"><h2>Accounts</h2></Link>
         <Link to="/account/new"><h2>New account</h2></Link>
+        <Link to="/contribute"><h2>Contribute</h2></Link>
     </div>
 }
 
 const Main = () => {
     return <Switch>
+        <Route path="/contribute">
+            <ContributeCapital />
+        </Route>
         <Route path="/account/new">
             <AccountNew />
         </Route>
