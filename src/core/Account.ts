@@ -44,13 +44,58 @@ export const AccountTypeInfo: any = {
         description: 'A one-off loss from the sale or disposal of an asset' },
 }
 
-export interface IAccount {
-    id?: number,
-    title: string,
-    type: AccountType,
-    updatedAt?: Date,
-    createdAt?: Date,
+const DebitTypes: any = [
+    AccountType.Asset, AccountType.LongTermAsset,
+    AccountType.Expense, AccountType.InterestExpense, 
+    AccountType.TaxExpense, AccountType.DepreciationExpense, 
+    // Apparently dividends are debit balance too,
+    // but dividend isn't an account type. Huh ??
+]
+
+// Any account with id strictly less than 1000 is a reserved/inbuilt/system account.
+// These accounts are needed for higher level functionality to work.
+// These accounts should never be changed/renamed.
+const RESERVED_ACCOUNT_ID_MAX = 999
+
+// A list of inbuilt accounts needed for (other) functionality
+const ReservedAccountIds = {
+    Cash: 100,
+    AccountsReceivable: 101,
+    AccountsPayable: 200,
+    Equity: 300,
 }
+
+export const PrepopulatedAccounts = [
+    {id: ReservedAccountIds.Cash, title: 'Cash', type: 'asset'},
+    {id: ReservedAccountIds.AccountsReceivable, title: 'Accounts Receivable', type: 'asset'},
+    {id: 102, title: 'Long Term Assets', type: 'long-term-asset'},
+    {id: ReservedAccountIds.AccountsPayable, title: 'Accounts Payable', type: 'liability'},
+    {id: 201, title: 'Credit Card', type: 'liability'},
+    {id: 202, title: 'Long Term Liabilities', type: 'long-term-liability'},
+    {id: ReservedAccountIds.Equity, title: 'Equity', type: 'equity'},
+    {id: 400, title: 'Consulting Revenue', type: 'revenue'},
+    {id: 401, title: 'Project Revenue', type: 'revenue'},
+    {id: 402, title: 'Recurring Revenue', type: 'revenue'},
+    {id: 403, title: 'Reimbursed Expenses', type: 'revenue'},
+    {id: 404, title: 'Other Revenue', type: 'revenue'},
+    {id: 500, title: 'Bank and Financial Charges', type: 'expense'},
+    {id: 501, title: 'Books and Publications', type: 'expense'},
+    {id: 502, title: 'Expensed Equipment', type: 'expense'},
+    {id: 503, title: 'Gifts and Docations', type: 'expense'},
+    {id: 504, title: 'Insurance', type: 'expense'},
+    {id: 505, title: 'Licenses and Permits', type: 'expense'},
+    {id: 506, title: 'Miscellaneous and Other Expenses', type: 'expense'},
+    {id: 507, title: 'Office Supplies', type: 'expense'},
+    {id: 508, title: 'Professional Fees', type: 'expense'},
+    {id: 509, title: 'Rent Expense', type: 'expense'},
+    {id: 510, title: 'Subscriptions', type: 'expense'},
+    {id: 511, title: 'Telecommunications', type: 'expense'},
+    {id: 512, title: 'Travel and Entertainment', type: 'expense'},
+    {id: 513, title: 'Utilities', type: 'expense'},
+    {id: 514, title: 'Interest Expense', type: 'interest-expense'},
+    {id: 515, title: 'Taxes', type: 'tax-expense'},
+    {id: 516, title: 'Depreciation Expense', type: 'depreciation-expense'},
+]
 
 export class Account extends Base {
     static Asset = AccountType.Asset
@@ -66,12 +111,22 @@ export class Account extends Base {
     static Gain = AccountType.Gain
     static Loss = AccountType.Loss
 
+    static Reserved = ReservedAccountIds
+
     // Object variables must all be optional since there is no constructor to assign them
     id?: number
     title?: string
     type?: AccountType
 
     static tableName = 'account'
+
+    get isReserved() {
+        return this.id! <= RESERVED_ACCOUNT_ID_MAX
+    }
+
+    get isDebitBalance() {
+        return DebitTypes.includes(this.type)
+    }
 
     async save(trx?: TransactionOrKnex) {
         this.updatedAt = new Date()
@@ -101,7 +156,8 @@ export class Account extends Base {
             .orderBy('id', 'desc')
             .limit(1)
         const floor: number = highest.length > 0 ? highest[0].id! : 0
-        this.id = prefixPreservingIncrement(floor, typeInfo.prefix)
+        this.id = prefixPreservingIncrement(
+            Math.max(floor, RESERVED_ACCOUNT_ID_MAX), typeInfo.prefix)
         return Account.query(trx).insert(this)
     }
 }
