@@ -1,4 +1,5 @@
-import { Model } from 'objection'
+import { Model, TransactionOrKnex } from 'objection'
+export { TransactionOrKnex } from 'objection'
 
 // https://stackoverflow.com/questions/45123761
 type StaticThis<T> = { new (): T }
@@ -24,12 +25,12 @@ export class Base extends Model {
 
     static get useLimitInFirst() { return true }
 
-    async save() {
+    async save(trx?: TransactionOrKnex) {
         this.updatedAt = new Date()
         // ToDo: This doesn't handle composite keys
         const idColumn: string = (this.constructor as any).idColumn
         const id: any = (this as any)[idColumn]
-        return id == undefined ? (this.constructor as any).query().insert(this)
-            : (this.constructor as any).query().patch(this).where(idColumn, id)
+        return id == undefined ? (this.constructor as any).query(trx).insert(this)
+            : (this.constructor as any).query(trx).patch(this).where(idColumn, id)
     }
 }

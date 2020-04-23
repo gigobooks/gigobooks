@@ -1,4 +1,4 @@
-import { Base } from './Base'
+import { Base, TransactionOrKnex } from './Base'
 import { prefixPreservingIncrement } from '../util/util'
 
 export enum AccountType {
@@ -73,24 +73,36 @@ export class Account extends Base {
 
     static tableName = 'account'
 
-    async save() {
+    async save(trx?: TransactionOrKnex) {
         this.updatedAt = new Date()
         if (this.id == undefined) {
-            return Base.transaction(async trx => {
-                const typeInfo = AccountTypeInfo[this.type!]
-                const highest: Account[] = await Account.query(trx)
-                    .select('id')
-                    .whereIn('type', typeInfo.prefixGroup)
-                    .orderBy('id', 'desc')
-                    .limit(1)
-                const floor: number = highest.length > 0 ? highest[0].id! : 0
-                this.id = prefixPreservingIncrement(floor, typeInfo.prefix)
-                return Account.query(trx).insert(this)
-            })
+            if (trx) {
+                // Use the supplied transaction
+                return this._insert(trx)
+            }
+            else {
+                // Wrap with our own transaction
+                return Base.transaction(async trx => {
+                    return this._insert(trx)
+                })    
+            }
         }
         else {
-            return Account.query().patch(this).where('id', this.id)
+            return Account.query(trx).patch(this).where('id', this.id)
         }
+    }
+
+    // An insert which pre-computes `id`. Must be done in a transaction
+    async _insert(trx: TransactionOrKnex) {
+        const typeInfo = AccountTypeInfo[this.type!]
+        const highest: Account[] = await Account.query(trx)
+            .select('id')
+            .whereIn('type', typeInfo.prefixGroup)
+            .orderBy('id', 'desc')
+            .limit(1)
+        const floor: number = highest.length > 0 ? highest[0].id! : 0
+        this.id = prefixPreservingIncrement(floor, typeInfo.prefix)
+        return Account.query(trx).insert(this)
     }
 }
 
