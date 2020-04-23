@@ -1,5 +1,5 @@
 import { Model, TransactionOrKnex } from 'objection'
-export { TransactionOrKnex } from 'objection'
+export { Model, TransactionOrKnex } from 'objection'
 
 // https://stackoverflow.com/questions/45123761
 type StaticThis<T> = { new (): T }

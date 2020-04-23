@@ -29,6 +29,8 @@ const schema = [
         updated_at TEXT,
         created_at TEXT
     )`,
+    `CREATE INDEX index_txn_entry_transaction_id ON txn_entry (transaction_id)`,
+    `CREATE INDEX index_txn_entry_account_id ON txn_entry (account_id)`,
 ]
 
 export default schema

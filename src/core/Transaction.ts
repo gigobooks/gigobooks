@@ -1,4 +1,5 @@
-import { Base } from './Base'
+import { Base, Model } from './Base'
+import { Entry } from './Entry'
 
 export enum TransactionType {
     Contribution = 'contribution',
@@ -13,18 +14,16 @@ export class Transaction extends Base {
     description?: string
     type?: TransactionType
     date?: Date
-    entries?: Entry[]
 
     static tableName = 'txn'
+    static relationMappings = {
+        entries: {
+            relation: Model.HasManyRelation,
+            modelClass: Entry,
+            join: {
+                from: 'txn.id',
+                to: 'txn_entry.transactionId'
+            }
+        }
+    }
 }
-
-export class Entry extends Base {
-    id?: number
-    transactionId?: number
-    description?: string
-    accountId?: number
-    debit?: number
-
-    static tableName = 'txn_entry'
-}
-
