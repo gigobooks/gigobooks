@@ -1,3 +1,4 @@
+import Knex = require('knex');
 import { makeKnex } from '../util/knex-integration'
 import { Model } from 'objection'
 import prepopulate from './prepopulate'
@@ -5,7 +6,7 @@ import prepopulate from './prepopulate'
 export class Project {
     isModified: boolean
 
-    constructor(public filename: string, public database: sqlite.Database, public knex?: any) {
+    constructor(public filename: string, public database: sqlite.Database, public knex?: Knex) {
         this.isModified = false
     }
 
@@ -16,7 +17,7 @@ export class Project {
         await project.database.open()
         try {
             project.knex = makeKnex(':memory:', project.database)
-            await prepopulate(project.database, project.knex)
+            await prepopulate(project.database, project.knex!)
             Project.bind(project)
             Model.knex(project.knex)
             project.isModified = true
@@ -63,9 +64,9 @@ export class Project {
 
     // Store references to a database/knex so other code can use them globally
     static database: sqlite.Database
-    static knex: any
+    static knex: Knex
     static bind(p: Project): void {
         Project.database = p.database
-        Project.knex = p.knex
+        Project.knex = p.knex!
     }
 }

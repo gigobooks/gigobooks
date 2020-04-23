@@ -1,6 +1,7 @@
+import Knex = require('knex');
 import schema from './schema/schema0'
 
-export default async function prepopulate(db: sqlite.Database, knex: any): Promise<void> {
+export default async function prepopulate(db: sqlite.Database, knex: Knex): Promise<void> {
     const now = new Date()
     for (let q of schema) {
         await db.exec(q)
