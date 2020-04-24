@@ -6,6 +6,7 @@ import AccountDetail from './AccountDetail'
 import AccountNew from './AccountNew'
 import ContributeCapital from './ContributeCapital'
 import DebugScreen from './DebugScreen'
+import UrlBar from './UrlBar'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -63,6 +64,15 @@ const Menu = () => {
         <Link to='/account/new'><h2>New account</h2></Link>
         <Link to='/contribute'><h2>Contribute</h2></Link>
         <Link to='/debug'><h2>Debug</h2></Link>
+
+        <Switch>
+            <Route path='/:path'>
+                <UrlBar />
+            </Route>
+            <Route path='/'>
+                <UrlBar />
+            </Route>
+        </Switch>
     </div>
 }
 
