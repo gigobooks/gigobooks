@@ -6,7 +6,9 @@ export class Entry extends Base {
     transactionId?: number
     description?: string
     accountId?: number
-    debit?: number
+    // drcr == 1 means it's a debit, -1 means it's a credit
+    drcr?: number
+    amount?: number
 
     static tableName = 'txn_entry'
     static relationMappings = {

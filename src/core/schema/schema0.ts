@@ -25,7 +25,8 @@ const schema = [
         transaction_id INTEGER,
         description TEXT,
         account_id INTEGER,
-        debit REAL,
+        drcr INTEGER,
+        amount REAL,
         updated_at TEXT,
         created_at TEXT
     )`,
