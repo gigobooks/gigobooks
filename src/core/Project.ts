@@ -3,6 +3,8 @@ import { makeKnex } from '../util/knex-integration'
 import { Model } from 'objection'
 import prepopulate from './prepopulate'
 
+// ToDo: Validate the database, isModified flag
+
 export class Project {
     // isModified: boolean
     static project: Project | undefined
