@@ -1,5 +1,5 @@
 import Knex = require('knex');
-import { makeKnex } from '../util/knex-integration'
+const makeKnex = require('../util/knex-integration')
 import { Model } from 'objection'
 import prepopulate from './prepopulate'
 
@@ -14,13 +14,13 @@ export class Project {
     constructor(public filename: string, public database: sqlite.Database, public knex: Knex) {
     }
 
-    // The following functions create new in-memory database,
+    // The following functions create new database (defaults to in-memory),
     // and load-to/save-from files
-    static async create(): Promise<void> {
-        const db = new sqlite.Database(':memory:')
+    static async create(filename?: string): Promise<void> {
+        const db = new sqlite.Database(filename ? filename : ':memory:')
         await db.open()
         try {
-            const project = new Project('', db, makeKnex(':memory', db))
+            const project = new Project('', db, makeKnex(filename ? filename : ':memory', db))
             await prepopulate(project.database, project.knex)
             Project.bind(project)
         }

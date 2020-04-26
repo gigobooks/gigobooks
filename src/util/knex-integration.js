@@ -1,6 +1,6 @@
-import * as Knex from 'knex'
-import * as Client_SQLite3 from 'knex/lib/dialects/sqlite3'
-import { knexSnakeCaseMappers } from 'objection'
+const Knex = require('knex')
+const Client_SQLite3 = require('knex/lib/dialects/sqlite3')
+const knexSnakeCaseMappers = require('objection').knexSnakeCaseMappers
 
 let connectionId = 0
 
@@ -8,7 +8,7 @@ let connectionId = 0
 // * Modify the sqlite3 dialect so it works with our sqlite API
 //   This affects all knex sqlite3 objects, not just this one.
 // * Return a knex object that uses the supplied database/connection
-export function makeKnex(filename, preExistingConnection) {
+function makeKnex(filename, preExistingConnection) {
     const modifications = {
         modified: true,
         acquireRawConnection: (config) => {
@@ -24,42 +24,45 @@ export function makeKnex(filename, preExistingConnection) {
             // No-op: Don't close the underlying connection
         },
         _query: (connection, obj) => {
-            // A hack to convert BEGIN/COMMIT/ROLLBACK statements into function calls
-            const sqlUpper = obj.sql.toUpperCase()
-            if (sqlUpper.startsWith('BEGIN')) {
-                if (connection.txConnection) {
-                    return Promise.reject(new Error('Cannot BEGIN whilst already in a transaction'))
-                } else {
-                    return new Promise((resolve, reject) => {
-                        connection.mainConnection.begin().then(txConnection => {
-                            connection.txConnection = txConnection
-                            resolve(obj)
-                        }).catch(reject)
-                    })
-                }
-            } else if  (sqlUpper.startsWith('COMMIT')) {
-                if (connection.txConnection) {
-                    return new Promise((resolve, reject) => {
-                        connection.txConnection.commit().then(() => {
-                            connection.txConnection = null
-                            resolve(obj)
-                        }).catch(reject)
-                    })
-                }
-                else {
-                    return Promise.reject(new Error('Cannot COMMIT. Not in a transaction'))
-                }
-            } else if  (sqlUpper.startsWith('ROLLBACK')) {
-                if (connection.txConnection) {
-                    return new Promise((resolve, reject) => {
-                        connection.txConnection.rollback().then(() => {
-                            connection.txConnection = null
-                            resolve(obj)
-                        }).catch(reject)
-                    })
-                }
-                else {
-                    return Promise.reject(new Error('Cannot ROLLBACK. Not in a transaction'))
+            // If the database has a `.begin()` function, then use that for transactions
+            if (connection.mainConnection.begin) {
+                // A hack to convert BEGIN/COMMIT/ROLLBACK statements into function calls
+                const sqlUpper = obj.sql.toUpperCase()
+                if (sqlUpper.startsWith('BEGIN')) {
+                    if (connection.txConnection) {
+                        return Promise.reject(new Error('Cannot BEGIN whilst already in a transaction'))
+                    } else {
+                        return new Promise((resolve, reject) => {
+                            connection.mainConnection.begin().then(txConnection => {
+                                connection.txConnection = txConnection
+                                resolve(obj)
+                            }).catch(reject)
+                        })
+                    }
+                } else if (sqlUpper.startsWith('COMMIT')) {
+                    if (connection.txConnection) {
+                        return new Promise((resolve, reject) => {
+                            connection.txConnection.commit().then(() => {
+                                connection.txConnection = null
+                                resolve(obj)
+                            }).catch(reject)
+                        })
+                    }
+                    else {
+                        return Promise.reject(new Error('Cannot COMMIT. Not in a transaction'))
+                    }
+                } else if (sqlUpper.startsWith('ROLLBACK')) {
+                    if (connection.txConnection) {
+                        return new Promise((resolve, reject) => {
+                            connection.txConnection.rollback().then(() => {
+                                connection.txConnection = null
+                                resolve(obj)
+                            }).catch(reject)
+                        })
+                    }
+                    else {
+                        return Promise.reject(new Error('Cannot ROLLBACK. Not in a transaction'))
+                    }
                 }
             }
 
@@ -112,3 +115,5 @@ export function makeKnex(filename, preExistingConnection) {
         ...knexSnakeCaseMappers()
     })
 }
+
+module.exports = makeKnex
