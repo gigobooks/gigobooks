@@ -74,7 +74,8 @@ function makeKnex(filename, preExistingConnection) {
                       new Error(`Error calling ${callMethod} on connection.`)
                     );
                 }
-                callObj[callMethod](obj.sql, ...obj.bindings).then(response => {
+                const bindings = obj.bindings ? obj.bindings : []
+                callObj[callMethod](obj.sql, ...bindings).then(response => {
                     obj.response = response
                     resolver(obj)
                 }).catch(rejecter)
