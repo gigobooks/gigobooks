@@ -24,6 +24,7 @@ function makeKnex(filename, preExistingConnection) {
             // No-op: Don't close the underlying connection
         },
         _query: (connection, obj) => {
+            // console.log('k-i.js query obj:', {sql: obj.sql, bindings: obj.bindings})
             // If the database has a `.begin()` function, then use that for transactions
             if (connection.mainConnection.begin) {
                 // A hack to convert BEGIN/COMMIT/ROLLBACK statements into function calls

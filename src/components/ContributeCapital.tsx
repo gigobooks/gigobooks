@@ -25,8 +25,10 @@ export default function ContributeCapital() {
         .whereIn('type', [Account.Asset, Account.LongTermAsset])
         .orderBy(['type', 'title'])
         .then((rows: Account[]) => {
-            // ToDo: Omit 'Accounts Receivable', refine order
-            setAccounts(rows)
+            // Omit 'Accounts Receivable'
+            setAccounts(rows.filter((a: Account) => {
+                return a.id != Account.Reserved.AccountsReceivable
+            }))
         })
     }, [])
 

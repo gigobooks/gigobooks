@@ -33,4 +33,11 @@ export class Base extends Model {
         return id == undefined ? (this.constructor as any).query(trx).insert(this)
             : (this.constructor as any).query(trx).patch(this).where(idColumn, id)
     }
+
+    async delete(trx?: TransactionOrKnex) {
+        // ToDo: This doesn't handle composite keys
+        const idColumn: string = (this.constructor as any).idColumn
+        const id: any = (this as any)[idColumn]
+        return (this.constructor as any).query(trx).deleteById(id)
+    }
 }
