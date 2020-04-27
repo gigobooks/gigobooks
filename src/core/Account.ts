@@ -52,27 +52,33 @@ const DebitTypes: any = [
     // but dividend isn't an account type. Huh ??
 ]
 
-// Any account with id strictly less than 1000 is a reserved/inbuilt/system account.
+// Any account with id strictly less than 100 is a reserved/inbuilt/system account.
 // These accounts are needed for higher level functionality to work.
 // These accounts should never be changed/renamed.
-const RESERVED_ACCOUNT_ID_MAX = 999
+const RESERVED_ACCOUNT_ID_MAX = 99
 
 // A list of inbuilt accounts needed for (other) functionality
 const ReservedAccountIds = {
-    Cash: 100,
-    AccountsReceivable: 101,
-    AccountsPayable: 200,
-    Equity: 300,
+    Cash: 10,
+    AccountsReceivable: 11,
+    AccountsPayable: 20,
+    Equity: 30,
 }
 
 export const PrepopulatedAccounts = [
+    // Reserved and possible future reserved accounts
     {id: ReservedAccountIds.Cash, title: 'Cash', type: 'asset'},
     {id: ReservedAccountIds.AccountsReceivable, title: 'Accounts Receivable', type: 'asset'},
-    {id: 102, title: 'Long Term Assets', type: 'long-term-asset'},
+    {id: 12, title: 'Long Term Assets', type: 'long-term-asset'},
     {id: ReservedAccountIds.AccountsPayable, title: 'Accounts Payable', type: 'liability'},
-    {id: 201, title: 'Credit Card', type: 'liability'},
-    {id: 202, title: 'Long Term Liabilities', type: 'long-term-liability'},
+    {id: 21, title: 'Long Term Liabilities', type: 'long-term-liability'},
     {id: ReservedAccountIds.Equity, title: 'Equity', type: 'equity'},
+    {id: 50, title: 'Interest Expense', type: 'interest-expense'},
+    {id: 51, title: 'Taxes', type: 'tax-expense'},
+    {id: 52, title: 'Depreciation Expense', type: 'depreciation-expense'},
+
+    // Unreserved accounts
+    {id: 200, title: 'Credit Card', type: 'liability'},
     {id: 400, title: 'Consulting Revenue', type: 'revenue'},
     {id: 401, title: 'Project Revenue', type: 'revenue'},
     {id: 402, title: 'Recurring Revenue', type: 'revenue'},
@@ -92,9 +98,6 @@ export const PrepopulatedAccounts = [
     {id: 511, title: 'Telecommunications', type: 'expense'},
     {id: 512, title: 'Travel and Entertainment', type: 'expense'},
     {id: 513, title: 'Utilities', type: 'expense'},
-    {id: 514, title: 'Interest Expense', type: 'interest-expense'},
-    {id: 515, title: 'Taxes', type: 'tax-expense'},
-    {id: 516, title: 'Depreciation Expense', type: 'depreciation-expense'},
 ]
 
 export class Account extends Base {
@@ -143,7 +146,12 @@ export class Account extends Base {
             }
         }
         else {
-            return Account.query(trx).patch(this).where('id', this.id)
+            if (this.isReserved) {
+                return Promise.reject('Cannot modify a reserved account.')
+            }
+            else {
+                return Account.query(trx).patch(this).where('id', this.id)
+            }
         }
     }
 
