@@ -1,6 +1,15 @@
 import { Base, Model } from './Base'
 import { Transaction } from './Transaction'
 
+export interface IEntry {
+    id?: number
+    transactionId?: number
+    description?: string
+    accountId?: number
+    drcr?: number
+    amount?: number        
+}
+
 export class Entry extends Base {
     id?: number
     transactionId?: number
