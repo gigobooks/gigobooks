@@ -42,6 +42,20 @@ sqlite = (function() {
                 if (err) {
                     reject(err)
                 }
+
+                // node-sqlite3 stores datetimes as strings of the form '1588049187154.0'
+                //   but it doesn't reverse-convert them when being retrieved (!?!?).
+                // As a work-around, detect any such strings and convert them into dates.
+                // This is a hack that is only suitable for test code.
+                for (let row of rows) {   
+                    for (let k of Object.keys(row)) {
+                        const v = row[k]
+                        if (typeof v === 'string' && /^\d{13}.0$/.test(v)) {
+                            row[k] = new Date(Number(v))
+                        }
+                    }
+                }
+
                 resolve(rows)
             })
         })
