@@ -37,5 +37,5 @@ export default function AccountNew() {
             </div>
         </form>
     </div>
-    : <Redirect to={`/account/${savedId}`} />
+    : <Redirect to={`/accounts/${savedId}`} />
 }

@@ -60,9 +60,9 @@ class App extends React.Component<{}, AppState> {
 const Menu = () => {
     return <div>
         <Link to='/'><h2>Home</h2></Link>
-        <Link to='/account'><h2>Accounts</h2></Link>
-        <Link to='/account/new'><h2>New account</h2></Link>
-        <Link to='/contribute'><h2>Contribute</h2></Link>
+        <Link to='/accounts'><h2>Accounts</h2></Link>
+        <Link to='/accounts/new'><h2>New account</h2></Link>
+        <Link to='/contributions/new'><h2>Contribute</h2></Link>
         <Link to='/debug'><h2>Debug</h2></Link>
 
         <Switch>
@@ -78,16 +78,16 @@ const Menu = () => {
 
 const Main = () => {
     return <Switch>
-        <Route path='/contribute'>
+        <Route path='/contributions/new'>
             <ContributeCapital />
         </Route>
-        <Route path='/account/new'>
+        <Route path='/accounts/new'>
             <AccountNew />
         </Route>
-        <Route path='/account/:id'>
+        <Route path='/accounts/:id'>
             <DispatchWithParams element='AccountDetail' />
         </Route>
-        <Route path='/account'>
+        <Route path='/accounts'>
             <AccountOverview />
         </Route>
         <Route path='/Debug'>

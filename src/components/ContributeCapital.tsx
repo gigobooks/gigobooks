@@ -135,5 +135,5 @@ export default function ContributeCapital() {
             </div>
         </form>
     </div>
-    : <Redirect to={`/contribution/${savedId}`} />
+    : <Redirect to={`/contributions/${savedId}`} />
 }

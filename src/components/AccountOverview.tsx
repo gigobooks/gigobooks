@@ -6,7 +6,7 @@ import { ReactTable, getRowId } from './ReactTable'
 import { Link } from "react-router-dom"
 
 function LinkToAccount({cell}: any) {
-    return <Link to={`/account/${cell.row.id}`}>{cell.value}</Link>
+    return <Link to={`/accounts/${cell.row.id}`}>{cell.value}</Link>
 }
 
 export default function AccountOverview() {
