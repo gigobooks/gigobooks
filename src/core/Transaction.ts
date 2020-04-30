@@ -1,5 +1,6 @@
 import { Base, Model, TransactionOrKnex } from './Base'
 import { Entry, IEntry } from './Entry'
+import { isDateOnly } from '../util/util'
 
 export enum TransactionType {
     Contribution = 'contribution',
@@ -13,7 +14,8 @@ export class Transaction extends Base {
     id?: number
     description?: string
     type?: TransactionType
-    date?: Date
+    // Date is stored as a ten character string ie. '2020-01-01' 
+    date?: string
     entries?: Entry[]
 
     // Given an array of vanilla (ie. non-Entry) objects, merge them into .entries
@@ -78,6 +80,10 @@ export class Transaction extends Base {
     // and if the save is succesful, call `.condenseEntries()`
 
     async save(trx?: TransactionOrKnex) {
+        if (!this.date || !isDateOnly(this.date)) {
+            return Promise.reject('Invalid date')
+        }
+
         if (!this.balanced) {
             return Promise.reject('Entries do not balance')
         }

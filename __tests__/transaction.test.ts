@@ -1,6 +1,7 @@
 import { Project, Base, Account, Transaction, Entry } from '../src/core'
 
 const now = new Date()
+const date = now.toISOString().substring(0, 10)
 
 beforeAll(() => {
     return Project.create(':memory:')
@@ -12,7 +13,7 @@ afterAll(() => {
 })
 
 test('create bare transaction', async done => {
-    const t0 = Transaction.construct({date: now, description: 'This has no entries'})
+    const t0 = Transaction.construct({date, description: 'This has no entries'})
     await t0.save()
 
     const t1 = await Transaction.query().findById(t0.id as any)    
@@ -22,7 +23,7 @@ test('create bare transaction', async done => {
 })
 
 test('create a transaction and retrieve', async done => {
-    const t0 = Transaction.construct({date: now, description: 'create a transaction'})
+    const t0 = Transaction.construct({date, description: 'create a transaction'})
     await t0.mergeEntries([
         {accountId: 10, drcr: 1, amount: 100},
         {accountId: 30, drcr: -1, amount: 100},
@@ -47,7 +48,7 @@ test('create a transaction and retrieve', async done => {
 })
 
 test('unbalanced transaction', async done => {
-    const t0 = Transaction.construct({date: now, description: 'unbalanced transaction'})
+    const t0 = Transaction.construct({date, description: 'unbalanced transaction'})
 
     // Attempt to make unbalanced entries
     const p1 = t0.mergeEntries([
@@ -64,7 +65,7 @@ test('database transaction (commit)', async done => {
     // Create and save: (1) a Transaction, (2) an Account
     // but we do it in a database transaction.
 
-    const t0 = Transaction.construct({description: 'database transaction (commit)'})
+    const t0 = Transaction.construct({date, description: 'database transaction (commit)'})
     await t0.mergeEntries([
         {accountId: 10, drcr: 1, amount: 100},
         {accountId: 30, drcr: -1, amount: 100},
@@ -86,7 +87,7 @@ test('database transaction (commit)', async done => {
 
 test('unbalanced transaction (rollback)', async done => {
     const a0 = Account.construct({title: 'An asset', type: Account.Asset})
-    const t0 = Transaction.construct({
+    const t0 = Transaction.construct({date,
         description: 'incorrect database transaction (rollback)',
     })
 
@@ -114,7 +115,7 @@ test('unbalanced transaction (rollback)', async done => {
 
 test('merge, modify and condense', async done => {
     // Construct and save a simple transaction
-    const t0 = Transaction.construct({date: now, description: 'merge, modify and condense'})
+    const t0 = Transaction.construct({date, description: 'merge, modify and condense'})
     await t0.mergeEntries([
         {accountId: 10, drcr: 1, amount: 100},
         {accountId: 30, drcr: -1, amount: 100},

@@ -50,3 +50,9 @@ function prefixPreservingIncrement_test() {
     }
 }
 */
+
+// Returns true if the supplied string is an ISO-8601-ish 'date-only' string.
+// ie. a ten character string like '2020-01-01'
+export function isDateOnly(s: string): boolean {
+    return /^\d{4}-\d{2}-\d{2}$/.test(s)
+}
