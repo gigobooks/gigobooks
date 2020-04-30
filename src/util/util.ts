@@ -56,3 +56,11 @@ function prefixPreservingIncrement_test() {
 export function isDateOnly(s: string): boolean {
     return /^\d{4}-\d{2}-\d{2}$/.test(s)
 }
+
+// Converts the supplied date into an iSO-8601-ish 'date-only' string according 
+// to local time
+export function toDateOnly(date: Date): string {
+    const m = date.getMonth() + 1
+    const d = date.getDate()
+    return `${date.getFullYear()}-${m < 10 ? '0' : ''}${m}-${d < 10 ? '0' : ''}${d}`
+}
