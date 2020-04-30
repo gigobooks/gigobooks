@@ -8,6 +8,9 @@ export enum TransactionType {
 }
 
 export class Transaction extends Base {
+    static Credit = Entry.Credit
+    static Debit = Entry.Debit
+
     static Contribution = TransactionType.Contribution
     static Dividend = TransactionType.Dividend
 

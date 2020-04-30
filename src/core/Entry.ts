@@ -11,6 +11,9 @@ export interface IEntry {
 }
 
 export class Entry extends Base {
+    static Credit = 1
+    static Debit = -1
+
     id?: number
     transactionId?: number
     description?: string
