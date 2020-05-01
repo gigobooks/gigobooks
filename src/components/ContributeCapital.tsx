@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray } from 'react-hook-form'
 import { Redirect } from "react-router-dom"
 import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
 import { Transaction, Account } from '../core'
 import { toDateOnly } from '../util/util'
 import { parseISO } from 'date-fns'

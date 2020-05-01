@@ -7,6 +7,7 @@ import AccountNew from './AccountNew'
 import ContributeCapital from './ContributeCapital'
 import DebugScreen from './DebugScreen'
 import UrlBar from './UrlBar'
+import 'react-datepicker/dist/react-datepicker.css'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
