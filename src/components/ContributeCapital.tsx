@@ -5,25 +5,41 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Transaction, Account } from '../core'
 import { toDateOnly } from '../util/util'
+import { parseISO } from 'date-fns'
+
+type Props = {
+    arg1?: string
+}
 
 type FormData = {
     date: Date
     description?: string
-    entries: {accountId?: number, amount?: string}[]
+    entries: {
+        id?: number,
+        // `.id` is used by the form system so we have entryId to store 'our' id
+        entryId?: number,
+        accountId?: number,
+        amount?: string
+    }[]
 }
 
-export default function ContributeCapital() {
-    const {control, register, handleSubmit, errors, setError} = useForm<FormData>({
-        defaultValues: {
-            date: new Date(),
-            entries: [{}, {}]
-        }
-    })
-    const {fields, append} = useFieldArray({control, name: 'entries'})
-    const [accounts, setAccounts] = React.useState<Account[]>([])
-    const [savedId, setSavedId] = React.useState(0)
+export default function ContributeCapital(props: Props) {
+    // argId == 0 means creating a new transaction
+    const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
+    const [accounts, setAccounts] = React.useState<Account[]>([])
+    const [transaction, setTransaction] = React.useState<Transaction>()
+    const [redirectId, setRedirectId] = React.useState<number>(0)
+
+    const form = useForm<FormData>()
+    const {fields, append} = useFieldArray({control: form.control, name: 'entries'})
+
+    // Initialise a lot of stuff
     React.useEffect(() => {
+        // Clear redirectId
+        setRedirectId(0)
+
+        // Load asset accounts
         Account.query().select()
         .whereIn('type', [Account.Asset, Account.LongTermAsset])
         .orderBy(['type', 'title'])
@@ -33,107 +49,177 @@ export default function ContributeCapital() {
                 return a.id != Account.Reserved.AccountsReceivable
             }))
         })
-    }, [])
+
+        // Load transaction (if exists) and initialise form accordingly
+        if (argId > 0) {
+            Transaction.query().findById(argId).where('type', Transaction.Contribution).withGraphFetched('entries')
+            .then(t => {
+                setTransaction(t)
+                if (t) {
+                    form.reset(extractFormValues(t))
+                }
+            })
+        }
+        else {
+            setTransaction(Transaction.construct({}))
+            form.reset({
+                date: new Date(),
+                entries: [{}, {}]
+            })
+        }
+    }, [props.arg1])
 
     const onSubmit = async (data: FormData) => {
-        // Filter out zero entries. Also take a sum
-        let sum = 0
-        const entries0 = data.entries.filter(e => {
-            sum += Number(e.amount)
-            return e.amount != ''
-        })
+        const sum = data.entries.reduce((acc, e) => {
+            return acc + Number(e.amount)
+        }, 0)
 
-        if (entries0.length > 0 && sum > 0) {
-            const t = Transaction.construct({
+        if (argId == 0 && sum == 0) {
+            // Don't allow creating if zero 
+            form.setError('entries', 'required', 'At least one amount is required')
+        } else if (transaction) {
+            Object.assign(transaction, {
                 description: data.description,
                 type: Transaction.Contribution,
                 date: toDateOnly(data.date)
             })
 
             // Convert form data to entries
-            const entries = entries0.map(e => {
+            const entries = data.entries.map(e0 => {
+                const e1 = e0.entryId ? {id: Number(e0.entryId)} : {}
                 return {
-                    accountId: Number(e.accountId),
+                    ...e1,
+                    accountId: Number(e0.accountId),
                     drcr: Transaction.Credit,
-                    amount: Number(e.amount),
+                    amount: Number(e0.amount),
                 }
             })
 
             // Add a balancing entry
+            const drId = transaction.getFirstDrEntryId()
+            const dr = drId ? {id: drId} : {}
             entries.push({
+                ...dr,
                 accountId: Account.Reserved.Equity,
                 drcr: Transaction.Debit,
                 amount: sum,
             })
 
-            // Merge and save
-            t.mergeEntries(entries)
-            await t.save()
-            setSavedId(t.id!)
+            // Merge and save. Handle any save errors
+            await transaction.mergeEntries(entries)
+            transaction.save().then(() => {
+                if (argId == 0) {
+                    setRedirectId(transaction.id!)
+                }
+                else {
+                    transaction.condenseEntries()
+                    form.reset(extractFormValues(transaction))
+                }
+            }).catch(e => {
+                form.setError('entries', '', e.toString())
+            })
         }
-        else {
-            setError('entries', 'required', 'At least one amount is required')
+        else if (!transaction) {
+            // This should never happen. Panic ?!
         }
     }
 
-    return savedId <= 0 ? <div>
-        <h1>Contribute capital or funds</h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <div>
-                <label htmlFor='date'>Date:</label>
-                <Controller
-                    as={<DatePicker
-                        onChange={() => {}}  // No-op.
-                    />}
-                    control={control}
-                    register={register({required: true})}
-                    name='date'
-                    valueName='selected'
-                    onChange={([selected]) => {
-                        return selected
-                    }}
-                    rules={{required: true}}
-                />
-                {errors.date && 'Date is required'}
-            </div><div>
-                <label htmlFor='description'>Description:</label>
-                <input name='description' ref={register} />
-            </div><div>
-                <table><thead>
-                    <tr><th>
-                        Contribute to
-                    </th><th>
-                        Amount
-                    </th></tr>
-                </thead><tbody>
-                {fields.map((item, index) =>
-                    <tr key={item.id}><td>
-                        <select name={`entries[${index}].accountId`} ref={register()}>
-                        {accounts.map(a =>
-                            <option key={a.id} value={a.id}>{a.title}</option>
-                        )}
-                        </select>
-                    </td><td>
-                        <input type='number' name={`entries[${index}].amount`} ref={register({
-                            pattern: {
-                                value: /^\d*$/,
-                                message: 'Invalid amount'
-                            }
-                        })} />
-                        {errors.entries && errors.entries[index] &&
-                            (errors.entries[index] as any).amount.message}
-                    </td></tr>
-                )}
-                </tbody></table>
-                {errors.entries && (errors.entries as any).message}
-            </div><div>
-                <button type='button' onClick={() => append({name: 'entries'})}>
-                    More rows
-                </button>
-            </div><div>
-                <input type='submit' />
-            </div>
-        </form>
-    </div>
-    : <Redirect to={`/contributions/${savedId}`} />
+    if (redirectId > 0 && redirectId != argId) {
+        return <Redirect to={`/contributions/${redirectId}`} />
+    }
+    else if (transaction && accounts) {
+        return <div>
+            <h1>{transaction.id ? `Contribution ${transaction.id}` : 'Contribute capital or funds'}</h1>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div>
+                    <label htmlFor='date'>Date:</label>
+                    <Controller
+                        // No-op for DatePicker.onChange()
+                        as={<DatePicker onChange={() => {}} />}
+                        control={form.control}
+                        register={form.register({required: true})}
+                        name='date'
+                        valueName='selected'
+                        onChange={([selected]) => {
+                            return selected
+                        }}
+                        rules={{required: true}}
+                    />
+                    {form.errors.date && 'Date is required'}
+                </div><div>
+                    <label htmlFor='description'>Description:</label>
+                    <input name='description' ref={form.register} />
+                </div><div>
+                    <table><thead>
+                        <tr><th>
+                            Contribute to
+                        </th><th>
+                            Amount
+                        </th></tr>
+                    </thead><tbody>
+                    {fields.map((item, index) =>
+                        <tr key={item.id}><td>
+                            {!!item.entryId && 
+                            <input type='hidden' name={`entries[${index}].entryId`} value={item.entryId} ref={form.register()} />}
+                            <select
+                                name={`entries[${index}].accountId`}
+                                defaultValue={item.accountId}
+                                ref={form.register()}>
+                            {accounts.map(a =>
+                                <option key={a.id} value={a.id}>{a.title}</option>
+                            )}
+                            </select>
+                        </td><td>
+                            <input
+                                name={`entries[${index}].amount`}
+                                defaultValue={item.amount}
+                                ref={form.register({
+                                    pattern: {
+                                        value: /^\d*$/,
+                                        message: 'Invalid amount'
+                                    }
+                                })}
+                            />
+                            {form.errors.entries && form.errors.entries[index] &&
+                                (form.errors.entries[index] as any).amount.message}
+                        </td></tr>
+                    )}
+                    </tbody></table>
+                    {form.errors.entries && (form.errors.entries as any).message}
+                </div><div>
+                    <button type='button' onClick={() => append({name: 'entries'})}>
+                        More rows
+                    </button>
+                </div><div>
+                    <input type='submit' />
+                </div>
+            </form>
+        </div>
+    }
+
+    return null
+}
+
+function extractFormValues(t: Transaction): FormData {
+    const values: FormData = {
+        date: parseISO(t.date!),
+        description: t.description,
+        entries: [],
+    }
+
+    if (t.entries) {
+        for (let e of t.entries) {
+            if (e.drcr == Transaction.Credit) {
+                // Only populate credit entries
+                values.entries.push({
+                    id: e.id,
+                    entryId: e.id,
+                    accountId: e.accountId,
+                    amount: `${e.amount}`,
+                })
+            }
+        }
+    }
+
+    return values
 }

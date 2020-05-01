@@ -63,6 +63,7 @@ const Menu = () => {
         <Link to='/accounts'><h2>Accounts</h2></Link>
         <Link to='/accounts/new'><h2>New account</h2></Link>
         <Link to='/contributions/new'><h2>Contribute</h2></Link>
+        <Link to='/contributions/1'><h2>Contribution 1</h2></Link>
         <Link to='/debug'><h2>Debug</h2></Link>
 
         <Switch>
@@ -78,14 +79,14 @@ const Menu = () => {
 
 const Main = () => {
     return <Switch>
-        <Route path='/contributions/new'>
-            <ContributeCapital />
+        <Route path='/contributions/:arg1'>
+            <DispatchWithParams element={ContributeCapital} />
         </Route>
         <Route path='/accounts/new'>
             <AccountNew />
         </Route>
         <Route path='/accounts/:id'>
-            <DispatchWithParams element='AccountDetail' />
+            <DispatchWithParams element={AccountDetail} />
         </Route>
         <Route path='/accounts'>
             <AccountOverview />
@@ -99,15 +100,10 @@ const Main = () => {
     </Switch>
 }
 
-
 // For some reason, useParams() doesn't work inside Main() so we have this
 // extra level of indirection here.
-function DispatchWithParams(props: {element: string}) {
-    const components: any = {
-        AccountDetail,
-    }
-    
-    const E = components[props.element]
+function DispatchWithParams(props: {element: any}) {
+    const E = props.element
     return React.createElement(E, useParams())
 }
 

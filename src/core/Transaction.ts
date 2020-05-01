@@ -78,6 +78,24 @@ export class Transaction extends Base {
         return !this.entries || Transaction.isBalanced(this.entries)
     }
 
+    // Gets the id of the first entry which is credit or debit, if exists
+    // Useful for getting a credit/debit entry when we expect only one
+    // (of that type) to exist.
+    getFirstCrEntryId(drcr = Transaction.Credit): number | undefined {
+        if (this.entries) {
+            for (let e of this.entries) {
+                if (e.drcr == drcr) {
+                    return e.id
+                }
+            }
+        }
+        return undefined
+    }
+
+    getFirstDrEntryId(drcr = Transaction.Debit): number | undefined {
+        return this.getFirstCrEntryId(drcr)
+    }
+
     // There is no explicit way to removes entries.
     // To remove an entry, set it's amount to zero, `.save()` to the database
     // and if the save is succesful, call `.condenseEntries()`
