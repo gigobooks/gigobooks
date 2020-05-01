@@ -59,12 +59,12 @@ class App extends React.Component<{}, AppState> {
 
 const Menu = () => {
     return <div>
-        <Link to='/'><h2>Home</h2></Link>
-        <Link to='/accounts'><h2>Accounts</h2></Link>
-        <Link to='/accounts/new'><h2>New account</h2></Link>
-        <Link to='/contributions/new'><h2>Contribute</h2></Link>
-        <Link to='/contributions/1'><h2>Contribution 1</h2></Link>
-        <Link to='/debug'><h2>Debug</h2></Link>
+        <Link to='/'>Home</Link><br />
+        <Link to='/accounts'>Accounts</Link><br />
+        <Link to='/accounts/new'>New account</Link><br />
+        <Link to='/contributions/new'>New contribution</Link><br />
+        <Link to='/contributions/1'>Contribution 1</Link><br />
+        <Link to='/debug'>Debug</Link>
 
         <Switch>
             <Route path='/:path'>
