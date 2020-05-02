@@ -17,30 +17,52 @@ export enum AccountType {
 }
 
 // Account types whose account Id's start with the same digit
-const PrefixGroup: any = {
-    'asset': ['asset', 'long-term-asset'],
-    'liability': ['liability', 'long-term-liability'],
-    'equity': ['equity'],
-    'revenue': ['revenue', 'gain'],
-    'expense': ['expense', 'interest-expense', 'tax-expense', 'depreciation-expense', 'loss']
+const AccountTypeGroupInfo: any = {
+    [AccountType.Asset]: {
+        label: 'Asset',
+        types: [AccountType.Asset, AccountType.LongTermAsset],
+        prefix: 1,
+    },
+    [AccountType.Liability]: {
+        label: 'Liability',
+        types: [AccountType.Liability, AccountType.LongTermLiability],
+        prefix: 2,
+    },
+    [AccountType.Equity]: {
+        label: 'Equity',
+        types: [AccountType.Equity],
+        prefix: 3,
+    },
+    [AccountType.Revenue]: {
+        label: 'Revenue',
+        types: [AccountType.Revenue, AccountType.Gain],
+        prefix: 4,
+    },
+    [AccountType.Expense]: {
+        label: 'Expense',
+        types: [AccountType.Expense, AccountType.InterestExpense,
+            AccountType.TaxExpense, AccountType.DepreciationExpense,
+            AccountType.Loss],
+        prefix: 5,
+    },
 }
 
 export const AccountTypeInfo: any = {
-    'asset': { label: 'Asset', prefix: 1, prefixGroup: PrefixGroup.asset },
-    'long-term-asset': { label: 'Long term asset', prefix: 1, prefixGroup: PrefixGroup.asset,
+    [AccountType.Asset]: { label: 'Asset', group: AccountType.Asset },
+    [AccountType.LongTermAsset]: { label: 'Long term asset', group: AccountType.Asset,
         description: 'A long term (more than 12 months) asset' },
-    'liability': { label: 'Liability', prefix: 2, prefixGroup: PrefixGroup.liability },
-    'long-term-liability': { label: 'Long term liability', prefix: 2, prefixGroup: PrefixGroup.liability,
+    [AccountType.Liability]: { label: 'Liability', group: AccountType.Liability },
+    [AccountType.LongTermLiability]: { label: 'Long term liability', group: AccountType.Liability,
         description: 'A long term (more than 12 months) liability' },
-    'equity': { label: 'Equity', prefix: 3, prefixGroup: PrefixGroup.equity },
-    'revenue': { label: 'Revenue', prefix: 4, prefixGroup: PrefixGroup.revenue },
-    'expense': { label: 'Expense', prefix: 5, prefixGroup: PrefixGroup.expense },
-    'interest-expense': { label: 'Interest expense', prefix: 5, prefixGroup: PrefixGroup.expense },
-    'tax-expense': { label: 'Tax expense', prefix: 5, prefixGroup: PrefixGroup.expense },
-    'depreciation-expense': { label: 'Depreciation expense', prefix: 5, },
-    'gain': { label: 'Gain', prefix: 4, prefixGroup: PrefixGroup.revenue,
+    [AccountType.Equity]: { label: 'Equity', group: AccountType.Equity },
+    [AccountType.Revenue]: { label: 'Revenue', group: AccountType.Revenue },
+    [AccountType.Expense]: { label: 'Expense', group: AccountType.Expense },
+    [AccountType.InterestExpense]: { label: 'Interest expense', group: AccountType.Expense },
+    [AccountType.TaxExpense]: { label: 'Tax expense', group: AccountType.Expense },
+    [AccountType.DepreciationExpense]: { label: 'Depreciation expense', group: AccountType.Expense },
+    [AccountType.Gain]: { label: 'Gain', group: AccountType.Revenue,
         description: 'A one-off gain from the sale or disposal of an asset' },
-    'loss': { label: 'Loss', prefix: 5, prefixGroup: PrefixGroup.expense,
+    [AccountType.Loss]: { label: 'Loss', group: AccountType.Expense,
         description: 'A one-off loss from the sale or disposal of an asset' },
 }
 
@@ -114,6 +136,8 @@ export class Account extends Base {
     static Gain = AccountType.Gain
     static Loss = AccountType.Loss
 
+    static TypeInfo = AccountTypeInfo
+    static TypeGroupInfo = AccountTypeGroupInfo
     static Reserved = ReservedAccountIds
 
     // Object variables must all be optional since there is no constructor to assign them
@@ -129,6 +153,10 @@ export class Account extends Base {
 
     get isDebitBalance() {
         return DebitTypes.includes(this.type)
+    }
+
+    get typeGroup() {
+        return AccountTypeInfo[this.type!].group
     }
 
     async save(trx?: TransactionOrKnex) {
@@ -157,15 +185,15 @@ export class Account extends Base {
 
     // An insert which pre-computes `id`. Must be done in a transaction
     async _insert(trx: TransactionOrKnex) {
-        const typeInfo = AccountTypeInfo[this.type!]
+        const groupInfo = AccountTypeGroupInfo[this.typeGroup]
         const highest: Account[] = await Account.query(trx)
             .select('id')
-            .whereIn('type', typeInfo.prefixGroup)
+            .whereIn('type', groupInfo.types)
             .orderBy('id', 'desc')
             .limit(1)
         const floor: number = highest.length > 0 ? highest[0].id! : 0
         this.id = prefixPreservingIncrement(
-            Math.max(floor, RESERVED_ACCOUNT_ID_MAX), typeInfo.prefix)
+            Math.max(floor, RESERVED_ACCOUNT_ID_MAX), groupInfo.prefix)
         return Account.query(trx).insert(this)
     }
 }

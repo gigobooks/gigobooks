@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
-import { Account, AccountTypeInfo } from '../core'
+import { Account } from '../core'
 
 export default function AccountDetail({id}: {id?: any}) {
     const [account, setAccount] = React.useState<Account>()
@@ -22,7 +22,7 @@ export default function AccountDetail({id}: {id?: any}) {
 
     return !!account && <div>
         <h1>{account?.title}</h1>
-        <p>Type: {AccountTypeInfo[account.type!].label}</p>
+        <p>Type: {Account.TypeInfo[account.type!].label}</p>
         {!account.isReserved && 
         <form onSubmit={handleSubmit(onSubmit)}>
             <div>

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { Redirect } from "react-router-dom"
-import { Account, AccountType, AccountTypeInfo } from '../core'
+import { Account, AccountType } from '../core'
 
 type FormData = {
     title: string,
@@ -28,8 +28,8 @@ export default function AccountNew() {
             </div><div>
                 <label htmlFor='name'>Type:</label>
                 <select name='type' ref={register}>
-                {Object.keys(AccountTypeInfo).map(type =>
-                    <option key={type} value={type}>{AccountTypeInfo[type].label}</option>
+                {Object.keys(Account.TypeInfo).map(type =>
+                    <option key={type} value={type}>{Account.TypeInfo[type].label}</option>
                 )}
                 </select>
             </div><div>
