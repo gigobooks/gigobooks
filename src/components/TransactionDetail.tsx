@@ -1,0 +1,227 @@
+import * as React from 'react'
+import { Controller, useForm, useFieldArray, FormContextValues } from 'react-hook-form'
+import { Redirect } from "react-router-dom"
+import DatePicker from 'react-datepicker'
+import { Transaction, Account } from '../core'
+import { toDateOnly, FormHelpers } from '../util/util'
+import { parseISO } from 'date-fns'
+import { accountSelectOptions } from './SelectOptions'
+
+const PositiveAmount = FormHelpers.Validation.PositiveAmount
+
+type Props = {
+    arg1?: string
+}
+
+type FormData = {
+    date: Date
+    description?: string
+    elements: {
+        // `.id` is used by the form system so we use eId instead
+        eId?: number,
+        accountId?: number,
+        dr?: string,
+        cr?: string,
+        description?: string,
+    }[]
+}
+
+export default function TransactionDetail(props: Props) {
+    // argId == 0 means creating a new transaction
+    const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
+
+    const [transaction, setTransaction] = React.useState<Transaction>()
+    const [selectOptions, setSelectOptions] = React.useState<{}>()
+    const [redirectId, setRedirectId] = React.useState<number>(0)
+
+    const form = useForm<FormData>()
+    const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
+
+    // Initialise a lot of stuff
+    React.useEffect(() => {
+        // Clear redirectId
+        setRedirectId(0)
+
+        // Load account select list
+        Account.query().select()
+        .orderBy('title')
+        .then((rows: Account[]) => {
+            setSelectOptions(accountSelectOptions(rows))
+        })
+
+        // Load transaction (if exists) and initialise form accordingly
+        if (argId > 0) {
+            Transaction.query().findById(argId).withGraphFetched('elements')
+            .then(t => {
+                setTransaction(t)
+                if (t) {
+                    form.reset(extractFormValues(t))
+                }
+            })
+        }
+        else {
+            setTransaction(Transaction.construct({}))
+            form.reset({
+                date: new Date(),
+                elements: [{}, {}]
+            })
+        }
+    }, [props.arg1])
+
+    const onSubmit = async (data: FormData) => {
+        saveFormData(transaction!, data).then(savedId => {
+            form.reset(extractFormValues(transaction!))
+            if (argId == 0 && savedId) {
+                setRedirectId(savedId)
+            }
+        }).catch(e => {
+            form.setError('elements', '', e.toString())
+        })
+    }
+
+    if (redirectId > 0 && redirectId != argId) {
+        return <Redirect to={`/transactions/${redirectId}`} />
+    }
+    else if (transaction && selectOptions) {
+        return <div>
+            <h1>{transaction.id ? `Transaction ${transaction.id}` : 'New transaction'}</h1>
+            {/* !!transaction.type && <div>Type: {transaction.type}</div> */}
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div>
+                    <label htmlFor='date'>Date:</label>
+                    <Controller
+                        // No-op for DatePicker.onChange()
+                        as={<DatePicker onChange={() => {}} />}
+                        control={form.control}
+                        register={form.register({required: true})}
+                        name='date'
+                        valueName='selected'
+                        onChange={([selected]) => {
+                            return selected
+                        }}
+                        rules={{required: true}}
+                    />
+                    {form.errors.date && 'Date is required'}
+                </div><div>
+                    <label htmlFor='description'>Description:</label>
+                    <input name='description' ref={form.register} />
+                </div><div>
+                    <table><thead>
+                        <tr><th>
+                            Account
+                        </th><th>
+                            Debit
+                        </th><th>
+                            Credit
+                        </th><th>
+                            Description
+                        </th></tr>
+                    </thead><tbody>
+                    {fields.map((item, index) =>
+                        <tr key={item.id}><td>
+                            {!!item.eId && 
+                            <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
+                            <select
+                                name={`elements[${index}].accountId`}
+                                defaultValue={item.accountId}
+                                ref={form.register()}>
+                                {selectOptions}
+                            </select>
+                        </td><td>
+                            <input
+                                name={`elements[${index}].dr`}
+                                defaultValue={item.dr}
+                                ref={form.register(PositiveAmount)}
+                            />
+                            {form.errors.elements && form.errors.elements[index] &&
+                                (form.errors.elements[index] as any).dr &&
+                                (form.errors.elements[index] as any).dr.message}
+                        </td><td>
+                            <input
+                                name={`elements[${index}].cr`}
+                                defaultValue={item.cr}
+                                ref={form.register(PositiveAmount)}
+                            />
+                            {form.errors.elements && form.errors.elements[index] &&
+                                (form.errors.elements[index] as any).cr &&
+                                (form.errors.elements[index] as any).cr.message}
+                        </td><td>
+                            <input
+                                name={`elements[${index}].description`}
+                                defaultValue={item.description}
+                                ref={form.register()}
+                            />
+                        </td></tr>
+                    )}
+                    </tbody></table>
+                    {form.errors.elements && (form.errors.elements as any).message}
+                </div><div>
+                    <button type='button' onClick={() => append({name: 'elements'})}>
+                        More rows
+                    </button>
+                </div><div>
+                    <input type='submit' value='Save' />
+                </div>
+            </form>
+        </div>
+    }
+
+    return null
+}
+
+function extractFormValues(t: Transaction): FormData {
+    const values: FormData = {
+        date: parseISO(t.date!),
+        description: t.description,
+        elements: [],
+    }
+
+    if (t.elements) {
+        for (let e of t.elements) {
+            values.elements.push({
+                eId: e.id,
+                accountId: e.accountId,
+                [e.drcr == Transaction.Credit ? 'cr' : 'dr']: `${e.amount}`,
+            })
+        }
+    }
+
+    return values
+}
+
+// Returns: id of the transaction that was saved/created, 0 otherwise
+async function saveFormData(transaction: Transaction, data: FormData): Promise<number> {
+    const balance = data.elements.reduce((acc, e) => {
+        return acc + Number(e.dr) - Number(e.cr)
+    }, 0)
+
+    if (balance != 0) {
+        return Promise.reject('Entries do not balance')
+    }
+
+    Object.assign(transaction, {
+        description: data.description,
+        type: '',
+        date: toDateOnly(data.date)
+    })
+
+    // Convert form data to elements
+    const elements = data.elements.map(e0 => {
+        const e1 = e0.eId ? {id: Number(e0.eId)} : {}
+        const amount = Number(e0.dr) - Number(e0.cr)
+        const drcr = amount > 0 ? Transaction.Debit : Transaction.Credit
+        return {
+            ...e1,
+            accountId: Number(e0.accountId),
+            drcr,
+            amount: amount > 0 ? amount : -amount
+        }
+    })
+
+    // Merge and save.
+    await transaction.mergeElements(elements)
+    await transaction.save()
+    transaction.condenseElements()
+
+    return transaction.id!
+}

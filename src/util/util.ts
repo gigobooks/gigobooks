@@ -64,3 +64,15 @@ export function toDateOnly(date: Date): string {
     const d = date.getDate()
     return `${date.getFullYear()}-${m < 10 ? '0' : ''}${m}-${d < 10 ? '0' : ''}${d}`
 }
+
+// Some boilerplate for react-hook-form forms
+export const FormHelpers = {
+    Validation: {
+        PositiveAmount: {
+            pattern: {
+                value: /^\d*$/,
+                message: 'Invalid amount'
+            }
+        }
+    }
+}
