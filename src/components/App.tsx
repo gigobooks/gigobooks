@@ -7,6 +7,7 @@ import AccountNew from './AccountNew'
 import ContributeCapital from './ContributeCapital'
 import DebugScreen from './DebugScreen'
 import UrlBar from './UrlBar'
+import TransactionOverview from './TransactionOverview'
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -66,6 +67,7 @@ const Menu = () => {
         <Link to='/accounts/new'>New account</Link><br />
         <Link to='/contributions/new'>New contribution</Link><br />
         <Link to='/contributions/1'>Contribution 1</Link><br />
+        <Link to='/transactions'>Transactions</Link><br />
         <Link to='/transactions/new'>New transaction</Link><br />
         <Link to='/transactions/1'>Transaction 1</Link><br />
         <Link to='/debug'>Debug</Link>
@@ -88,6 +90,9 @@ const Main = () => {
         </Route>
         <Route path='/transactions/:arg1'>
             <DispatchWithParams element={TransactionDetail} />
+        </Route>
+        <Route path='/transactions'>
+            <TransactionOverview />
         </Route>
         <Route path='/accounts/new'>
             <AccountNew />
