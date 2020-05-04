@@ -20,7 +20,7 @@ const schema = [
         updated_at TEXT,
         created_at TEXT
     )`,
-    `CREATE TABLE txn_entry (
+    `CREATE TABLE txn_element (
         id INTEGER NOT NULL PRIMARY KEY,
         transaction_id INTEGER,
         description TEXT,
@@ -30,8 +30,8 @@ const schema = [
         updated_at TEXT,
         created_at TEXT
     )`,
-    `CREATE INDEX index_txn_entry_transaction_id ON txn_entry (transaction_id)`,
-    `CREATE INDEX index_txn_entry_account_id ON txn_entry (account_id)`,
+    `CREATE INDEX index_txn_element_transaction_id ON txn_element (transaction_id)`,
+    `CREATE INDEX index_txn_element_account_id ON txn_element (account_id)`,
 ]
 
 export default schema

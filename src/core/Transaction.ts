@@ -1,5 +1,5 @@
 import { Base, Model, TransactionOrKnex } from './Base'
-import { Entry, IEntry } from './Entry'
+import { Element, IElement } from './Element'
 import { isDateOnly } from '../util/util'
 
 export enum TransactionType {
@@ -8,8 +8,8 @@ export enum TransactionType {
 }
 
 export class Transaction extends Base {
-    static Credit = Entry.Credit
-    static Debit = Entry.Debit
+    static Credit = Element.Credit
+    static Debit = Element.Debit
 
     static Contribution = TransactionType.Contribution
     static Dividend = TransactionType.Dividend
@@ -19,15 +19,15 @@ export class Transaction extends Base {
     type?: TransactionType
     // Date is stored as a ten character string ie. '2020-01-01' 
     date?: string
-    entries?: Entry[]
+    elements?: Element[]
 
-    // Given an array of vanilla (ie. non-Entry) objects, merge them into .entries
+    // Given an array of vanilla (ie. non-Element) objects, merge them into .elements
     // For each item:
     //   If transactionId is supplied, it must match, otherwise: error
-    //   If id is not supplied, append a new entry
-    //   If id is supplied, replace an existing entry
-    //   If id is supplied and an existing entry is not found: error
-    async mergeEntries(list: IEntry[]) {
+    //   If id is not supplied, append a new element
+    //   If id is supplied, replace an existing element
+    //   If id is supplied and an existing element is not found: error
+    async mergeElements(list: IElement[]) {
         if (list.length == 0) {
             return Promise.reject('No items')
         }
@@ -38,18 +38,18 @@ export class Transaction extends Base {
             }
         }
 
-        // Don't assign or modify this.entries until after validation.
-        const entries = this.entries ? [...this.entries] : []
+        // Don't assign or modify this.elements until after validation.
+        const elements = this.elements ? [...this.elements] : []
         for (let i in list) {
-            const e = Entry.construct(list[i])
+            const e = Element.construct(list[i])
             if (e.id == undefined) {
-                entries.push(e)
+                elements.push(e)
             }
             else {
                 let matched = false
-                for (let j in entries) {
-                    if (entries[j].id == e.id) {
-                        entries[j] = e
+                for (let j in elements) {
+                    if (elements[j].id == e.id) {
+                        elements[j] = e
                         matched = true
                         break
                     }
@@ -61,29 +61,29 @@ export class Transaction extends Base {
             }
         }
 
-        if (!Transaction.isBalanced(entries)) {
+        if (!Transaction.isBalanced(elements)) {
             return Promise.reject('Not balanced')
         }
 
         // Now 'commit' the changes
-        this.entries = entries
+        this.elements = elements
     }
 
-    // Load entries from the database
-    async loadEntries(trx?: TransactionOrKnex) {
-        this.entries = await this.$relatedQuery('entries', trx)
+    // Load elements from the database
+    async loadElements(trx?: TransactionOrKnex) {
+        this.elements = await this.$relatedQuery('elements', trx)
     }
 
     get balanced() {
-        return !this.entries || Transaction.isBalanced(this.entries)
+        return !this.elements || Transaction.isBalanced(this.elements)
     }
 
-    // Gets the id of the first entry which is credit or debit, if exists
-    // Useful for getting a credit/debit entry when we expect only one
+    // Gets the id of the first element which is credit or debit, if exists
+    // Useful for getting a credit/debit element when we expect only one
     // (of that type) to exist.
-    getFirstCrEntryId(drcr = Transaction.Credit): number | undefined {
-        if (this.entries) {
-            for (let e of this.entries) {
+    getFirstCrElementId(drcr = Transaction.Credit): number | undefined {
+        if (this.elements) {
+            for (let e of this.elements) {
                 if (e.drcr == drcr) {
                     return e.id
                 }
@@ -92,13 +92,13 @@ export class Transaction extends Base {
         return undefined
     }
 
-    getFirstDrEntryId(drcr = Transaction.Debit): number | undefined {
-        return this.getFirstCrEntryId(drcr)
+    getFirstDrElementId(drcr = Transaction.Debit): number | undefined {
+        return this.getFirstCrElementId(drcr)
     }
 
-    // There is no explicit way to removes entries.
-    // To remove an entry, set it's amount to zero, `.save()` to the database
-    // and if the save is succesful, call `.condenseEntries()`
+    // There is no explicit way to removes elements.
+    // To remove an element, set it's amount to zero, `.save()` to the database
+    // and if the save is succesful, call `.condenseelements()`
 
     async save(trx?: TransactionOrKnex) {
         if (!this.date || !isDateOnly(this.date)) {
@@ -106,7 +106,7 @@ export class Transaction extends Base {
         }
 
         if (!this.balanced) {
-            return Promise.reject('Entries do not balance')
+            return Promise.reject('Elements do not balance')
         }
 
         this.updatedAt = new Date()
@@ -122,8 +122,8 @@ export class Transaction extends Base {
             await Transaction.query(trx).patch(this).where('id', this.id)
         }
 
-        if (this.entries) {
-            for (let e of this.entries) {
+        if (this.elements) {
+            for (let e of this.elements) {
                 if (e.amount != 0) {
                     e.transactionId = this.id
                     await e.save(trx)
@@ -135,28 +135,28 @@ export class Transaction extends Base {
         }
     }
 
-    // Removes any entries with zero amounts.
-    // This only removes from this.entries. It does not remove from the database.
-    condenseEntries() {
-        if (this.entries) {
-            this.entries = this.entries.filter(e => e.amount != 0)
+    // Removes any elements with zero amounts.
+    // This only removes from this.elements. It does not remove from the database.
+    condenseElements() {
+        if (this.elements) {
+            this.elements = this.elements.filter(e => e.amount != 0)
         }
     }
 
     static tableName = 'txn'
     static relationMappings = {
-        entries: {
+        elements: {
             relation: Model.HasManyRelation,
-            modelClass: Entry,
+            modelClass: Element,
             join: {
                 from: 'txn.id',
-                to: 'txn_entry.transactionId'
+                to: 'txn_element.transactionId'
             }
         }
     }
 
-    static isBalanced(entries: IEntry[]) {
-        return entries.reduce((acc, e) => {
+    static isBalanced(elements: IElement[]) {
+        return elements.reduce((acc, e) => {
             return acc + e.drcr! * e.amount!
         }, 0) == 0
     }

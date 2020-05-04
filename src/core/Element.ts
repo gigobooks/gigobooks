@@ -1,7 +1,7 @@
 import { Base, Model } from './Base'
 import { Transaction } from './Transaction'
 
-export interface IEntry {
+export interface IElement {
     id?: number
     transactionId?: number
     description?: string
@@ -10,7 +10,7 @@ export interface IEntry {
     amount?: number        
 }
 
-export class Entry extends Base {
+export class Element extends Base {
     static Credit = 1
     static Debit = -1
 
@@ -22,13 +22,13 @@ export class Entry extends Base {
     drcr?: number
     amount?: number
 
-    static tableName = 'txn_entry'
+    static tableName = 'txn_element'
     static relationMappings = {
         transaction: {
             relation: Model.BelongsToOneRelation,
             modelClass: Transaction,
             join: {
-                from: 'txn_entry.transaction_id',
+                from: 'txn_element.transaction_id',
                 to: 'txn.transaction_id'
             }
         }

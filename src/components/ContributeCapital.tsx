@@ -13,10 +13,10 @@ type Props = {
 type FormData = {
     date: Date
     description?: string
-    entries: {
+    elements: {
         id?: number,
-        // `.id` is used by the form system so we have entryId to store 'our' id
-        entryId?: number,
+        // `.id` is used by the form system so we have eId to store 'our' id
+        eId?: number,
         accountId?: number,
         amount?: string
     }[]
@@ -31,7 +31,7 @@ export default function ContributeCapital(props: Props) {
     const [redirectId, setRedirectId] = React.useState<number>(0)
 
     const form = useForm<FormData>()
-    const {fields, append} = useFieldArray({control: form.control, name: 'entries'})
+    const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
 
     // Initialise a lot of stuff
     React.useEffect(() => {
@@ -51,7 +51,7 @@ export default function ContributeCapital(props: Props) {
 
         // Load transaction (if exists) and initialise form accordingly
         if (argId > 0) {
-            Transaction.query().findById(argId).where('type', Transaction.Contribution).withGraphFetched('entries')
+            Transaction.query().findById(argId).where('type', Transaction.Contribution).withGraphFetched('elements')
             .then(t => {
                 setTransaction(t)
                 if (t) {
@@ -63,19 +63,19 @@ export default function ContributeCapital(props: Props) {
             setTransaction(Transaction.construct({}))
             form.reset({
                 date: new Date(),
-                entries: [{}, {}]
+                elements: [{}, {}]
             })
         }
     }, [props.arg1])
 
     const onSubmit = async (data: FormData) => {
-        const sum = data.entries.reduce((acc, e) => {
+        const sum = data.elements.reduce((acc, e) => {
             return acc + Number(e.amount)
         }, 0)
 
         if (argId == 0 && sum == 0) {
             // Don't allow creating if zero 
-            form.setError('entries', 'required', 'At least one amount is required')
+            form.setError('elements', 'required', 'At least one amount is required')
         } else if (transaction) {
             Object.assign(transaction, {
                 description: data.description,
@@ -83,9 +83,9 @@ export default function ContributeCapital(props: Props) {
                 date: toDateOnly(data.date)
             })
 
-            // Convert form data to entries
-            const entries = data.entries.map(e0 => {
-                const e1 = e0.entryId ? {id: Number(e0.entryId)} : {}
+            // Convert form data to elements
+            const elements = data.elements.map(e0 => {
+                const e1 = e0.eId ? {id: Number(e0.eId)} : {}
                 return {
                     ...e1,
                     accountId: Number(e0.accountId),
@@ -95,9 +95,9 @@ export default function ContributeCapital(props: Props) {
             })
 
             // Add a balancing entry
-            const drId = transaction.getFirstDrEntryId()
+            const drId = transaction.getFirstDrElementId()
             const dr = drId ? {id: drId} : {}
-            entries.push({
+            elements.push({
                 ...dr,
                 accountId: Account.Reserved.Equity,
                 drcr: Transaction.Debit,
@@ -105,17 +105,17 @@ export default function ContributeCapital(props: Props) {
             })
 
             // Merge and save. Handle any save errors
-            await transaction.mergeEntries(entries)
+            await transaction.mergeElements(elements)
             transaction.save().then(() => {
                 if (argId == 0) {
                     setRedirectId(transaction.id!)
                 }
                 else {
-                    transaction.condenseEntries()
+                    transaction.condenseElements()
                     form.reset(extractFormValues(transaction))
                 }
             }).catch(e => {
-                form.setError('entries', '', e.toString())
+                form.setError('elements', '', e.toString())
             })
         }
         else if (!transaction) {
@@ -158,10 +158,10 @@ export default function ContributeCapital(props: Props) {
                     </thead><tbody>
                     {fields.map((item, index) =>
                         <tr key={item.id}><td>
-                            {!!item.entryId && 
-                            <input type='hidden' name={`entries[${index}].entryId`} value={item.entryId} ref={form.register()} />}
+                            {!!item.eId && 
+                            <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
                             <select
-                                name={`entries[${index}].accountId`}
+                                name={`elements[${index}].accountId`}
                                 defaultValue={item.accountId}
                                 ref={form.register()}>
                             {accounts.map(a =>
@@ -170,7 +170,7 @@ export default function ContributeCapital(props: Props) {
                             </select>
                         </td><td>
                             <input
-                                name={`entries[${index}].amount`}
+                                name={`elements[${index}].amount`}
                                 defaultValue={item.amount}
                                 ref={form.register({
                                     pattern: {
@@ -179,14 +179,14 @@ export default function ContributeCapital(props: Props) {
                                     }
                                 })}
                             />
-                            {form.errors.entries && form.errors.entries[index] &&
-                                (form.errors.entries[index] as any).amount.message}
+                            {form.errors.elements && form.errors.elements[index] &&
+                                (form.errors.elements[index] as any).amount.message}
                         </td></tr>
                     )}
                     </tbody></table>
-                    {form.errors.entries && (form.errors.entries as any).message}
+                    {form.errors.elements && (form.errors.elements as any).message}
                 </div><div>
-                    <button type='button' onClick={() => append({name: 'entries'})}>
+                    <button type='button' onClick={() => append({name: 'elements'})}>
                         More rows
                     </button>
                 </div><div>
@@ -203,16 +203,16 @@ function extractFormValues(t: Transaction): FormData {
     const values: FormData = {
         date: parseISO(t.date!),
         description: t.description,
-        entries: [],
+        elements: [],
     }
 
-    if (t.entries) {
-        for (let e of t.entries) {
+    if (t.elements) {
+        for (let e of t.elements) {
             if (e.drcr == Transaction.Credit) {
-                // Only populate credit entries
-                values.entries.push({
+                // Only populate credit elements
+                values.elements.push({
                     id: e.id,
-                    entryId: e.id,
+                    eId: e.id,
                     accountId: e.accountId,
                     amount: `${e.amount}`,
                 })
