@@ -164,8 +164,8 @@ function extractFormValues(t: Transaction): FormData {
 
     if (t.elements) {
         for (let e of t.elements) {
-            if (e.drcr == Transaction.Credit) {
-                // Only populate credit elements
+            if (e.drcr == Transaction.Debit) {
+                // Only populate debit elements
                 values.elements.push({
                     id: e.id,
                     eId: e.id,
@@ -202,18 +202,18 @@ async function saveFormData(transaction: Transaction, data: FormData): Promise<n
             return {
                 ...e1,
                 accountId: Number(e0.accountId),
-                drcr: Transaction.Credit,
+                drcr: Transaction.Debit,
                 amount: Number(e0.amount),
             }
         })
 
         // Add a balancing entry
-        const drId = transaction.getFirstDrElementId()
-        const dr = drId ? {id: drId} : {}
+        const crId = transaction.getFirstCrElementId()
+        const cr = crId ? {id: crId} : {}
         elements.push({
-            ...dr,
+            ...cr,
             accountId: Account.Reserved.Equity,
-            drcr: Transaction.Debit,
+            drcr: Transaction.Credit,
             amount: sum,
         })
 

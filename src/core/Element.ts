@@ -11,8 +11,8 @@ export interface IElement {
 }
 
 export class Element extends Base {
-    static Credit = 1
-    static Debit = -1
+    static Debit = 1
+    static Credit = -1
 
     id?: number
     transactionId?: number
