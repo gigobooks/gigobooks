@@ -33,7 +33,7 @@ export default function AccountNew() {
                 )}
                 </select>
             </div><div>
-                <input type='submit' />
+                <input type='submit' value='Save' />
             </div>
         </form>
     </div>
