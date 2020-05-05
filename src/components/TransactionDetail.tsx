@@ -160,7 +160,7 @@ export default function TransactionDetail(props: Props) {
                         More rows
                     </button>
                 </div><div>
-                    <input type='submit' value='Save' />
+                    <input type='submit' value='Save' disabled={!!transaction.type} />
                 </div>
             </form>
         </div>
