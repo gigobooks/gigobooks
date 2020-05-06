@@ -1,7 +1,7 @@
 import Knex = require('knex');
 const makeKnex = require('../util/knex-integration')
 import { Model } from 'objection'
-import prepopulate from './prepopulate'
+import { prepopulate, maybeMigrate } from './database'
 
 // ToDo: Validate the database, isModified flag
 
@@ -21,7 +21,7 @@ export class Project {
         await db.open()
         try {
             const project = new Project('', db, makeKnex(filename ? filename : ':memory', db))
-            await prepopulate(project.database, project.knex)
+            await prepopulate(project.knex)
             Project.bind(project)
         }
         catch (e) {
@@ -36,6 +36,7 @@ export class Project {
         try {
             const newDb = await srcDb.backupTo(':memory:')
             const project = new Project(filename, newDb, makeKnex(filename, newDb))
+            await maybeMigrate(project.knex)
             Project.bind(project)
         }
         finally {
