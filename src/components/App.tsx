@@ -114,9 +114,9 @@ const Main = () => {
 
 // For some reason, useParams() doesn't work inside Main() so we have this
 // extra level of indirection here.
-function DispatchWithParams(props: {element: any}) {
-    const E = props.element
-    return React.createElement(E, useParams())
+function DispatchWithParams(props: any) {
+    const {element, ...rest} = props
+    return React.createElement(element, {...rest, ...useParams()})
 }
 
 export default App;
