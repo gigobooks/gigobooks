@@ -2,10 +2,10 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues } from 'react-hook-form'
 import { Redirect } from "react-router-dom"
 import DatePicker from 'react-datepicker'
-import { Transaction, Account } from '../core'
+import { Transaction, Account, Actor } from '../core'
 import { toDateOnly, FormHelpers } from '../util/util'
 import { parseISO } from 'date-fns'
-import { accountSelectOptions } from './SelectOptions'
+import { accountSelectOptions, actorSelectOptions } from './SelectOptions'
 
 const PositiveAmount = FormHelpers.Validation.PositiveAmount
 
@@ -14,6 +14,7 @@ type Props = {
 }
 
 type FormData = {
+    actorId?: number
     date: Date
     description?: string
     elements: {
@@ -31,7 +32,8 @@ export default function TransactionDetail(props: Props) {
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
     const [transaction, setTransaction] = React.useState<Transaction>()
-    const [selectOptions, setSelectOptions] = React.useState<{}>()
+    const [actorOptions, setActorOptions] = React.useState<{}>()
+    const [accountOptions, setAccountOptions] = React.useState<{}>()
     const [redirectId, setRedirectId] = React.useState<number>(0)
 
     const form = useForm<FormData>()
@@ -46,7 +48,14 @@ export default function TransactionDetail(props: Props) {
         Account.query().select()
         .orderBy('title')
         .then((rows: Account[]) => {
-            setSelectOptions(accountSelectOptions(rows))
+            setAccountOptions(accountSelectOptions(rows))
+        })
+
+        // Load actor select list
+        Actor.query().select()
+        .orderBy('title')
+        .then((rows: Actor[]) => {
+            setActorOptions(actorSelectOptions(rows))
         })
 
         // Load transaction (if exists) and initialise form accordingly
@@ -63,6 +72,7 @@ export default function TransactionDetail(props: Props) {
             setTransaction(Transaction.construct({}))
             form.reset({
                 date: new Date(),
+                actorId: 0,
                 elements: [{}, {}]
             })
         }
@@ -82,12 +92,17 @@ export default function TransactionDetail(props: Props) {
     if (redirectId > 0 && redirectId != argId) {
         return <Redirect to={`/transactions/${redirectId}`} />
     }
-    else if (transaction && selectOptions) {
+    else if (transaction && accountOptions && actorOptions) {
         return <div>
             <h1>{transaction.id ? `Transaction ${transaction.id}` : 'New transaction'}</h1>
             {/* !!transaction.type && <div>Type: {transaction.type}</div> */}
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
+                    <label htmlFor='actorId'>Customer or Supplier:</label>
+                    <select name='actorId' ref={form.register}>
+                        {actorOptions}
+                    </select>
+                </div><div>
                     <label htmlFor='date'>Date:</label>
                     <Controller
                         // No-op for DatePicker.onChange()
@@ -125,7 +140,7 @@ export default function TransactionDetail(props: Props) {
                                 name={`elements[${index}].accountId`}
                                 defaultValue={item.accountId}
                                 ref={form.register()}>
-                                {selectOptions}
+                                {accountOptions}
                             </select>
                         </td><td>
                             <input
@@ -173,6 +188,7 @@ function extractFormValues(t: Transaction): FormData {
     const values: FormData = {
         date: parseISO(t.date!),
         description: t.description,
+        actorId: t.actorId,
         elements: [],
     }
 
@@ -202,7 +218,8 @@ async function saveFormData(transaction: Transaction, data: FormData): Promise<n
     Object.assign(transaction, {
         description: data.description,
         type: '',
-        date: toDateOnly(data.date)
+        date: toDateOnly(data.date),
+        actorId: data.actorId,
     })
 
     // Convert form data to elements

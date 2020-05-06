@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Account } from '../core'
+import { Account, Actor } from '../core'
 
 // Some utility functions to help with constructing select options
 
@@ -23,6 +23,33 @@ export function accountSelectOptions(accounts: Account[]) {
             if (groups[g].length > 0) {
                 return <optgroup key={g} label={Account.TypeGroupInfo[g].label}>
                     {groups[g].map((a: Account) => 
+                        <option key={a.id} value={a.id}>{a.title}</option>
+                    )}
+                </optgroup>
+            }
+            else {
+                return null
+            }        
+        })}    
+    </>
+}
+
+export function actorSelectOptions(actors: Actor[], optional = true) {
+    const groups: any = {
+        [Actor.Customer]: [],
+        [Actor.Supplier]: [],
+    }
+
+    for (let a of actors) {
+        groups[a.type!].push(a)
+    }
+
+    return <>
+        {optional && <option key={0} value={0}>None</option>}
+        {Object.keys(groups).map(g => {
+            if (groups[g].length > 0) {
+                return <optgroup key={g} label={Actor.TypeInfo[g].label}>
+                    {groups[g].map((a: Actor) => 
                         <option key={a.id} value={a.id}>{a.title}</option>
                     )}
                 </optgroup>

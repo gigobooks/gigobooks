@@ -4,6 +4,7 @@ import { HashRouter, Link, Route, Switch, useParams } from 'react-router-dom'
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
 import AccountNew from './AccountNew'
+import ActorDetail from './ActorDetail'
 import ContributeCapital from './ContributeCapital'
 import DebugScreen from './DebugScreen'
 import UrlBar from './UrlBar'
@@ -65,6 +66,8 @@ const Menu = () => {
         <Link to='/'>Home</Link><br />
         <Link to='/accounts'>Accounts</Link><br />
         <Link to='/accounts/new'>New account</Link><br />
+        <Link to='/actors/new'>New actor</Link><br />
+        <Link to='/actors/1'>Actor 1</Link><br />
         <Link to='/contributions/new'>New contribution</Link><br />
         <Link to='/contributions/1'>Contribution 1</Link><br />
         <Link to='/transactions'>Transactions</Link><br />
@@ -93,6 +96,9 @@ const Main = () => {
         </Route>
         <Route path='/transactions'>
             <TransactionOverview />
+        </Route>
+        <Route path='/actors/:arg1'>
+            <DispatchWithParams element={ActorDetail} />
         </Route>
         <Route path='/accounts/new'>
             <AccountNew />
