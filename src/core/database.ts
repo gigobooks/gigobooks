@@ -47,26 +47,32 @@ async function m01(knex: Knex) {
         t.text('createdAt')
     })
 
+    await knex.schema.createTable('actor', t => {
+        t.integer('id').notNullable().primary()
+        t.text('title')
+        t.text('type')
+        t.text('updatedAt')
+        t.text('createdAt')
+    })
+
     await knex.schema.createTable('txn', t => {
         t.integer('id').notNullable().primary()
         t.text('description')
         t.text('type')
         t.text('date')
+        t.integer('actorId').index().defaultTo(0)
         t.text('updatedAt')
         t.text('createdAt')
     })
 
     await knex.schema.createTable('txn_element', t => {
         t.integer('id').notNullable().primary()
-        t.integer('transactionId')
+        t.integer('transactionId').index()
         t.text('description')
-        t.integer('accountId')
+        t.integer('accountId').index()
         t.integer('drcr')
         t.integer('amount')
         t.text('updatedAt')
         t.text('createdAt')
-
-        t.index('transactionId')
-        t.index('accountId')
     })
 }

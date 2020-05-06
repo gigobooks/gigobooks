@@ -19,6 +19,7 @@ export class Transaction extends Base {
     type?: TransactionType
     // Date is stored as a ten character string ie. '2020-01-01' 
     date?: string
+    actorId?: number
     elements?: Element[]
 
     // Given an array of vanilla (ie. non-Element) objects, merge them into .elements
