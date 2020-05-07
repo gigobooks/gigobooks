@@ -198,6 +198,7 @@ function extractFormValues(t: Transaction): FormData {
                 eId: e.id,
                 accountId: e.accountId,
                 [e.drcr == Transaction.Credit ? 'cr' : 'dr']: `${e.amount}`,
+                description: e.description,
             })
         }
     }
@@ -231,7 +232,8 @@ async function saveFormData(transaction: Transaction, data: FormData): Promise<n
             ...e1,
             accountId: Number(e0.accountId),
             drcr,
-            amount: amount > 0 ? amount : -amount
+            amount: amount > 0 ? amount : -amount,
+            description: e0.description,
         }
     })
 
