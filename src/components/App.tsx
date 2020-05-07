@@ -65,16 +65,11 @@ class App extends React.Component<{}, AppState> {
 const Menu = () => {
     return <div>
         <Link to='/'>Home</Link><br />
-        <Link to='/accounts'>Accounts</Link><br />
-        <Link to='/accounts/new'>New account</Link><br />
-        <Link to='/actors/new'>New actor</Link><br />
-        <Link to='/actors/1'>Actor 1</Link><br />
+        <Link to='/accounts'>Accounts</Link> - <Link to='/accounts/new'>new</Link><br />
+        Actors - <Link to='/actors/new'>new</Link><br />
+        <Link to='/transactions'>Transactions</Link> - <Link to='/transactions/new'>new</Link><br />
         <Link to='/contributions/new'>New contribution</Link><br />
-        <Link to='/contributions/1'>Contribution 1</Link><br />
-        <Link to='/transactions'>Transactions</Link><br />
-        <Link to='/transactions/new'>New transaction</Link><br />
-        <Link to='/transactions/1'>Transaction 1</Link><br />
-        <Link to='/sales/new'>New Sale</Link><br />
+        <Link to='/sales/new'>New sale</Link><br />
         <Link to='/debug'>Debug</Link>
 
         <Switch>
