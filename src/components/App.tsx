@@ -11,6 +11,7 @@ import TransactionOverview from './TransactionOverview'
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
+import Purchase from './Purchase'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -70,6 +71,7 @@ const Menu = () => {
         <Link to='/transactions'>Transactions</Link> - <Link to='/transactions/new'>new</Link><br />
         Contributions - <Link to='/contributions/new'>new</Link><br />
         Sales - <Link to='/sales/new'>new</Link><br />
+        Purchases - <Link to='/purchases/new'>new</Link><br />
         <Link to='/debug'>Debug</Link>
 
         <Switch>
@@ -85,6 +87,9 @@ const Menu = () => {
 
 const Main = () => {
     return <Switch>
+        <Route path='/purchases/:arg1'>
+            <DispatchWithParams element={Purchase} />
+        </Route>
         <Route path='/sales/:arg1'>
             <DispatchWithParams element={Sale} />
         </Route>

@@ -6,6 +6,7 @@ export enum TransactionType {
     Contribution = 'contribution',
     Dividend = 'dividend',
     Sale = 'sale',
+    Purchase = 'purchase',
 }
 
 export class Transaction extends Base {
@@ -15,6 +16,7 @@ export class Transaction extends Base {
     static Contribution = TransactionType.Contribution
     static Dividend = TransactionType.Dividend
     static Sale = TransactionType.Sale
+    static Purchase = TransactionType.Purchase
 
     id?: number
     description?: string
