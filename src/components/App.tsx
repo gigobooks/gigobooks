@@ -68,8 +68,8 @@ const Menu = () => {
         Customers - <Link to='/customers/new'>new</Link><br />
         Suppliers - <Link to='/suppliers/new'>new</Link><br />
         <Link to='/transactions'>Transactions</Link> - <Link to='/transactions/new'>new</Link><br />
-        <Link to='/contributions/new'>New contribution</Link><br />
-        <Link to='/sales/new'>New sale</Link><br />
+        Contributions - <Link to='/contributions/new'>new</Link><br />
+        Sales - <Link to='/sales/new'>new</Link><br />
         <Link to='/debug'>Debug</Link>
 
         <Switch>
