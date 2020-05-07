@@ -61,7 +61,7 @@ export default function Sale(props: Props) {
         Actor.query().select()
         .where('type', Actor.Customer)
         .orderBy('title')
-        .then((rows: Actor[]) => {
+        .then(rows => {
             setCustomerOptions(flatSelectOptions(rows))
         })
         
@@ -109,7 +109,7 @@ export default function Sale(props: Props) {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Customer:</label>
-                    <select name='actorId' ref={form.register(PositiveAmount)}>
+                    <select name='actorId' ref={form.register}>
                         {customerOptions}
                     </select>
                     {form.errors.actorId && form.errors.actorId.message}
@@ -174,7 +174,7 @@ export default function Sale(props: Props) {
                         More rows
                     </button>
                 </div><div>
-                    <label htmlFor='accountId'>Move funds to:</label>
+                    <label htmlFor='accountId'>Deposit to:</label>
                     <select name='accountId' ref={form.register}>
                         {assetOptions}
                     </select>

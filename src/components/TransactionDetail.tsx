@@ -48,14 +48,14 @@ export default function TransactionDetail(props: Props) {
         // Load account select list
         Account.query().select()
         .orderBy('title')
-        .then((rows: Account[]) => {
+        .then(rows => {
             setAccountOptions(accountSelectOptions(rows))
         })
 
         // Load actor select list
         Actor.query().select()
         .orderBy('title')
-        .then((rows: Actor[]) => {
+        .then(rows => {
             setActorOptions(actorSelectOptions(rows))
         })
 
