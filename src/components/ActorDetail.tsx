@@ -5,6 +5,8 @@ import { Actor } from '../core'
 
 type Props = {
     arg1?: string
+    customer?: boolean
+    supplier?: boolean
 }
 
 type FormData = {
@@ -14,6 +16,12 @@ type FormData = {
 }
 
 export default function ActorDetail(props: Props) {
+    if ((!props.customer && !props.supplier) || (props.customer && props.supplier)) {
+        return null
+    }
+    const isCustomer = !props.supplier
+    const actorType = isCustomer ? Actor.Customer : Actor.Supplier
+
     // argId == 0 means creating a new object
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
@@ -30,6 +38,7 @@ export default function ActorDetail(props: Props) {
         // Load object (if exists) and initialise form accordingly
         if (argId > 0) {
             Actor.query().findById(argId)
+            .where('type', actorType)
             .then(a => {
                 setActor(a)
                 if (a) {
@@ -57,23 +66,20 @@ export default function ActorDetail(props: Props) {
     }
 
     if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/actors/${redirectId}`} />
+        return <Redirect to={`/${isCustomer ? 'customer' : 'supplier'}s/${redirectId}`} />
     }
     else if (actor) {
         return <div>
-            <h1>{actor.id ? `Customer or supplier ${actor.id}` : 'New customer or supplier'}</h1>
+            <h1>{actor.id ?
+                `${isCustomer ? 'Customer' : 'Supplier'} ${actor.id}` :
+                `New ${isCustomer ? 'customer' : 'supplier'}`}</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='title'>Title:</label>
                     <input name='title' ref={form.register({required: 'Title is required'})} />
                     {form.errors.title && form.errors.title.message}
                 </div><div>
-                    <label htmlFor='type'>Type:</label>
-                    <select name='type' ref={form.register}>
-                        <option key={Actor.Customer} value={Actor.Customer}>{Actor.TypeInfo[Actor.Customer].label}</option>
-                        <option key={Actor.Supplier} value={Actor.Supplier}>{Actor.TypeInfo[Actor.Supplier].label}</option>
-                    </select>
-                </div><div>
+                    <input name='type' type='hidden' value={actorType} ref={form.register} />
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
                     <input type='submit' value={argId ? 'Save' : 'Create'} />

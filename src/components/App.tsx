@@ -65,7 +65,8 @@ const Menu = () => {
     return <div>
         <Link to='/'>Home</Link><br />
         <Link to='/accounts'>Accounts</Link> - <Link to='/accounts/new'>new</Link><br />
-        Actors - <Link to='/actors/new'>new</Link><br />
+        Customers - <Link to='/customers/new'>new</Link><br />
+        Suppliers - <Link to='/suppliers/new'>new</Link><br />
         <Link to='/transactions'>Transactions</Link> - <Link to='/transactions/new'>new</Link><br />
         <Link to='/contributions/new'>New contribution</Link><br />
         <Link to='/sales/new'>New sale</Link><br />
@@ -96,8 +97,11 @@ const Main = () => {
         <Route path='/transactions'>
             <TransactionOverview />
         </Route>
-        <Route path='/actors/:arg1'>
-            <DispatchWithParams element={ActorDetail} />
+        <Route path='/suppliers/:arg1'>
+            <DispatchWithParams element={ActorDetail} supplier />
+        </Route>
+        <Route path='/customers/:arg1'>
+            <DispatchWithParams element={ActorDetail} customer />
         </Route>
         <Route path='/accounts/:arg1'>
             <DispatchWithParams element={AccountDetail} />
