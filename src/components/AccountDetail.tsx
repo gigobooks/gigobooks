@@ -1,38 +1,110 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
-import { Account } from '../core'
+import { Redirect } from 'react-router-dom'
+import { Account, AccountType } from '../core'
 
-export default function AccountDetail({id}: {id?: any}) {
+type Props = {
+    arg1?: string
+}
+
+type FormData = {
+    title: string
+    type: AccountType
+    submit?: string    // Only for displaying general submit error messages
+}
+
+export default function AccountDetail(props: Props) {
+    // argId == 0 means creating a new object
+    const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
+
     const [account, setAccount] = React.useState<Account>()
-    React.useEffect(() => {
-        Account.query().findById(id).then((a: Account) => {
-            setAccount(a)
-        })
-    }, [id])
+    const [redirectId, setRedirectId] = React.useState<number>(0)
 
-    type FormData = { title: string }
-    const {register, errors, handleSubmit} = useForm<FormData>()
-    const onSubmit = async (data: FormData) => {
-        if (data.title != account!.title) {
-            account!.title = data.title
-            await account?.save()
-            setAccount(account)
+    const form = useForm<FormData>()
+
+    // Initialise a lot of stuff
+    React.useEffect(() => {
+        // Clear redirectId
+        setRedirectId(0)
+
+        // Load object (if exists) and initialise form accordingly
+        if (argId > 0) {
+            Account.query().findById(argId)
+            .then(a => {
+                setAccount(a)
+                if (a) {
+                    form.reset(extractFormValues(a))
+                }
+            })
         }
+        else {
+            setAccount(Account.construct({}))
+            form.reset({
+                title: '',
+            })
+        }
+    }, [props.arg1])
+
+    const onSubmit = async (data: FormData) => {
+        saveFormData(account!, data).then(savedId => {
+            form.reset(extractFormValues(account!))
+            if (argId == 0 && savedId) {
+                setRedirectId(savedId)
+            }
+        }).catch(e => {
+            form.setError('submit', '', e.toString())
+        })
     }
 
-    return !!account && <div>
-        <h1>{account?.title}</h1>
-        <p>Type: {Account.TypeInfo[account.type!].label}</p>
-        {!account.isReserved && 
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <div>
-                <label htmlFor='title'>Title:</label>
-                <input name='title' ref={register({required: true})} defaultValue={account.title} />
-                {errors.title && 'Title is required'}
-            </div><div>
-                <input type='submit' value='Rename' />
-            </div>
-        </form>
-        }
-    </div>
+    if (redirectId > 0 && redirectId != argId) {
+        return <Redirect to={`/accounts/${redirectId}`} />
+    }
+    else if (account) {
+        return <div>
+            <h1>{account.id ? `Account ${account.id}` : 'New account'}</h1>
+
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div>
+                    <label htmlFor='title'>Title:</label>
+                    <input name='title' ref={form.register({required: 'Title is required'})} />
+                    {form.errors.title && form.errors.title.message}
+                </div><div>
+                    <label htmlFor='type'>Type:</label>
+                    <select name='type' ref={form.register} disabled={!!account.id}>
+                    {Object.keys(Account.TypeInfo).map(type =>
+                        <option key={type} value={type}>{Account.TypeInfo[type].label}</option>
+                    )}
+                    </select>
+                </div><div>
+                    {form.errors.submit && form.errors.submit.message}
+                </div><div>
+                    <input type='submit' value={argId ? 'Save' : 'Create'} disabled={account.isReserved} />
+                </div>
+            </form>
+        </div>
+    }
+
+    return null
+}
+
+function extractFormValues(a: Account): FormData {
+    return {
+        title: a.title!,
+        type: a.type!,
+    }
+}
+
+// Returns: id of the object that was saved/created, 0 otherwise
+async function saveFormData(account: Account, data: FormData): Promise<number> {
+    if (account.isReserved) {
+        return Promise.reject('Cannot modify a system account')
+    }
+
+    account.title = data.title
+    if (!account.id) {
+        // Only assign type for new accounts. Don't change type for existing accounts.
+        account.type = data.type
+    }
+    await account.save()
+    return account.id!
 }

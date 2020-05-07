@@ -3,7 +3,6 @@ import Sidebar from 'react-sidebar'
 import { HashRouter, Link, Route, Switch, useParams } from 'react-router-dom'
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
-import AccountNew from './AccountNew'
 import ActorDetail from './ActorDetail'
 import ContributeCapital from './ContributeCapital'
 import DebugScreen from './DebugScreen'
@@ -100,10 +99,7 @@ const Main = () => {
         <Route path='/actors/:arg1'>
             <DispatchWithParams element={ActorDetail} />
         </Route>
-        <Route path='/accounts/new'>
-            <AccountNew />
-        </Route>
-        <Route path='/accounts/:id'>
+        <Route path='/accounts/:arg1'>
             <DispatchWithParams element={AccountDetail} />
         </Route>
         <Route path='/accounts'>
