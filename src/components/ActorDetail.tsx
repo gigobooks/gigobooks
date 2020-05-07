@@ -76,7 +76,7 @@ export default function ActorDetail(props: Props) {
                 </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
-                    <input type='submit' value='Save' />
+                    <input type='submit' value={argId ? 'Save' : 'Create'} />
                 </div>
             </form>
         </div>

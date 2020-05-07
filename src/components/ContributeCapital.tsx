@@ -1,10 +1,13 @@
 import * as React from 'react'
-import { Controller, useForm, useFieldArray } from 'react-hook-form'
+import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from "react-router-dom"
 import DatePicker from 'react-datepicker'
 import { Transaction, Account } from '../core'
-import { toDateOnly } from '../util/util'
+import { toDateOnly, FormHelpers } from '../util/util'
 import { parseISO } from 'date-fns'
+import { flatSelectOptions } from './SelectOptions'
+
+const PositiveAmount = FormHelpers.Validation.PositiveAmount
 
 type Props = {
     arg1?: string
@@ -14,20 +17,21 @@ type FormData = {
     date: Date
     description?: string
     elements: {
-        id?: number,
         // `.id` is used by the form system so we have eId to store 'our' id
-        eId?: number,
-        accountId?: number,
-        amount?: string
+        eId?: number
+        accountId?: number
+        amount: string
+        description?: string
     }[]
+    submit?: string    // Only for displaying general submit error messages
 }
 
 export default function ContributeCapital(props: Props) {
     // argId == 0 means creating a new transaction
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
-    const [accounts, setAccounts] = React.useState<Account[]>([])
     const [transaction, setTransaction] = React.useState<Transaction>()
+    const [assetOptions, setAssetOptions] = React.useState<{}>()
     const [redirectId, setRedirectId] = React.useState<number>(0)
 
     const form = useForm<FormData>()
@@ -41,12 +45,10 @@ export default function ContributeCapital(props: Props) {
         // Load asset accounts
         Account.query().select()
         .whereIn('type', [Account.Asset, Account.LongTermAsset])
+        .whereNot('id', Account.Reserved.AccountsReceivable)
         .orderBy(['type', 'title'])
         .then((rows: Account[]) => {
-            // Omit 'Accounts Receivable'
-            setAccounts(rows.filter((a: Account) => {
-                return a.id != Account.Reserved.AccountsReceivable
-            }))
+            setAssetOptions(flatSelectOptions(rows))
         })
 
         // Load transaction (if exists) and initialise form accordingly
@@ -69,20 +71,22 @@ export default function ContributeCapital(props: Props) {
     }, [props.arg1])
 
     const onSubmit = (data: FormData) => {
-        saveFormData(transaction!, data).then(savedId => {
-            form.reset(extractFormValues(transaction!))
-            if (argId == 0 && savedId) {
-                setRedirectId(savedId)
+        saveFormData(form, transaction!, data).then(savedId => {
+            if (savedId) {
+                form.reset(extractFormValues(transaction!))
+                if (argId == 0) {
+                    setRedirectId(savedId)
+                }
             }
         }).catch(e => {
-            form.setError('elements', '', e.toString())
+            form.setError('submit', '', e.toString())
         })
     }
 
     if (redirectId > 0 && redirectId != argId) {
         return <Redirect to={`/contributions/${redirectId}`} />
     }
-    else if (transaction && accounts) {
+    else if (transaction && assetOptions) {
         return <div>
             <h1>{transaction.id ? `Contribution ${transaction.id}` : 'Contribute capital or funds'}</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -92,15 +96,15 @@ export default function ContributeCapital(props: Props) {
                         // No-op for DatePicker.onChange()
                         as={<DatePicker onChange={() => {}} />}
                         control={form.control}
-                        register={form.register({required: true})}
+                        register={form.register()}
                         name='date'
                         valueName='selected'
                         onChange={([selected]) => {
                             return selected
                         }}
-                        rules={{required: true}}
+                        rules={{required: 'Date is required'}}
                     />
-                    {form.errors.date && 'Date is required'}
+                    {form.errors.date && form.errors.date.message}
                 </div><div>
                     <label htmlFor='description'>Description:</label>
                     <input name='description' ref={form.register} />
@@ -108,6 +112,8 @@ export default function ContributeCapital(props: Props) {
                     <table><thead>
                         <tr><th>
                             Contribute to
+                        </th><th>
+                            Description
                         </th><th>
                             Amount
                         </th></tr>
@@ -120,33 +126,34 @@ export default function ContributeCapital(props: Props) {
                                 name={`elements[${index}].accountId`}
                                 defaultValue={item.accountId}
                                 ref={form.register()}>
-                            {accounts.map(a =>
-                                <option key={a.id} value={a.id}>{a.title}</option>
-                            )}
+                                {assetOptions}
                             </select>
+                        </td><td>
+                            <input
+                                name={`elements[${index}].description`}
+                                defaultValue={item.description}
+                                ref={form.register()}
+                            />
                         </td><td>
                             <input
                                 name={`elements[${index}].amount`}
                                 defaultValue={item.amount}
-                                ref={form.register({
-                                    pattern: {
-                                        value: /^\d*$/,
-                                        message: 'Invalid amount'
-                                    }
-                                })}
+                                ref={form.register(PositiveAmount)}
                             />
                             {form.errors.elements && form.errors.elements[index] &&
-                                (form.errors.elements[index] as any).amount.message}
+                                form.errors.elements[index].amount &&
+                                <div>{form.errors.elements[index].amount!.message}</div>}
                         </td></tr>
                     )}
                     </tbody></table>
-                    {form.errors.elements && (form.errors.elements as any).message}
                 </div><div>
                     <button type='button' onClick={() => append({name: 'elements'})}>
                         More rows
                     </button>
                 </div><div>
-                    <input type='submit' value='Save' />
+                    {form.errors.submit && form.errors.submit.message}
+                </div><div>
+                    <input type='submit' value={argId ? 'Save' : 'Create'} />
                 </div>
             </form>
         </div>
@@ -167,10 +174,10 @@ function extractFormValues(t: Transaction): FormData {
             if (e.drcr == Transaction.Debit) {
                 // Only populate debit elements
                 values.elements.push({
-                    id: e.id,
                     eId: e.id,
                     accountId: e.accountId,
                     amount: `${e.amount}`,
+                    description: e.description,
                 })
             }
         }
@@ -180,7 +187,7 @@ function extractFormValues(t: Transaction): FormData {
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
-async function saveFormData(transaction: Transaction, data: FormData): Promise<number> {
+async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
     const sum = data.elements.reduce((acc, e) => {
         return acc + Number(e.amount)
     }, 0)
@@ -204,6 +211,7 @@ async function saveFormData(transaction: Transaction, data: FormData): Promise<n
                 accountId: Number(e0.accountId),
                 drcr: Transaction.Debit,
                 amount: Number(e0.amount),
+                description: e0.description,
             }
         })
 
@@ -215,6 +223,7 @@ async function saveFormData(transaction: Transaction, data: FormData): Promise<n
             accountId: Account.Reserved.Equity,
             drcr: Transaction.Credit,
             amount: sum,
+            description: '',
         })
 
         // Merge and save.

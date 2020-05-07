@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from "react-router-dom"
 import DatePicker from 'react-datepicker'
-import { Transaction, Account, Actor, IElement } from '../core'
+import { Transaction, Account, Actor } from '../core'
 import { toDateOnly, FormHelpers } from '../util/util'
 import { parseISO } from 'date-fns'
 import { flatSelectOptions } from './SelectOptions'
@@ -18,12 +18,11 @@ type FormData = {
     date: Date
     description?: string
     elements: {
-        id?: number,
         // `.id` is used by the form system so we have eId to store 'our' id
-        eId?: number,
-        accountId: number,
+        eId?: number
+        accountId: number
         amount: string
-        description?: string,
+        description?: string
     }[]
     accountId: number
     submit?: string    // Only for displaying general submit error messages
@@ -80,8 +79,8 @@ export default function Sale(props: Props) {
         else {
             setTransaction(Transaction.construct({}))
             form.reset({
-                date: new Date(),
                 actorId: 0,
+                date: new Date(),
                 elements: [{}, {}],
                 accountId: Account.Reserved.Cash,
             })
@@ -90,11 +89,13 @@ export default function Sale(props: Props) {
 
     const onSubmit = (data: FormData) => {
         saveFormData(form, transaction!, data).then(savedId => {
-            form.reset(extractFormValues(transaction!))
-            if (argId == 0 && savedId) {
-                setRedirectId(savedId)
+            if (savedId) {
+                form.reset(extractFormValues(transaction!))
+                if (argId == 0) {
+                    setRedirectId(savedId)
+                }
             }
-        }).catch(e => {            
+        }).catch(e => {
             form.setError('submit', '', e.toString())
         })
     }
@@ -104,7 +105,7 @@ export default function Sale(props: Props) {
     }
     else if (transaction && revenueOptions && assetOptions && customerOptions) {
         return <div>
-            <h1>{transaction.id ? `Sale ${transaction.id}` : 'Enter sale'}</h1>
+            <h1>{transaction.id ? `Sale ${transaction.id}` : 'New sale'}</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Customer:</label>
@@ -135,9 +136,9 @@ export default function Sale(props: Props) {
                         <tr><th>
                             Revenue type
                         </th><th>
-                            Amount
-                        </th><th>
                             Description
+                        </th><th>
+                            Amount
                         </th></tr>
                     </thead><tbody>
                     {fields.map((item, index) =>
@@ -152,18 +153,19 @@ export default function Sale(props: Props) {
                             </select>
                         </td><td>
                             <input
+                                name={`elements[${index}].description`}
+                                defaultValue={item.description}
+                                ref={form.register()}
+                            />
+                        </td><td>
+                            <input
                                 name={`elements[${index}].amount`}
                                 defaultValue={item.amount}
                                 ref={form.register(PositiveAmount)}
                             />
                             {form.errors.elements && form.errors.elements[index] &&
-                                <div>{(form.errors.elements[index] as any).amount.message}</div>}
-                        </td><td>
-                            <input
-                                name={`elements[${index}].description`}
-                                defaultValue={item.description}
-                                ref={form.register()}
-                            />
+                                form.errors.elements[index].amount &&
+                                <div>{form.errors.elements[index].amount!.message}</div>}
                         </td></tr>
                     )}
                     </tbody></table>
@@ -179,7 +181,7 @@ export default function Sale(props: Props) {
                 </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
-                    <input type='submit' value='Save' />
+                    <input type='submit' value={argId ? 'Save' : 'Create'} />
                 </div>
             </form>
         </div>
@@ -202,9 +204,8 @@ function extractFormValues(t: Transaction): FormData {
             if (e.drcr == Transaction.Credit) {
                 // Only populate credit elements
                 values.elements.push({
-                    id: e.id,
                     eId: e.id,
-                    accountId: e.accountId!,                    
+                    accountId: e.accountId!,
                     amount: `${e.amount}`,
                     description: e.description,
                 })
@@ -239,7 +240,7 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
     })
 
     // Convert form data to elements
-    const elements: IElement[] = data.elements.map(e0 => {
+    const elements = data.elements.map(e0 => {
         const e1 = e0.eId ? {id: Number(e0.eId)} : {}
         return {
             ...e1,
@@ -258,6 +259,7 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
         accountId: data.accountId,
         drcr: Transaction.Debit,
         amount: sum,
+        description: '',
     })
 
     // Merge and save.

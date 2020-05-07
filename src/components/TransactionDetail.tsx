@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Controller, useForm, useFieldArray, FormContextValues } from 'react-hook-form'
+import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from "react-router-dom"
 import DatePicker from 'react-datepicker'
 import { Transaction, Account, Actor } from '../core'
@@ -19,12 +19,13 @@ type FormData = {
     description?: string
     elements: {
         // `.id` is used by the form system so we use eId instead
-        eId?: number,
-        accountId?: number,
-        dr?: string,
-        cr?: string,
-        description?: string,
+        eId?: number
+        accountId?: number
+        dr?: string
+        cr?: string
+        description?: string
     }[]
+    submit?: string    // Only for displaying general submit error messages
 }
 
 export default function TransactionDetail(props: Props) {
@@ -71,21 +72,23 @@ export default function TransactionDetail(props: Props) {
         else {
             setTransaction(Transaction.construct({}))
             form.reset({
-                date: new Date(),
                 actorId: 0,
+                date: new Date(),
                 elements: [{}, {}]
             })
         }
     }, [props.arg1])
 
-    const onSubmit = async (data: FormData) => {
-        saveFormData(transaction!, data).then(savedId => {
-            form.reset(extractFormValues(transaction!))
-            if (argId == 0 && savedId) {
-                setRedirectId(savedId)
+    const onSubmit = (data: FormData) => {
+        saveFormData(form, transaction!, data).then(savedId => {
+            if (savedId) {
+                form.reset(extractFormValues(transaction!))
+                if (argId == 0) {
+                    setRedirectId(savedId)
+                }
             }
         }).catch(e => {
-            form.setError('elements', '', e.toString())
+            form.setError('submit', '', e.toString())
         })
     }
 
@@ -108,15 +111,15 @@ export default function TransactionDetail(props: Props) {
                         // No-op for DatePicker.onChange()
                         as={<DatePicker onChange={() => {}} />}
                         control={form.control}
-                        register={form.register({required: true})}
+                        register={form.register()}
                         name='date'
                         valueName='selected'
                         onChange={([selected]) => {
                             return selected
                         }}
-                        rules={{required: true}}
+                        rules={{required: 'Date is required'}}
                     />
-                    {form.errors.date && 'Date is required'}
+                    {form.errors.date && form.errors.date.message}
                 </div><div>
                     <label htmlFor='description'>Description:</label>
                     <input name='description' ref={form.register} />
@@ -125,11 +128,11 @@ export default function TransactionDetail(props: Props) {
                         <tr><th>
                             Account
                         </th><th>
+                            Description
+                        </th><th>
                             Debit
                         </th><th>
                             Credit
-                        </th><th>
-                            Description
                         </th></tr>
                     </thead><tbody>
                     {fields.map((item, index) =>
@@ -144,13 +147,19 @@ export default function TransactionDetail(props: Props) {
                             </select>
                         </td><td>
                             <input
+                                name={`elements[${index}].description`}
+                                defaultValue={item.description}
+                                ref={form.register()}
+                            />
+                        </td><td>
+                            <input
                                 name={`elements[${index}].dr`}
                                 defaultValue={item.dr}
                                 ref={form.register(PositiveAmount)}
                             />
                             {form.errors.elements && form.errors.elements[index] &&
                                 (form.errors.elements[index] as any).dr &&
-                                (form.errors.elements[index] as any).dr.message}
+                                <div>{(form.errors.elements[index] as any).dr.message}</div>}
                         </td><td>
                             <input
                                 name={`elements[${index}].cr`}
@@ -159,23 +168,18 @@ export default function TransactionDetail(props: Props) {
                             />
                             {form.errors.elements && form.errors.elements[index] &&
                                 (form.errors.elements[index] as any).cr &&
-                                (form.errors.elements[index] as any).cr.message}
-                        </td><td>
-                            <input
-                                name={`elements[${index}].description`}
-                                defaultValue={item.description}
-                                ref={form.register()}
-                            />
+                                <div>{(form.errors.elements[index] as any).cr.message}</div>}
                         </td></tr>
                     )}
                     </tbody></table>
-                    {form.errors.elements && (form.errors.elements as any).message}
                 </div><div>
                     <button type='button' onClick={() => append({name: 'elements'})}>
                         More rows
                     </button>
                 </div><div>
-                    <input type='submit' value='Save' disabled={!!transaction.type} />
+                    {form.errors.submit && form.errors.submit.message}
+                </div><div>
+                    <input type='submit' value={argId ? 'Save' : 'Create'} disabled={!!transaction.type} />
                 </div>
             </form>
         </div>
@@ -207,7 +211,7 @@ function extractFormValues(t: Transaction): FormData {
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
-async function saveFormData(transaction: Transaction, data: FormData): Promise<number> {
+async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
     const balance = data.elements.reduce((acc, e) => {
         return acc + Number(e.dr) - Number(e.cr)
     }, 0)
