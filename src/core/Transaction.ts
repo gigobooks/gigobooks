@@ -79,22 +79,35 @@ export class Transaction extends Base {
         return !this.elements || Transaction.isBalanced(this.elements)
     }
 
-    // Gets the id of the first element which is credit or debit, if exists
+    // Gets the first element which is credit or debit, if exists
     // Useful for getting a credit/debit element when we expect only one
     // (of that type) to exist.
-    getFirstCrElementId(drcr = Transaction.Credit): number | undefined {
+    getFirstCrElement(drcr = Transaction.Credit): Element | undefined {
         if (this.elements) {
             for (let e of this.elements) {
                 if (e.drcr == drcr) {
-                    return e.id
+                    return e
                 }
             }
         }
         return undefined
     }
 
-    getFirstDrElementId(drcr = Transaction.Debit): number | undefined {
-        return this.getFirstCrElementId(drcr)
+    getFirstDrElement(drcr = Transaction.Debit): Element | undefined {
+        return this.getFirstCrElement(drcr)
+    }
+
+    // Gets the id of the first element which is credit or debit, if exists
+    // Useful for getting a credit/debit element when we expect only one
+    // (of that type) to exist.
+    getFirstCrElementId(): number | undefined {
+        const element = this.getFirstCrElement()
+        return element ? element.id : undefined
+    }
+
+    getFirstDrElementId(): number | undefined {
+        const element = this.getFirstDrElement()
+        return element ? element.id : undefined
     }
 
     // There is no explicit way to removes elements.

@@ -25,10 +25,16 @@ test('create bare transaction', async done => {
 test('create a transaction and retrieve', async done => {
     const t0 = Transaction.construct({date, description: 'create a transaction'})
     await t0.mergeElements([
-        {accountId: 10, drcr: 1, amount: 100},
-        {accountId: 30, drcr: -1, amount: 100},
+        {accountId: 10, drcr: Transaction.Debit, amount: 100},
+        {accountId: 30, drcr: Transaction.Credit, amount: 100},
     ])
     await t0.save()
+
+    // Test some functions
+    expect(t0.getFirstDrElement()).toBe(t0.elements![0])
+    expect(t0.getFirstDrElementId()).toBe(t0.elements![0].id)
+    expect(t0.getFirstCrElement()).toBe(t0.elements![1])
+    expect(t0.getFirstCrElementId()).toBe(t0.elements![1].id)
 
     // Load the transaction, but without elements
     const t1 = await Transaction.query().findById(t0.id as any)
@@ -52,8 +58,8 @@ test('unbalanced transaction', async done => {
 
     // Attempt to make unbalanced elements
     const p1 = t0.mergeElements([
-        {accountId: 10, drcr: 1, amount: 90},
-        {accountId: 30, drcr: -1, amount: 100},
+        {accountId: 10, drcr: Transaction.Debit, amount: 90},
+        {accountId: 30, drcr: Transaction.Credit, amount: 100},
     ])
     await expect(p1).rejects.toMatch(/Not balanced/)
     expect(t0.elements).toBeFalsy()
@@ -67,8 +73,8 @@ test('database transaction (commit)', async done => {
 
     const t0 = Transaction.construct({date, description: 'database transaction (commit)'})
     await t0.mergeElements([
-        {accountId: 10, drcr: 1, amount: 100},
-        {accountId: 30, drcr: -1, amount: 100},
+        {accountId: 10, drcr: Transaction.Debit, amount: 100},
+        {accountId: 30, drcr: Transaction.Credit, amount: 100},
     ])
     const a0 = Account.construct({title: 'An asset', type: Account.Asset})
 
@@ -93,8 +99,8 @@ test('unbalanced transaction (rollback)', async done => {
 
     // Manually inject unbalanced elements
     t0.elements = [
-        Element.construct({accountId: 10, drcr: 1, amount: 90}),
-        Element.construct({accountId: 10, drcr: -1, amount: 100}),
+        Element.construct({accountId: 10, drcr: Transaction.Debit, amount: 90}),
+        Element.construct({accountId: 10, drcr: Transaction.Credit, amount: 100}),
     ]
 
     // Attempt to save an invalid transaction. This should fail.
@@ -117,15 +123,15 @@ test('merge, modify and condense', async done => {
     // Construct and save a simple transaction
     const t0 = Transaction.construct({date, description: 'merge, modify and condense'})
     await t0.mergeElements([
-        {accountId: 10, drcr: 1, amount: 100},
-        {accountId: 30, drcr: -1, amount: 100},
+        {accountId: 10, drcr: Transaction.Debit, amount: 100},
+        {accountId: 30, drcr: Transaction.Credit, amount: 100},
     ])
     await t0.save()
 
     // Now add two more elements
     await t0.mergeElements([
-        {accountId: 10, drcr: 1, amount: 110},
-        {accountId: 30, drcr: -1, amount: 110},
+        {accountId: 10, drcr: Transaction.Debit, amount: 110},
+        {accountId: 30, drcr: Transaction.Credit, amount: 110},
     ])
     await t0.save()
 
@@ -137,8 +143,8 @@ test('merge, modify and condense', async done => {
     // Split the last element (index=3) into two elements
     const e3id = t0.elements![3].id
     await t0.mergeElements([
-        {id: e3id, accountId: 30, drcr: -1, amount: 40},
-        {accountId: 30, drcr: -1, amount: 70},
+        {id: e3id, accountId: 30, drcr: Transaction.Credit, amount: 40},
+        {accountId: 30, drcr: Transaction.Credit, amount: 70},
     ])
     await t0.save()
 
@@ -148,9 +154,9 @@ test('merge, modify and condense', async done => {
 
     // Zero-out e3 and replace with two new elements
     await t0.mergeElements([
-        {id: e3id, accountId: 30, drcr: -1, amount: 0},
-        {accountId: 30, drcr: -1, amount: 10},
-        {accountId: 30, drcr: -1, amount: 30},
+        {id: e3id, accountId: 30, drcr: Transaction.Credit, amount: 0},
+        {accountId: 30, drcr: Transaction.Credit, amount: 10},
+        {accountId: 30, drcr: Transaction.Credit, amount: 30},
     ])
     await t0.save()
     // Should condenseElements because e3 is now stale
