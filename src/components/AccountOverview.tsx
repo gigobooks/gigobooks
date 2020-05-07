@@ -3,7 +3,7 @@ import { useTable } from 'react-table'
 import { Account } from '../core'
 import styled from 'styled-components'
 import { ReactTable, getRowId } from './ReactTable'
-import { Link } from "react-router-dom"
+import { Link } from 'react-router-dom'
 
 function LinkToAccount({cell}: any) {
     return <Link to={`/accounts/${cell.row.id}`}>{cell.value}</Link>

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
-import { Redirect } from "react-router-dom"
+import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { Transaction, Account, Actor } from '../core'
 import { toDateOnly, FormHelpers } from '../util/util'

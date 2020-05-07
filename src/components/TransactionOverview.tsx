@@ -3,7 +3,7 @@ import { useTable } from 'react-table'
 import { Transaction, TransactionType } from '../core'
 import styled from 'styled-components'
 import { ReactTable, getRowId } from './ReactTable'
-import { Link } from "react-router-dom"
+import { Link } from 'react-router-dom'
 
 function LinkToRawTransaction(data: any) {
     const url = `/transactions/${data.row.values.id}`

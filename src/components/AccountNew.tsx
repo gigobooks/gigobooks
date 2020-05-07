@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
-import { Redirect } from "react-router-dom"
+import { Redirect } from 'react-router-dom'
 import { Account, AccountType } from '../core'
 
 type FormData = {
