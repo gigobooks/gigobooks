@@ -5,6 +5,7 @@ import { isDateOnly } from '../util/util'
 export enum TransactionType {
     Contribution = 'contribution',
     Dividend = 'dividend',
+    Sale = 'sale',
 }
 
 export class Transaction extends Base {
@@ -13,6 +14,7 @@ export class Transaction extends Base {
 
     static Contribution = TransactionType.Contribution
     static Dividend = TransactionType.Dividend
+    static Sale = TransactionType.Sale
 
     id?: number
     description?: string

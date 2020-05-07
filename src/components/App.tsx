@@ -11,6 +11,7 @@ import UrlBar from './UrlBar'
 import TransactionOverview from './TransactionOverview'
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
+import Sale from './Sale'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -73,6 +74,7 @@ const Menu = () => {
         <Link to='/transactions'>Transactions</Link><br />
         <Link to='/transactions/new'>New transaction</Link><br />
         <Link to='/transactions/1'>Transaction 1</Link><br />
+        <Link to='/sales/new'>New Sale</Link><br />
         <Link to='/debug'>Debug</Link>
 
         <Switch>
@@ -88,6 +90,9 @@ const Menu = () => {
 
 const Main = () => {
     return <Switch>
+        <Route path='/sales/:arg1'>
+            <DispatchWithParams element={Sale} />
+        </Route>
         <Route path='/contributions/:arg1'>
             <DispatchWithParams element={ContributeCapital} />
         </Route>
