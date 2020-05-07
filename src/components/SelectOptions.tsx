@@ -11,11 +11,11 @@ export function flatSelectOptions(items: any[]) {
     </>
 }
 
-function groupedSelectOptions(groups: {[prop: string]: any[]}, groupInfo: {label: string}[]) {
+function groupedSelectOptions(groups: {[key: string]: any[]}, groupInfo: {[key: string]: {label: string}}) {
     return <>
     {Object.keys(groups).map((g) => {
         if (groups[g].length > 0) {
-            return <optgroup key={g} label={groupInfo[g as any].label}>
+            return <optgroup key={g} label={groupInfo[g].label}>
                 {flatSelectOptions(groups[g])}
             </optgroup>
         }
@@ -27,22 +27,22 @@ function groupedSelectOptions(groups: {[prop: string]: any[]}, groupInfo: {label
 }
 
 // Given a list of accounts, constructs a nested list of select options
-export function accountSelectOptions(accounts: Account[]) {
-    const groups: any = {
-        [Account.Asset]: [],
-        [Account.Liability]: [],
-        [Account.Equity]: [],
-        [Account.Revenue]: [],
-        [Account.Expense]: [],
+export function accountSelectOptions(accounts: Account[], 
+    groupInfo: {[key: string]: {label: string}} = Account.TypeGroupInfo) {
+    const groups: {[key: string]: Account[]} = {}
+    for (let k in groupInfo) {
+        groups[k] = []
     }
 
     // Distribute accounts into each 'bucket'
     for (let a of accounts) {
-        groups[a.typeGroup].push(a)
+        if (Array.isArray(groups[a.typeGroup])) {
+            groups[a.typeGroup].push(a)
+        }
     }
 
     return <>
-        {groupedSelectOptions(groups, Account.TypeGroupInfo)}
+        {groupedSelectOptions(groups, groupInfo)}
     </>
 }
 
