@@ -2,16 +2,25 @@ import Knex = require('knex');
 const makeKnex = require('../util/knex-integration')
 import { Model } from 'objection'
 import { prepopulate, maybeMigrate } from './database'
+import { Variables } from './Variables'
 
 // ToDo: Validate the database, isModified flag
 
 export class Project {
     // isModified: boolean
+    variables: Variables
+
     static project: Project | undefined
     static database: sqlite.Database
     static knex: Knex
+    static variables: Variables
 
     constructor(public filename: string, public database: sqlite.Database, public knex: Knex) {
+        this.variables = new Variables(this.knex)
+    }
+
+    async init() {
+        await this.variables.init()
     }
 
     // The following functions create new database (defaults to in-memory),
@@ -22,6 +31,7 @@ export class Project {
         try {
             const project = new Project('', db, makeKnex(filename ? filename : ':memory', db))
             await prepopulate(project.knex)
+            await project.init()
             Project.bind(project)
         }
         catch (e) {
@@ -37,6 +47,7 @@ export class Project {
             const newDb = await srcDb.backupTo(':memory:')
             const project = new Project(filename, newDb, makeKnex(filename, newDb))
             await maybeMigrate(project.knex)
+            await project.init()
             Project.bind(project)
         }
         finally {
@@ -73,5 +84,6 @@ export class Project {
         Project.database = p.database
         Project.knex = p.knex
         Model.knex(p.knex)
+        Project.variables = p.variables
     }
 }

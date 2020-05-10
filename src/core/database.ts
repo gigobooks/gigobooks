@@ -19,7 +19,7 @@ export async function prepopulate(knex: Knex): Promise<void> {
     await maybeMigrate(knex)
 
     await knex('variable').insert({
-        name: 'magic', value: 'sunrise',  updatedAt: now, createdAt: now
+        name: 'magic', value: JSON.stringify('sunrise'),  updatedAt: now, createdAt: now
     })
 
     await knex('account').insert(PrepopulatedAccounts.map(account => {

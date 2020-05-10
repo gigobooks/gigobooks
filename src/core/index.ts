@@ -1,6 +1,6 @@
 export { Model } from 'objection'
 export { Project } from './Project'
-export { Variable } from './Variable'
+export { Variables } from './Variables'
 export { Base } from './Base'
 export { Account, AccountType } from './Account'
 export { Actor, ActorType } from './Actor'
