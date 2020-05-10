@@ -1,3 +1,5 @@
+var webpack = require('webpack')
+
 module.exports = {
   mode: "development",
 
@@ -33,6 +35,17 @@ module.exports = {
     ]
   },
 
+  plugins: [
+    // https://github.com/knex/knex/issues/1446#issuecomment-537715431
+    // force unused dialects to resolve to the only one we use
+    // and for whom we have the dependencies installed
+    new webpack.ContextReplacementPlugin(/knex\/lib\/dialects/, /sqlite3\/index.js/),
+
+    // knex requires pg-connection-string which requires fs
+    // replace pg-connection-string by a noop (conveniently from knex itself)
+    new webpack.NormalModuleReplacementPlugin(/pg-connection-string/, 'knex/lib/util/noop'),
+  ],
+
   performance: {
     maxEntrypointSize: 1024000,
     maxAssetSize: 1024000
@@ -43,7 +56,6 @@ module.exports = {
   // This is important because it allows us to avoid bundling all of our
   // dependencies, which allows browsers to cache those libraries between builds.
   externals: {
-    "mssql/package.json": "mssql/package.json",
     react: "React",
     "react-dom": "ReactDOM"
   }
