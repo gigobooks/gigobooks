@@ -1,6 +1,7 @@
 import * as React from 'react'
 import Sidebar from 'react-sidebar'
 import { HashRouter, Link, Route, Switch, useParams } from 'react-router-dom'
+import Settings from './Settings'
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
 import ActorDetail from './ActorDetail'
@@ -72,6 +73,7 @@ const Menu = () => {
         Contributions - <Link to='/contributions/new'>new</Link><br />
         Sales - <Link to='/sales/new'>new</Link><br />
         Purchases - <Link to='/purchases/new'>new</Link><br />
+        <Link to='/settings'>Settings</Link><br />
         <Link to='/debug'>Debug</Link>
 
         <Switch>
@@ -114,8 +116,11 @@ const Main = () => {
         <Route path='/accounts'>
             <AccountOverview />
         </Route>
-        <Route path='/Debug'>
+        <Route path='/debug'>
             <DebugScreen />
+        </Route>
+        <Route path='/settings'>
+            <Settings />
         </Route>
         <Route path='/'>
             <h1>Front page</h1>
