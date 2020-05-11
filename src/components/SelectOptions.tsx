@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
-import { Account, Actor } from '../core'
+import { Account, Actor, Project } from '../core'
 
 // Some utility functions to help with constructing select options
 
@@ -63,8 +63,8 @@ export function actorSelectOptions(actors: Actor[], optional = true) {
     </>
 }
 
-// Returns a list of currency select options, with the supplied values at the top
-export function CurrencySelectOptions(props: {currencies: string[]}) {
+// Returns a list of ALL currency select options, with the supplied values at the top
+export function CurrencySelectOptionsAll(props: {currencies?: string[]}) {
     const currencies = props.currencies || []
     const selected: CurrencyCodes.CurrencyCodeRecord[] = []
     const rest: CurrencyCodes.CurrencyCodeRecord[] = []
@@ -79,8 +79,25 @@ export function CurrencySelectOptions(props: {currencies: string[]}) {
     })
 
     return <>
-    {[...selected, ...rest].map(c =>
-        <option key={c.code} value={c.code}>{c.code} - {c.currency}</option>
-    )}
+        {[...selected, ...rest].map(c =>
+            <option key={c.code} value={c.code}>{c.code} - {c.currency}</option>
+        )}
+    </>
+}
+
+// Returns a list of enabled currency select options.
+// If the supplied currency is not in the list, it is added
+export function currencySelectOptions(currency?: string) {
+    const currencies: string[] = Project.variables.get('currencies')
+    // Inject currency if not exists (and sort)
+    if (currency && currencies.indexOf(currency) == -1) {
+        currencies.push(currency)
+        currencies.sort()
+    }
+
+    return <>
+        {currencies.map(c =>
+            <option key={c} value={c}>{c}</option>
+        )}
     </>
 }

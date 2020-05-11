@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { Project } from '../core'
-import { CurrencySelectOptions } from './SelectOptions'
+import { CurrencySelectOptionsAll } from './SelectOptions'
 
 type FormData = {
     title: string
@@ -40,7 +40,7 @@ export default function Settings() {
             </div><div>
                 <label htmlFor='currencies'>Currencies:</label>
                 <select name='currencies' multiple size={10} ref={form.register}>
-                    <CurrencySelectOptions currencies={formValues.currencies} />
+                    <CurrencySelectOptionsAll currencies={formValues.currencies} />
                 </select>
             </div><div>
                 {form.errors.submit && form.errors.submit.message}
