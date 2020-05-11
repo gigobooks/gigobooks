@@ -11,10 +11,10 @@ let connectionId = 0
 function makeKnex(filename, preExistingConnection) {
     const modifications = {
         modified: true,
-        acquireRawConnection: (config) => {
+        acquireRawConnection: function () {
             return new Promise((resolve, reject) => {
               resolve({
-                  mainConnection: config.preExistingConnection,
+                  mainConnection: this.config.preExistingConnection,
                   txConnection: null,
                   id: connectionId++,
               })
@@ -23,7 +23,7 @@ function makeKnex(filename, preExistingConnection) {
         destroyRawConnection(connection) {
             // No-op: Don't close the underlying connection
         },
-        _query: (connection, obj) => {
+        _query: function (connection, obj) {
             // console.log('k-i.js query obj:', {sql: obj.sql, bindings: obj.bindings})
             // If the database has a `.begin()` function, then use that for transactions
             if (connection.mainConnection.begin) {
@@ -82,7 +82,7 @@ function makeKnex(filename, preExistingConnection) {
                 }).catch(rejecter)
             });
         },
-        processResponse: (obj, runner) => {
+        processResponse: function (obj, runner) {
             let { response } = obj;
             if (obj.output) return obj.output.call(runner, response);
             switch (obj.method) {
