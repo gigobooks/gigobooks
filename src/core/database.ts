@@ -72,6 +72,8 @@ async function m01(knex: Knex) {
         t.integer('accountId').index()
         t.integer('drcr')
         t.integer('amount')
+        t.text('currency')
+        t.integer('settleId').index().defaultTo(0)
         t.text('updatedAt')
         t.text('createdAt')
     })

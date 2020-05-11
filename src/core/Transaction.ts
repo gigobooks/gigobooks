@@ -174,8 +174,18 @@ export class Transaction extends Base {
     }
 
     static isBalanced(elements: IElement[]) {
-        return elements.reduce((acc, e) => {
-            return acc + e.drcr! * e.amount!
-        }, 0) == 0
+        const balances: Record<string, number> = {}
+
+        elements.forEach(e => {
+            const currency = e.currency!
+            if (balances[currency] == undefined) {
+                balances[currency] = 0
+            }
+            balances[currency] += e.drcr! * e.amount!
+        })
+
+        return Object.keys(balances).every(currency => {
+            return balances[currency] == 0
+        })
     }
 }
