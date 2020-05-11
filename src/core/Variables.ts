@@ -1,4 +1,5 @@
 import Knex = require('knex');
+import cloneDeep = require('lodash/cloneDeep')
 
 // This is going to be used in a raw query so use snake_case
 const upsertSuffix = ' on conflict(`name`) do update set' +
@@ -63,7 +64,7 @@ export class Variables {
     }
 
     get(name: string): any {
-        return this.cache[name]
+        return cloneDeep(this.cache[name])
     }
 
     // Given an array of variable names OR an object with property names,
@@ -73,7 +74,7 @@ export class Variables {
         let results: Record<string, any> = {}
 
         for (let name of names) {
-            results[name] = this.cache[name]
+            results[name] = cloneDeep(this.cache[name])
         }
         return results
     }
