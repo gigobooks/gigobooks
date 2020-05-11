@@ -1,6 +1,7 @@
 import { Base, Model, TransactionOrKnex } from './Base'
 import { Element, IElement } from './Element'
 import { isDateOnly } from '../util/util'
+import { Project } from './Project'
 
 export enum TransactionType {
     Contribution = 'contribution',
@@ -112,6 +113,26 @@ export class Transaction extends Base {
     getFirstDrElementId(): number | undefined {
         const element = this.getFirstDrElement()
         return element ? element.id : undefined
+    }
+
+    // If the project has a single currency configured, and this transaction
+    // only has elements using that currency, then return the currency.
+    // Otherwise, return false
+    get singleCurrency(): string | false {
+        const currencies = Project.variables.get('currencies')
+        if (currencies.length != 1) {
+            return false
+        }
+
+        if (this.elements) {
+            for (let e of this.elements) {
+                if (e.currency != currencies[0]) {
+                    return false
+                }
+            }
+        }
+
+        return currencies[0]
     }
 
     // There is no explicit way to removes elements.

@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker'
 import { Transaction, Account, Actor } from '../core'
 import { toDateOnly, FormHelpers } from '../util/util'
 import { parseISO } from 'date-fns'
-import { accountSelectOptions, actorSelectOptions } from './SelectOptions'
+import { accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
 
 const PositiveAmount = FormHelpers.Validation.PositiveAmount
 
@@ -23,6 +23,7 @@ type FormData = {
         accountId?: number
         dr?: string
         cr?: string
+        currency?: string
         description?: string
     }[]
     submit?: string    // Only for displaying general submit error messages
@@ -133,7 +134,9 @@ export default function TransactionDetail(props: Props) {
                             Debit
                         </th><th>
                             Credit
-                        </th></tr>
+                        </th>{!transaction.singleCurrency && <th>
+                            Currency
+                        </th>}</tr>
                     </thead><tbody>
                     {fields.map((item, index) =>
                         <tr key={item.id}><td>
@@ -161,6 +164,13 @@ export default function TransactionDetail(props: Props) {
                                 (form.errors.elements[index] as any).dr &&
                                 <div>{(form.errors.elements[index] as any).dr.message}</div>}
                         </td><td>
+                            {!!transaction.singleCurrency && 
+                            <input
+                                type='hidden'
+                                name={`elements[${index}].currency`}
+                                value={transaction.singleCurrency}
+                                ref={form.register()}
+                            />}
                             <input
                                 name={`elements[${index}].cr`}
                                 defaultValue={item.cr}
@@ -169,7 +179,14 @@ export default function TransactionDetail(props: Props) {
                             {form.errors.elements && form.errors.elements[index] &&
                                 (form.errors.elements[index] as any).cr &&
                                 <div>{(form.errors.elements[index] as any).cr.message}</div>}
-                        </td></tr>
+                        </td>{!transaction.singleCurrency && <td>
+                            <select
+                                name={`elements[${index}].currency`}
+                                defaultValue={item.currency}
+                                ref={form.register()}>
+                                {currencySelectOptions(item.currency)}
+                            </select>
+                        </td>}</tr>
                     )}
                     </tbody></table>
                 </div><div>
@@ -202,6 +219,7 @@ function extractFormValues(t: Transaction): FormData {
                 eId: e.id,
                 accountId: e.accountId,
                 [e.drcr == Transaction.Credit ? 'cr' : 'dr']: `${e.amount}`,
+                currency: e.currency,
                 description: e.description,
             })
         }
@@ -212,11 +230,21 @@ function extractFormValues(t: Transaction): FormData {
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
 async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
-    const balance = data.elements.reduce((acc, e) => {
-        return acc + Number(e.dr) - Number(e.cr)
-    }, 0)
+    const balances: Record<string, number> = {}
 
-    if (balance != 0) {
+    data.elements.forEach(e => {
+        const currency = e.currency!
+        if (balances[currency] == undefined) {
+            balances[currency] = 0
+        }
+        balances[currency] += Number(e.dr) - Number(e.cr)
+    })
+
+    if (balances['undefined'] != undefined) {
+        return Promise.reject('Currency is required')
+    }
+
+    if (Object.keys(balances).some(currency => balances[currency] != 0)) {
         return Promise.reject('Entries do not balance')
     }
 
@@ -237,7 +265,9 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
             accountId: Number(e0.accountId),
             drcr,
             amount: amount > 0 ? amount : -amount,
+            currency: e0.currency,
             description: e0.description,
+            settleId: 0,
         }
     })
 
