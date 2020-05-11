@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as CurrencyCodes from 'currency-codes'
 import { Account, Actor } from '../core'
 
 // Some utility functions to help with constructing select options
@@ -59,5 +60,27 @@ export function actorSelectOptions(actors: Actor[], optional = true) {
     return <>
         {optional && <option key={0} value={0}>None</option>}
         {groupedSelectOptions(groups, Actor.TypeInfo)}
+    </>
+}
+
+// Returns a list of currency select options, with the supplied values at the top
+export function CurrencySelectOptions(props: {currencies: string[]}) {
+    const currencies = props.currencies || []
+    const selected: CurrencyCodes.CurrencyCodeRecord[] = []
+    const rest: CurrencyCodes.CurrencyCodeRecord[] = []
+
+    CurrencyCodes.data.forEach(c => {
+        if (currencies.indexOf(c.code) >= 0) {
+            selected.push(c)
+        }
+        else {
+            rest.push(c)
+        }
+    })
+
+    return <>
+    {[...selected, ...rest].map(c =>
+        <option key={c.code} value={c.code}>{c.code} - {c.currency}</option>
+    )}
     </>
 }

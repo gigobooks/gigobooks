@@ -4,6 +4,10 @@ import { Model } from 'objection'
 import { prepopulate, maybeMigrate } from './database'
 import { Variables } from './Variables'
 
+const defaultVariables = {
+    currencies: ['AUD', 'EUR', 'GBP', 'USD']
+}
+
 // ToDo: Validate the database, isModified flag
 
 export class Project {
@@ -16,7 +20,7 @@ export class Project {
     static variables: Variables
 
     constructor(public filename: string, public database: sqlite.Database, public knex: Knex) {
-        this.variables = new Variables(this.knex)
+        this.variables = new Variables(this.knex, defaultVariables)
     }
 
     async init() {
