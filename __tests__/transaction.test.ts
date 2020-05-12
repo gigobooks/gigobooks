@@ -67,9 +67,9 @@ test('create a transaction and retrieve', async done => {
 
     // Test some functions
     expect(t0.getFirstDrElement()).toBe(t0.elements![0])
-    expect(t0.getFirstDrElementId()).toBe(t0.elements![0].id)
     expect(t0.getFirstCrElement()).toBe(t0.elements![1])
-    expect(t0.getFirstCrElementId()).toBe(t0.elements![1].id)
+    expect(t0.getDrElementIds()).toEqual([t0.elements![0].id])
+    expect(t0.getCrElementIds()).toEqual([t0.elements![1].id])
 
     // Load the transaction, but without elements
     const t1 = await Transaction.query().findById(t0.id as any)

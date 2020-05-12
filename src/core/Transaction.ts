@@ -85,8 +85,6 @@ export class Transaction extends Base {
     }
 
     // Gets the first element which is credit or debit, if exists
-    // Useful for getting a credit/debit element when we expect only one
-    // (of that type) to exist.
     getFirstCrElement(drcr = Transaction.Credit): Element | undefined {
         if (this.elements) {
             for (let e of this.elements) {
@@ -98,21 +96,26 @@ export class Transaction extends Base {
         return undefined
     }
 
-    getFirstDrElement(drcr = Transaction.Debit): Element | undefined {
-        return this.getFirstCrElement(drcr)
+    getFirstDrElement(): Element | undefined {
+        return this.getFirstCrElement(Transaction.Debit)
     }
 
-    // Gets the id of the first element which is credit or debit, if exists
-    // Useful for getting a credit/debit element when we expect only one
-    // (of that type) to exist.
-    getFirstCrElementId(): number | undefined {
-        const element = this.getFirstCrElement()
-        return element ? element.id : undefined
+    // Returns a list of ids of the credit elements
+    getCrElementIds(drcr = Transaction.Credit): number[] {
+        const list = []
+
+        if (this.elements) {
+            for (let e of this.elements) {
+                if (e.drcr == drcr) {
+                    list.push(e.id!)
+                }
+            }
+        }
+        return list
     }
 
-    getFirstDrElementId(): number | undefined {
-        const element = this.getFirstDrElement()
-        return element ? element.id : undefined
+    getDrElementIds(): number[] {
+        return this.getCrElementIds(Transaction.Debit)
     }
 
     // If the project has a single currency configured, and this transaction
@@ -194,7 +197,14 @@ export class Transaction extends Base {
         }
     }
 
-    static isBalanced(elements: IElement[]) {
+    // Calculates totals for each currency and returns them as an array
+    static getSums(elements: IElement[]) {
+        return Transaction.getBalances(elements, true)
+    }
+
+    // Calculates balances for each currency and returns them as an array
+    // If `sum` is true, then calculate totals instead (ie. ignore `drcr`)
+    static getBalances(elements: IElement[], sum = false) {
         const balances: Record<string, number> = {}
 
         elements.forEach(e => {
@@ -202,9 +212,14 @@ export class Transaction extends Base {
             if (balances[currency] == undefined) {
                 balances[currency] = 0
             }
-            balances[currency] += e.drcr! * e.amount!
+            balances[currency] += sum ? e.amount! : e.drcr! * e.amount!
         })
 
+        return balances
+    }
+
+    static isBalanced(elements: IElement[]) {
+        const balances = Transaction.getBalances(elements)
         return Object.keys(balances).every(currency => {
             return balances[currency] == 0
         })

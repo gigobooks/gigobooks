@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Transaction, Account, Actor } from '../core'
+import { Transaction, Account, Actor, IElement } from '../core'
 import { toDateOnly, FormHelpers } from '../util/util'
 import { parseISO } from 'date-fns'
 import { accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
@@ -256,12 +256,11 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
     })
 
     // Convert form data to elements
-    const elements = data.elements.map(e0 => {
-        const e1 = e0.eId ? {id: Number(e0.eId)} : {}
+    const elements: IElement[] = data.elements.map(e0 => {
         const amount = Number(e0.dr) - Number(e0.cr)
         const drcr = amount > 0 ? Transaction.Debit : Transaction.Credit
         return {
-            ...e1,
+            id: e0.eId ? Number(e0.eId) : undefined,
             accountId: Number(e0.accountId),
             drcr,
             amount: amount > 0 ? amount : -amount,

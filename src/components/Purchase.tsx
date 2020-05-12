@@ -2,10 +2,10 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Transaction, Account, Actor } from '../core'
+import { Transaction, Account, Actor, IElement } from '../core'
 import { toDateOnly, FormHelpers } from '../util/util'
 import { parseISO } from 'date-fns'
-import { flatSelectOptions, accountSelectOptions } from './SelectOptions'
+import { flatSelectOptions, accountSelectOptions, currencySelectOptions } from './SelectOptions'
 
 const PositiveAmount = FormHelpers.Validation.PositiveAmount
 
@@ -22,6 +22,7 @@ type FormData = {
         eId?: number
         accountId: number
         amount: string
+        currency: string
         description?: string
     }[]
     accountId: number
@@ -164,6 +165,19 @@ export default function Expense(props: Props) {
                                 ref={form.register()}
                             />
                         </td><td>
+                            {!transaction.singleCurrency ?
+                            <select
+                                name={`elements[${index}].currency`}
+                                defaultValue={item.currency}
+                                ref={form.register()}>
+                                {currencySelectOptions(item.currency)}
+                            </select> :
+                            <input
+                                type='hidden'
+                                name={`elements[${index}].currency`}
+                                value={transaction.singleCurrency}
+                                ref={form.register()}
+                            />}
                             <input
                                 name={`elements[${index}].amount`}
                                 defaultValue={item.amount}
@@ -213,6 +227,7 @@ function extractFormValues(t: Transaction): FormData {
                     eId: e.id,
                     accountId: e.accountId!,
                     amount: `${e.amount}`,
+                    currency: e.currency!,
                     description: e.description,
                 })
             }
@@ -229,15 +244,6 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
         return 0
     }
 
-    const sum = data.elements.reduce((acc, e) => {
-        return acc + Number(e.amount)
-    }, 0)
-
-    if (!transaction.id && sum == 0) {
-        // Don't allow creating if zero 
-        return Promise.reject('At least one amount is required')
-    } 
-
     Object.assign(transaction, {
         description: data.description,
         type: Transaction.Purchase,
@@ -246,27 +252,43 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
     })
 
     // Convert form data to elements
-    const elements = data.elements.map(e0 => {
-        const e1 = e0.eId ? {id: Number(e0.eId)} : {}
+    const elements: IElement[] = data.elements.map(e0 => {
         return {
-            ...e1,
+            id: e0.eId ? Number(e0.eId) : undefined,
             accountId: Number(e0.accountId),
             drcr: Transaction.Debit,
             amount: Number(e0.amount),
+            currency: e0.currency,
             description: e0.description,
+            settleId: 0,
         }
     })
 
-    // Add a balancing entry
-    const crId = transaction.getFirstCrElementId()
-    const cr = crId ? {id: crId} : {}
-    elements.push({
-        ...cr,
-        accountId: data.accountId,
-        drcr: Transaction.Credit,
-        amount: sum,
-        description: '',
-    })
+    // Generate balancing elements. Try to re-use IDs if available
+    const sums = Transaction.getSums(elements)
+    const ids = transaction.getCrElementIds()
+
+    for (let currency in sums) {
+        elements.push({
+            id: ids.shift(),
+            accountId: data.accountId,
+            drcr: Transaction.Credit,
+            amount: sums[currency],
+            currency: currency,
+            description: '',
+            settleId: 0,
+        })
+    }
+
+    // If there are any remaining old IDs/elements, zero them out
+    for (let id of ids) {
+        elements.push({
+            id: id,
+            drcr: Transaction.Credit,
+            amount: 0,
+            currency: '',
+        })
+    }
 
     // Merge and save.
     await transaction.mergeElements(elements)
