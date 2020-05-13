@@ -27,14 +27,24 @@ export class Element extends Base {
     // The id of a transaction that is (partly or completely) settled by this element
     settleId?: number
 
-    static tableName = 'txn_element'
-    static relationMappings = {
-        transaction: {
-            relation: Model.BelongsToOneRelation,
-            modelClass: Transaction,
-            join: {
-                from: 'txn_element.transaction_id',
-                to: 'txn.transaction_id'
+    static tableName = 'txnElement'
+    static get relationMappings() {
+        return {
+            transaction: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: Transaction,
+                join: {
+                    from: 'txnElement.transactionId',
+                    to: 'txn.id'
+                }
+            },
+            settles: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: Transaction,
+                join: {
+                    from: 'txnElement.settleId',
+                    to: 'txn.id'
+                }
             }
         }
     }

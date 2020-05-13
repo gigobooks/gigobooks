@@ -188,14 +188,24 @@ export class Transaction extends Base {
     }
 
     static tableName = 'txn'
-    static relationMappings = {
-        elements: {
-            relation: Model.HasManyRelation,
-            modelClass: Element,
-            join: {
-                from: 'txn.id',
-                to: 'txn_element.transactionId'
-            }
+    static get relationMappings() {
+        return {
+            elements: {
+                relation: Model.HasManyRelation,
+                modelClass: Element,
+                join: {
+                    from: 'txn.id',
+                    to: 'txnElement.transactionId'
+                }
+            },
+            settledBy: {
+                relation: Model.HasManyRelation,
+                modelClass: Element,
+                join: {
+                    from: 'txn.id',
+                    to: 'txnElement.settleId'
+                }
+            },
         }
     }
 
