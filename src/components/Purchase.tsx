@@ -2,12 +2,10 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Transaction, Account, Actor, IElement } from '../core'
-import { toDateOnly, FormHelpers } from '../util/util'
+import { Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
+import { toDateOnly, validateElementAmounts } from '../util/util'
 import { parseISO } from 'date-fns'
 import { flatSelectOptions, accountSelectOptions, currencySelectOptions } from './SelectOptions'
-
-const PositiveAmount = FormHelpers.Validation.PositiveAmount
 
 type Props = {
     arg1?: string
@@ -95,6 +93,10 @@ export default function Expense(props: Props) {
     }, [props.arg1])
 
     const onSubmit = (data: FormData) => {
+        if (validateFormData(form, data)) {
+            return
+        }
+
         saveFormData(form, transaction!, data).then(savedId => {
             if (savedId) {
                 form.reset(extractFormValues(transaction!))
@@ -181,7 +183,7 @@ export default function Expense(props: Props) {
                             <input
                                 name={`elements[${index}].amount`}
                                 defaultValue={item.amount}
-                                ref={form.register(PositiveAmount)}
+                                ref={form.register()}
                             />
                             {form.errors.elements && form.errors.elements[index] &&
                                 form.errors.elements[index].amount &&
@@ -226,7 +228,7 @@ function extractFormValues(t: Transaction): FormData {
                 values.elements.push({
                     eId: e.id,
                     accountId: e.accountId!,
-                    amount: `${e.amount}`,
+                    amount: toFormatted(e.amount!, e.currency!),
                     currency: e.currency!,
                     description: e.description,
                 })
@@ -237,13 +239,19 @@ function extractFormValues(t: Transaction): FormData {
     return values
 }
 
-// Returns: id of the transaction that was saved/created, 0 otherwise
-async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
+// Returns true if there are validation errors, false otherwise
+export function validateFormData(form: FCV<FormData>, data: FormData) {
+    let errors = false
+
     if (!data.actorId) {
         form.setError('actorId', '', 'Supplier is required')
-        return 0
+        errors = true
     }
+    return errors || validateElementAmounts(form, data)
+}
 
+// Returns: id of the transaction that was saved/created, 0 otherwise
+async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
     Object.assign(transaction, {
         description: data.description,
         type: Transaction.Purchase,
@@ -257,7 +265,7 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
             id: e0.eId ? Number(e0.eId) : undefined,
             accountId: Number(e0.accountId),
             drcr: Transaction.Debit,
-            amount: Number(e0.amount),
+            amount: parseFormatted(e0.amount, e0.currency),
             currency: e0.currency,
             description: e0.description,
             settleId: 0,

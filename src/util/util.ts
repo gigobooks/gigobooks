@@ -1,3 +1,5 @@
+import { parseFormatted } from '../core/currency'
+
 // Given a positive integer, returns the smallest integer that is strictly larger
 // than n and also starts with the digit `prefix`.
 // `prefix` must be between 1 and 9 inclusive
@@ -65,14 +67,30 @@ export function toDateOnly(date: Date): string {
     return `${date.getFullYear()}-${m < 10 ? '0' : ''}${m}-${d < 10 ? '0' : ''}${d}`
 }
 
-// Some boilerplate for react-hook-form forms
-export const FormHelpers = {
-    Validation: {
-        PositiveAmount: {
-            pattern: {
-                value: /^\d*$/,
-                message: 'Invalid amount'
+// A helper function for validating monetary amounts
+// Returns true if there are validation errors, false otherwise
+export function _validateElementAmounts(form: any, data: any, fields: string[]) {
+    let errors = false
+
+    for (let index in data.elements) {
+        for (let field of fields) {
+            try {
+                parseFormatted(data.elements[index][field], data.elements[index].currency)
+            }
+            catch (e) {
+                form.setError(`elements[${index}].${field}`, '', 'Invalid amount')
+                errors = true
             }
         }
     }
+    return errors
+}
+
+export function validateElementAmounts(form: any, data: any) {
+    return _validateElementAmounts(form, data, ['amount'])
+}
+
+// Like validateElementAmounts() but validates `.dr` and `.cr`
+export function validateElementDrCr(form: any, data: any) {
+    return _validateElementAmounts(form, data, ['dr', 'cr'])
 }
