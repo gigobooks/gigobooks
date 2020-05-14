@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
+import { Project, Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
 import { toDateOnly, validateElementDrCr } from '../util/util'
 import { parseISO } from 'date-fns'
 import { accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
@@ -70,10 +70,11 @@ export default function TransactionDetail(props: Props) {
         }
         else {
             setTransaction(Transaction.construct({}))
+            const currency = Project.variables.get('currency')
             form.reset({
                 actorId: 0,
                 date: new Date(),
-                elements: [{}, {}]
+                elements: [{currency}, {currency}],
             })
         }
     }, [props.arg1])

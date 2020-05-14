@@ -5,7 +5,8 @@ import { prepopulate, maybeMigrate } from './database'
 import { Variables } from './Variables'
 
 const defaultVariables = {
-    currencies: ['AUD', 'EUR', 'GBP', 'USD']
+    currency: 'USD',
+    otherCurrencies: [],
 }
 
 // ToDo: Validate the database, isModified flag

@@ -64,13 +64,16 @@ export function actorSelectOptions(actors: Actor[], optional = true) {
 }
 
 // Returns a list of ALL currency select options, with the supplied values at the top
-export function CurrencySelectOptionsAll(props: {currencies?: string[]}) {
-    const currencies = props.currencies || []
+export function currencySelectOptionsAll(currencies: string[] = []) {
     const selected: CurrencyCodes.CurrencyCodeRecord[] = []
     const rest: CurrencyCodes.CurrencyCodeRecord[] = []
 
     CurrencyCodes.data.forEach(c => {
-        if (currencies.indexOf(c.code) >= 0) {
+        if (c.code.startsWith('X')) {
+            // Omit any codes starting with X.
+            return
+        }
+        else if (currencies.indexOf(c.code) >= 0) {
             selected.push(c)
         }
         else {
@@ -88,15 +91,16 @@ export function CurrencySelectOptionsAll(props: {currencies?: string[]}) {
 // Returns a list of enabled currency select options.
 // If the supplied currency is not in the list, it is added
 export function currencySelectOptions(currency?: string) {
-    const currencies: string[] = Project.variables.get('currencies')
-    // Inject currency if not exists (and sort)
+    const currencies: string[] = Project.variables.get('otherCurrencies')
+    currencies.push(Project.variables.get('currency'))
+
+    // Inject currency if not exists
     if (currency && currencies.indexOf(currency) == -1) {
         currencies.push(currency)
-        currencies.sort()
     }
 
     return <>
-        {currencies.map(c =>
+        {currencies.sort().map(c =>
             <option key={c} value={c}>{c}</option>
         )}
     </>

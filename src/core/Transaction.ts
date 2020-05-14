@@ -126,20 +126,21 @@ export class Transaction extends Base {
     // only has elements using that currency, then return the currency.
     // Otherwise, return false
     get singleCurrency(): string | false {
-        const currencies = Project.variables.get('currencies')
-        if (currencies.length != 1) {
+        const currency: string = Project.variables.get('currency')
+        const otherCurrencies: string[] = Project.variables.get('otherCurrencies')
+        if (otherCurrencies.length > 0) {
             return false
         }
 
         if (this.elements) {
             for (let e of this.elements) {
-                if (e.currency != currencies[0]) {
+                if (e.currency != currency) {
                     return false
                 }
             }
         }
 
-        return currencies[0]
+        return currency
     }
 
     // There is no explicit way to removes elements.

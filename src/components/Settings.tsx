@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { Project } from '../core'
-import { CurrencySelectOptionsAll } from './SelectOptions'
+import { currencySelectOptionsAll } from './SelectOptions'
 
 type FormData = {
     title: string
-    currencies: string[]
+    currency: string
+    otherCurrencies: string[]
     submit?: string    // Only for displaying general submit error messages
 }
 
@@ -38,9 +39,15 @@ export default function Settings() {
                 <input name='title' ref={form.register({required: 'Title is required'})} />
                 {form.errors.title && form.errors.title.message}
             </div><div>
-                <label htmlFor='currencies'>Currencies:</label>
-                <select name='currencies' multiple size={10} ref={form.register}>
-                    <CurrencySelectOptionsAll currencies={formValues.currencies} />
+                <label htmlFor='currency'>Primary currency:</label>
+                <select name='currency' ref={form.register}>
+                    {currencySelectOptionsAll()}
+                </select>
+            </div><div>
+                <label htmlFor='otherCurrencies'>Other currencies:</label>
+                <select name='otherCurrencies' multiple size={10} ref={form.register}>
+                    <option key='none' value='none'>None</option>
+                    {currencySelectOptionsAll(formValues.otherCurrencies)}
                 </select>
             </div><div>
                 {form.errors.submit && form.errors.submit.message}
@@ -52,13 +59,23 @@ export default function Settings() {
 }
 
 function extractFormValues(): FormData {
-    return Project.variables.getMultiple([
+    const values: any = Project.variables.getMultiple([
         'title',
-        'currencies'
+        'currency',
+        'otherCurrencies'
     ]) as FormData
+
+    if (!values.otherCurrencies || values.otherCurrencies.length == 0) {
+        values.otherCurrencies = ['none']
+    }
+    return values
 }
 
 // Returns: positive for success, 0 otherwise
 async function saveFormData(data: FormData) {
+    // Filter out $currency and 'none' from otherCurrencies
+    data.otherCurrencies = data.otherCurrencies.filter(c => {
+        return c != data.currency && c != 'none'
+    })
     await Project.variables.setMultiple(data)
 }
