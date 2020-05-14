@@ -1,7 +1,9 @@
+import { QueryBuilder } from 'objection'
 import { Base, Model, TransactionOrKnex } from './Base'
 import { Element, IElement } from './Element'
 import { isDateOnly } from '../util/util'
 import { Project } from './Project'
+import Account from './Account'
 
 export enum TransactionType {
     Contribution = 'contribution',
@@ -207,6 +209,23 @@ export class Transaction extends Base {
                 }
             },
         }
+    }
+
+    // Helper function to insert an SQL WHERE condition to retrieve unpaid invoices.
+    // However, this will also retrieve overpaid invoices too.
+    // Call like this: `.where(Transaction.unpaidInvoices)` 
+    static unpaidInvoices(builder: QueryBuilder<Transaction, Transaction[]>,
+                          type = Transaction.Invoice, accountId = Account.Reserved.AccountsReceivable) {
+        builder.where('type', type)
+        // Raw query: use snake case
+        builder.whereRaw(`EXISTS (
+            SELECT \`balance\` FROM (
+                SELECT SUM(\`amount\`*\`drcr\`) as \`balance\` from \`txn_element\`
+                WHERE (\`transaction_id\` = \`txn\`.\`id\` OR \`settle_id\` = \`txn\`.\`id\`)
+                    AND \`account_id\` = ?
+                GROUP BY \`currency\`
+            ) WHERE \`balance\` <> 0
+        )`, [accountId])
     }
 
     // Calculates totals for each currency and returns them as an array
