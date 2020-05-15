@@ -162,17 +162,21 @@ export default function Sale(props: Props) {
                                 ref={form.register()}
                             />
                         </td><td>
-                            {!transaction.singleCurrency ?
+                            {index == 0 && (!transaction.singleCurrency ?
                             <select
                                 name={`elements[${index}].currency`}
                                 defaultValue={item.currency}
                                 ref={form.register()}>
                                 {currencySelectOptions(item.currency)}
                             </select> :
+                            <label htmlFor={`elements[${index}].currency`}>
+                                {item.currency}:
+                            </label>)}
+                            {(index != 0 || !!transaction.singleCurrency) &&
                             <input
                                 type='hidden'
                                 name={`elements[${index}].currency`}
-                                value={transaction.singleCurrency}
+                                value={item.currency}
                                 ref={form.register()}
                             />}
                             <input
@@ -260,8 +264,9 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
             id: e0.eId ? Number(e0.eId) : undefined,
             accountId: Number(e0.accountId),
             drcr: Transaction.Credit,
-            amount: parseFormatted(e0.amount, e0.currency),
-            currency: e0.currency,
+            // Note: Use the currency value of the first item
+            amount: parseFormatted(e0.amount, data.elements[0].currency),
+            currency: data.elements[0].currency,
             description: e0.description,
             settleId: 0,
         }

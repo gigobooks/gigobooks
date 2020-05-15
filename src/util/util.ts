@@ -69,13 +69,14 @@ export function toDateOnly(date: Date): string {
 
 // A helper function for validating monetary amounts
 // Returns true if there are validation errors, false otherwise
-export function _validateElementAmounts(form: any, data: any, fields: string[]) {
+export function _validateElementAmounts(form: any, data: any, fields: string[], useFirstCurrency = true) {
     let errors = false
 
     for (let index in data.elements) {
         for (let field of fields) {
             try {
-                parseFormatted(data.elements[index][field], data.elements[index].currency)
+                const currency = data.elements[useFirstCurrency ? 0 : index].currency
+                parseFormatted(data.elements[index][field], currency)
             }
             catch (e) {
                 form.setError(`elements[${index}].${field}`, '', 'Invalid amount')
@@ -92,5 +93,5 @@ export function validateElementAmounts(form: any, data: any) {
 
 // Like validateElementAmounts() but validates `.dr` and `.cr`
 export function validateElementDrCr(form: any, data: any) {
-    return _validateElementAmounts(form, data, ['dr', 'cr'])
+    return _validateElementAmounts(form, data, ['dr', 'cr'], false)
 }

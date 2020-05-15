@@ -137,9 +137,9 @@ export default function TransactionDetail(props: Props) {
                             Debit
                         </th><th>
                             Credit
-                        </th>{!transaction.singleCurrency && <th>
+                        </th><th>
                             Currency
-                        </th>}</tr>
+                        </th></tr>
                     </thead><tbody>
                     {fields.map((item, index) =>
                         <tr key={item.id}><td>
@@ -167,13 +167,6 @@ export default function TransactionDetail(props: Props) {
                                 (form.errors.elements[index] as any).dr &&
                                 <div>{(form.errors.elements[index] as any).dr.message}</div>}
                         </td><td>
-                            {!!transaction.singleCurrency && 
-                            <input
-                                type='hidden'
-                                name={`elements[${index}].currency`}
-                                value={transaction.singleCurrency}
-                                ref={form.register()}
-                            />}
                             <input
                                 name={`elements[${index}].cr`}
                                 defaultValue={item.cr}
@@ -182,14 +175,15 @@ export default function TransactionDetail(props: Props) {
                             {form.errors.elements && form.errors.elements[index] &&
                                 (form.errors.elements[index] as any).cr &&
                                 <div>{(form.errors.elements[index] as any).cr.message}</div>}
-                        </td>{!transaction.singleCurrency && <td>
+                        </td><td>
                             <select
                                 name={`elements[${index}].currency`}
                                 defaultValue={item.currency}
+                                disabled={!!transaction.singleCurrency}
                                 ref={form.register()}>
                                 {currencySelectOptions(item.currency)}
                             </select>
-                        </td>}</tr>
+                        </td></tr>
                     )}
                     </tbody></table>
                 </div><div>
