@@ -209,7 +209,7 @@ function extractFormValues(t: Transaction): FormData {
 }
 
 // Returns true if there are validation errors, false otherwise
-export function validateFormData(form: FCV<FormData>, data: FormData) {
+function validateFormData(form: FCV<FormData>, data: FormData) {
     return validateElementAmounts(form, data)
 }
 
