@@ -68,9 +68,9 @@ export function toDateOnly(date: Date): string {
 }
 
 // A helper function for validating monetary amounts
-// Returns true if there are validation errors, false otherwise
+// Returns true if validation succeeded, false otherwise
 export function _validateElementAmounts(form: any, data: any, fields: string[], useFirstCurrency = true) {
-    let errors = false
+    let success = true
 
     for (let index in data.elements) {
         for (let field of fields) {
@@ -80,11 +80,11 @@ export function _validateElementAmounts(form: any, data: any, fields: string[], 
             }
             catch (e) {
                 form.setError(`elements[${index}].${field}`, '', 'Invalid amount')
-                errors = true
+                success = false
             }
         }
     }
-    return errors
+    return success
 }
 
 export function validateElementAmounts(form: any, data: any) {

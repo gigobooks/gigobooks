@@ -80,7 +80,7 @@ export default function TransactionDetail(props: Props) {
     }, [props.arg1])
 
     const onSubmit = (data: FormData) => {
-        if (validateFormData(form, data)) {
+        if (!validateFormData(form, data)) {
             return
         }
 
@@ -226,9 +226,13 @@ function extractFormValues(t: Transaction): FormData {
     return values
 }
 
-// Returns true if there are validation errors, false otherwise
+// Returns true if validation succeeded, false otherwise
 function validateFormData(form: FCV<FormData>, data: FormData) {
-    let errors = false
+    if (!validateElementDrCr(form, data)) {
+        return false
+    }
+
+    let success = true
     const balances: Record<string, number> = {}
 
     data.elements.forEach(e => {
@@ -241,10 +245,10 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
 
     if (Object.keys(balances).some(currency => balances[currency] != 0)) {
         form.setError('submit', '', 'Entries do not balance')
-        errors = true
+        success = false
     }
 
-    return errors || validateElementDrCr(form, data)
+    return success
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise

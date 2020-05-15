@@ -94,7 +94,7 @@ export default function Expense(props: Props) {
     }, [props.arg1])
 
     const onSubmit = (data: FormData) => {
-        if (validateFormData(form, data)) {
+        if (!validateFormData(form, data)) {
             return
         }
 
@@ -244,15 +244,15 @@ function extractFormValues(t: Transaction): FormData {
     return values
 }
 
-// Returns true if there are validation errors, false otherwise
+// Returns true if validation succeeded, false otherwise
 function validateFormData(form: FCV<FormData>, data: FormData) {
-    let errors = false
+    let success = true
 
     if (!data.actorId) {
         form.setError('actorId', '', 'Supplier is required')
-        errors = true
+        success = false
     }
-    return errors || validateElementAmounts(form, data)
+    return success && validateElementAmounts(form, data)
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise

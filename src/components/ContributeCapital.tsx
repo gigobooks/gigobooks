@@ -71,7 +71,7 @@ export default function ContributeCapital(props: Props) {
     }, [props.arg1])
 
     const onSubmit = (data: FormData) => {
-        if (validateFormData(form, data)) {
+        if (!validateFormData(form, data)) {
             return
         }
 
@@ -208,7 +208,7 @@ function extractFormValues(t: Transaction): FormData {
     return values
 }
 
-// Returns true if there are validation errors, false otherwise
+// Returns true if validation succeeded, false otherwise
 function validateFormData(form: FCV<FormData>, data: FormData) {
     return validateElementAmounts(form, data)
 }
