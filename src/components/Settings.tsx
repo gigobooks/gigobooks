@@ -11,21 +11,17 @@ type FormData = {
 }
 
 export default function Settings() {
-    const [formValues, setFormValues] = React.useState<FormData>({} as FormData)
     const form = useForm<FormData>()
+    const formValues: any = form.getValues()
 
     // Initialise
     React.useEffect(() => {
-        const values = extractFormValues()
-        setFormValues(values)
-        form.reset(values)
+        form.reset(extractFormValues())
     }, [])
 
     const onSubmit = async (data: FormData) => {
         saveFormData(data).then(() => {
-            const values = extractFormValues()
-            setFormValues(values)
-            form.reset(values)
+            form.reset(extractFormValues())
         }).catch(e => {
             form.setError('submit', '', e.toString())
         })
