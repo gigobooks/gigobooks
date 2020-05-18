@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker'
 import { Project, Transaction, Account,  IElement, toFormatted, parseFormatted } from '../core'
 import { toDateOnly } from '../util/util'
 import { parseISO } from 'date-fns'
-import { currencySelectOptions } from './SelectOptions'
+import { MaybeSelect, currencySelectOptions } from './SelectOptions'
 
 type Props = {
     transaction: Transaction
@@ -106,12 +106,12 @@ export default function InvoicePayment(props: Props) {
                             onKeyPress={keyboardSubmit}
                         />
                     </td><td>
-                        <select
+                        <MaybeSelect
                             name={`payments[${index}].currency`}
                             defaultValue={item.currency}
-                            ref={form.register()}>
+                            forwardRef={form.register()}>
                             {currencySelectOptions(item.currency)}
-                        </select>
+                        </MaybeSelect>
                         <input
                             name={`payments[${index}].amount`}
                             defaultValue={item.amount}
