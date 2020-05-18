@@ -2,7 +2,39 @@ import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
 import { Account, Actor, Project } from '../core'
 
-// Some utility functions to help with constructing select options
+// A thin wrapper around <select /> with the following optimisation:
+// If only one option is available, then set to disabled so it does not receive focus
+export class MaybeSelect extends React.Component<any> {
+    count: number
+
+    constructor(props: any) {
+        super(props)
+        this.count = 0
+        this.countOptions(this.props)
+    }
+
+    countOptions(props: any) {
+        const children = props.children
+        if (Array.isArray(children)) {
+            children.filter((child: any) => {
+                if (child.type && child.type == 'option') {
+                    this.count++
+                }
+                else if (child.props && child.props.children) {
+                    this.countOptions(child.props)
+                }
+            })
+        }
+        else if (children.props && children.props.children) {
+            this.countOptions(children.props)
+        }
+    }
+
+    render() {
+        const {forwardRef, ...rest} = this.props
+        return <select disabled={this.count <= 1} ref={forwardRef} {...rest} />
+    }
+}
 
 export function flatSelectOptions(items: any[]) {
     return <>

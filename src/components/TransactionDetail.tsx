@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker'
 import { Project, Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
 import { toDateOnly, validateElementDrCr } from '../util/util'
 import { parseISO } from 'date-fns'
-import { accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
+import { MaybeSelect, accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
 
 type Props = {
     arg1?: string
@@ -176,13 +176,12 @@ export default function TransactionDetail(props: Props) {
                                 (form.errors.elements[index] as any).cr &&
                                 <div>{(form.errors.elements[index] as any).cr.message}</div>}
                         </td><td>
-                            <select
+                            <MaybeSelect
                                 name={`elements[${index}].currency`}
                                 defaultValue={item.currency}
-                                disabled={!!transaction.singleCurrency}
-                                ref={form.register()}>
+                                forwardRef={form.register()}>
                                 {currencySelectOptions(item.currency)}
-                            </select>
+                            </MaybeSelect>
                         </td></tr>
                     )}
                     </tbody></table>

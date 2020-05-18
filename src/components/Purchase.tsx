@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker'
 import { Project, Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
 import { toDateOnly, validateElementAmounts } from '../util/util'
 import { parseISO } from 'date-fns'
-import { flatSelectOptions, accountSelectOptions, currencySelectOptions } from './SelectOptions'
+import { MaybeSelect, flatSelectOptions, accountSelectOptions, currencySelectOptions } from './SelectOptions'
 
 type Props = {
     arg1?: string
@@ -168,17 +168,13 @@ export default function Expense(props: Props) {
                                 ref={form.register()}
                             />
                         </td><td>
-                            {index == 0 && (!transaction.singleCurrency ?
-                            <select
+                            {index == 0 ?
+                            <MaybeSelect
                                 name={`elements[${index}].currency`}
                                 defaultValue={item.currency}
-                                ref={form.register()}>
+                                forwardRef={form.register()}>
                                 {currencySelectOptions(item.currency)}
-                            </select> :
-                            <label htmlFor={`elements[${index}].currency`}>
-                                {item.currency}:
-                            </label>)}
-                            {(index != 0 || !!transaction.singleCurrency) &&
+                            </MaybeSelect> :
                             <input
                                 type='hidden'
                                 name={`elements[${index}].currency`}
