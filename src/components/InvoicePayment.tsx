@@ -36,7 +36,7 @@ export default function InvoicePayment(props: Props) {
         .withGraphFetched('elements')
         .then(rows => {
             setSettlements(rows)
-            form.reset(extractFormValues(rows))    
+            form.reset(extractFormValues(transaction, rows))    
         })
     }, [transaction.updatedAt])
 
@@ -47,7 +47,7 @@ export default function InvoicePayment(props: Props) {
 
         saveFormData(form, transaction!, settlements, data).then(savedId => {
             if (savedId) {
-                form.reset(extractFormValues(settlements))
+                form.reset(extractFormValues(transaction, settlements))
             }
         }).catch(e => {
             form.setError(`payments[${data.index}].submit`, '', e.toString())
@@ -71,8 +71,15 @@ export default function InvoicePayment(props: Props) {
                         &nbsp;
                     </th></tr>
                 </thead><tbody>
-                {fields.map((item, index) =>
-                    <tr key={item.id}><td>
+                {fields.map((item, index) => {
+                    function keyboardSubmit(e: React.KeyboardEvent) {
+                        if (e.key == 'Enter') {
+                            form.setValue('index', index)
+                            form.handleSubmit(onSubmit)()    
+                        }
+                    }
+
+                    return <tr key={item.id}><td>
                         {item.tId}
                         <input type='hidden' name={`payments[${index}].tId`} value={item.tId} ref={form.register()} />
                     </td><td>
@@ -96,6 +103,7 @@ export default function InvoicePayment(props: Props) {
                             name={`payments[${index}].description`}
                             defaultValue={item.description}
                             ref={form.register()}
+                            onKeyPress={keyboardSubmit}
                         />
                     </td><td>
                         <select
@@ -108,6 +116,7 @@ export default function InvoicePayment(props: Props) {
                             name={`payments[${index}].amount`}
                             defaultValue={item.amount}
                             ref={form.register()}
+                            onKeyPress={keyboardSubmit}
                         />
                         {form.errors.payments && form.errors.payments[index] && 
                             form.errors.payments[index].amount &&
@@ -126,21 +135,43 @@ export default function InvoicePayment(props: Props) {
                             form.errors.payments[index].submit &&
                             <div>{form.errors.payments[index].submit!.message}</div>}
                     </td></tr>
-                )}
+                })}
                 </tbody></table>
                 <input type='hidden' name='index' ref={form.register} />
             </form>
         </div>
 
+        // Collect all the entries to AccountsReceivable together and calculate
+        // the unpaid portion of the invoice.
+        const allElements: IElement[] = []
+        const allTransactions = [transaction, ...settlements]
+        allTransactions.forEach(t => allElements.push(...t.elements!))
+        const balances = Transaction.getBalances(allElements.filter(
+            e => e.accountId == Account.Reserved.AccountsReceivable))
+
+        const balancesPane = <div>
+            <h2>Balance</h2>
+            <table><tbody>
+            {Object.keys(balances).map(currency =>
+                <tr key={currency}><td>
+                    Balance ({currency}):
+                </td><td>
+                    {toFormatted(balances[currency], currency)}
+                </td></tr>
+                )}
+            </tbody></table>
+        </div>
+
         return <>
             {paymentsForm}
+            {balancesPane}
         </>
     }
 
     return null
 }
 
-function extractFormValues(settlements: Transaction[]): FormData {
+function extractFormValues(transaction: Transaction, settlements: Transaction[]): FormData {
     const values: FormData = {
         payments: [],
         index: 0,
@@ -163,8 +194,7 @@ function extractFormValues(settlements: Transaction[]): FormData {
     values.payments.push({
         date: new Date(),
         amount: '',
-        // !!
-        currency: Project.variables.get('currency')
+        currency: transaction.elements![0].currency!
     })
 
     return values
