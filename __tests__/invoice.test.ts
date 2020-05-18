@@ -28,7 +28,7 @@ test('create and retrieve invoices', async done => {
     ])
     await inv1.save()
 
-    let results: any = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    let results: any = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(1)
     expect(results[0].id).toBe(inv1.id)
 
@@ -40,7 +40,7 @@ test('create and retrieve invoices', async done => {
     ])
     await inv2.save()
 
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(2)
     expect(results[1].id).toBe(inv2.id)
 
@@ -55,7 +55,7 @@ test('create and retrieve invoices', async done => {
     await s1.save()
 
     // inv1 is settled. Only inv2 should be retrieved
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(1)
     expect(results[0].id).toBe(inv2.id)
 
@@ -68,7 +68,7 @@ test('create and retrieve invoices', async done => {
     s1.condenseElements()
 
     // inv1 and inv2 are both unsettled
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(2)
     expect(results[0].id).toBe(inv1.id)
     expect(results[1].id).toBe(inv2.id)
@@ -81,7 +81,7 @@ test('create and retrieve invoices', async done => {
     await s1.save()
 
     // inv1 is settled. Only inv2 should be retrieved
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(1)
     expect(results[0].id).toBe(inv2.id)
 
@@ -94,7 +94,7 @@ test('create and retrieve invoices', async done => {
     await s2.save()
 
     // Both are settled. Should retrieve nothing
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(0)
 
     // Change currency of s2
@@ -105,7 +105,7 @@ test('create and retrieve invoices', async done => {
     await s2.save()
 
     // Now inv2 is unsettled
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(1)
     expect(results[0].id).toBe(inv2.id)
 
@@ -117,7 +117,7 @@ test('create and retrieve invoices', async done => {
     await s2.save()
 
     // inv2 is still unsettled
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(1)
     expect(results[0].id).toBe(inv2.id)
 
@@ -129,7 +129,7 @@ test('create and retrieve invoices', async done => {
     await s2.save()
 
     // inv2 is still unsettled
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(1)
     expect(results[0].id).toBe(inv2.id)
 
@@ -142,7 +142,7 @@ test('create and retrieve invoices', async done => {
     await s2a.save()
 
     // inv2 is still unsettled
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(1)
     expect(results[0].id).toBe(inv2.id)
 
@@ -156,8 +156,14 @@ test('create and retrieve invoices', async done => {
     inv2.condenseElements()
 
     // Both are settled. Should retrieve nothing
-    results = await Transaction.query().select().where(Transaction.unpaidInvoices)
+    results = await Transaction.query().where(Transaction.unpaidInvoices)
     expect(results.length).toBe(0)
+
+    // Retrieve transactions which settle inv2
+    results = await Transaction.query().where(inv2.settlements())
+    expect(results.length).toBe(2)
+    expect(results[0].id).toBe(s2.id)
+    expect(results[1].id).toBe(s2a.id)
 
     done()
 })

@@ -6,6 +6,7 @@ import { Project, Transaction, Account, Actor, IElement, toFormatted, parseForma
 import { toDateOnly, validateElementAmounts } from '../util/util'
 import { parseISO } from 'date-fns'
 import { flatSelectOptions, currencySelectOptions } from './SelectOptions'
+import InvoicePayment from './InvoicePayment'
 
 type Props = {
     arg1?: string
@@ -102,7 +103,7 @@ export default function Invoice(props: Props) {
         return <Redirect to={`/invoices/${redirectId}`} />
     }
     else if (transaction && revenueOptions && customerOptions) {
-        return <div>
+        const invoiceForm = <div>
             <h1>{transaction.id ? `Invoice ${transaction.id}` : 'New invoice'}</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
@@ -194,6 +195,11 @@ export default function Invoice(props: Props) {
                     <input type='submit' value={argId ? 'Save' : 'Create'} />
                 </div>
             </form>
+        </div>
+
+        return <div>
+            {invoiceForm}
+            {!!transaction.id && <InvoicePayment transaction={transaction} />}
         </div>
     }
 

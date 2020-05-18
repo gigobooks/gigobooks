@@ -10,6 +10,7 @@ export enum TransactionType {
     Dividend = 'dividend',
     Sale = 'sale',
     Invoice = 'invoice',
+    InvoicePayment = 'invoice-payment',
     Purchase = 'purchase',
 }
 
@@ -21,6 +22,7 @@ export class Transaction extends Base {
     static Dividend = TransactionType.Dividend
     static Sale = TransactionType.Sale
     static Invoice = TransactionType.Invoice
+    static InvoicePayment = TransactionType.InvoicePayment
     static Purchase = TransactionType.Purchase
 
     id?: number
@@ -187,6 +189,18 @@ export class Transaction extends Base {
     condenseElements() {
         if (this.elements) {
             this.elements = this.elements.filter(e => e.amount != 0)
+        }
+    }
+
+    // SQL WHERE condition to retrieve invoices which settle this.
+    // Call like this: `.where(object.settlements())`
+    settlements() {
+        const self = this
+        return function (builder: QueryBuilder<Transaction, Transaction[]>) {
+            builder.whereIn('id', 
+                function (builder: QueryBuilder<Transaction, Transaction[]>) {
+                builder.select('transactionId').from('txnElement').where('settleId', self.id)
+            })
         }
     }
 
