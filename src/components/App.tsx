@@ -2,6 +2,7 @@ import * as React from 'react'
 import Sidebar from 'react-sidebar'
 import { HashRouter, Link, Route, Switch, useParams } from 'react-router-dom'
 import Settings from './Settings'
+import SettingsTax from './SettingsTax'
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
 import ActorDetail from './ActorDetail'
@@ -75,7 +76,7 @@ const Menu = () => {
         Sales - <Link to='/sales/new'>new</Link><br />
         Invoices - <Link to='/invoices/new'>new</Link><br />
         Purchases - <Link to='/purchases/new'>new</Link><br />
-        <Link to='/settings'>Settings</Link><br />
+        <Link to='/settings'>Settings</Link> - <Link to='/settings/tax'>tax</Link><br />
         <Link to='/debug'>Debug</Link>
 
         <Switch>
@@ -123,6 +124,9 @@ const Main = () => {
         </Route>
         <Route path='/debug'>
             <DebugScreen />
+        </Route>
+        <Route path='/settings/tax'>
+            <SettingsTax />
         </Route>
         <Route path='/settings'>
             <Settings />

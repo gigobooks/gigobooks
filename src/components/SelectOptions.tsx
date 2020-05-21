@@ -1,3 +1,4 @@
+var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
 import { Account, Actor, Project } from '../core'
@@ -93,6 +94,41 @@ export function actorSelectOptions(actors: Actor[], optional = true) {
         {optional && <option key={0} value={0}>None</option>}
         {groupedSelectOptions(groups, Actor.TypeInfo)}
     </>
+}
+
+export function countryOptions() {
+    const data: Record<string, {
+        name: string,
+        sub: Record<string, {type: string, name: string}>
+    }> = iso3166.data
+    const items: {id: string, title: string}[] = []
+
+    Object.keys(data).forEach(id => {
+        items.push({id, title: data[id].name})
+    })
+
+    return flatSelectOptions(items.sort(function (a, b) {
+        return a.title < b.title ? -1 : 1
+    }))
+}
+
+export function countrySubdivisionOptions(countryCode: string) {
+    const data: Record<string, {
+        name: string,
+        sub: Record<string, {type: string, name: string}>
+    }> = iso3166.data
+    const items: {id: string, title: string}[] = []
+
+    const country = data[countryCode]
+    if (country) {
+        Object.keys(country.sub).forEach(id => {
+            items.push({id, title: country.sub[id].name})
+        })
+    }
+
+    return flatSelectOptions(items.sort(function (a, b) {
+        return a.title < b.title ? -1 : 1
+    }))
 }
 
 // Returns a list of ALL currency select options, with the supplied values at the top
