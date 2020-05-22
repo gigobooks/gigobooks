@@ -5,6 +5,9 @@ import { isDateOnly } from '../util/util'
 import { Project } from './Project'
 import Account from './Account'
 
+// Add a `_parent` reference to Element. For internal use
+type TElement = Element & { _parent?: TElement }
+
 export enum TransactionType {
     Contribution = 'contribution',
     Dividend = 'dividend',
@@ -31,7 +34,7 @@ export class Transaction extends Base {
     // Date is stored as a ten character string ie. '2020-01-01' 
     date?: string
     actorId?: number
-    elements?: Element[]
+    elements?: TElement[]
 
     // Given an array of vanilla (ie. non-Element) objects, merge them into .elements
     // For each item:
@@ -39,6 +42,14 @@ export class Transaction extends Base {
     //   If id is not supplied, append a new element
     //   If id is supplied, replace an existing element
     //   If id is supplied and an existing element is not found: error
+    // 
+    // If there are any child elements, then there are additional requirements:
+    //   Non-child elements are indicated by parentId being false-ish
+    //   Child elements are indicated by putting parentId = -1
+    //   The first element must be a non-child element
+    //   Each parent element must be immediately followed by it's children elements.
+    //   Conversely, each child element will be assigned a parent which is the
+    //     most recent preceding non-child element
     async mergeElements(list: IElement[]) {
         if (list.length == 0) {
             return Promise.reject('No items')
@@ -50,10 +61,23 @@ export class Transaction extends Base {
             }
         }
 
+        if (list[0].parentId) {
+            return Promise.reject(`First element must be a non-child`)
+        }
+
         // Don't assign or modify this.elements until after validation.
         const elements = this.elements ? [...this.elements] : []
+        let parent: TElement
         for (let i in list) {
-            const e = Element.construct(list[i])
+            const e: TElement = Element.construct(list[i])
+
+            if (e.parentId == -1) {
+                e._parent = parent!
+            }
+            else {
+                parent = e
+            }
+
             if (e.id == undefined) {
                 elements.push(e)
             }
@@ -146,9 +170,15 @@ export class Transaction extends Base {
     }
 
     // There is no explicit way to removes elements.
-    // To remove an element, set it's amount to zero, `.save()` to the database
-    // and if the save is succesful, call `.condenseelements()`
+    // To remove an element: 
+    //   o Set amount to zero. Set tax code to an empty string.
+    //   o `.save()` to the database
+    //   o If the save is succesful, call `.condenseElements()`
 
+    // The reason why `.condenseElements()` is not automatically called is:
+    // If the `.save()` was part of a transaction, there is no way to know if it
+    // was committed or rollback-ed. Hence, `.condenseElements` is to be called
+    // by the caller IF the caller knows that the save was successfully committed.
     async save(trx?: TransactionOrKnex) {
         if (!this.date || !isDateOnly(this.date)) {
             return Promise.reject('Invalid date')
@@ -172,23 +202,50 @@ export class Transaction extends Base {
         }
 
         if (this.elements) {
+            // Separate elements into three batches: Non-child, children, and deletes
+            const parents: TElement[] = []
+            const children: TElement[] = []
+            const deletes: TElement[] = []
+
             for (let e of this.elements) {
-                if (e.amount != 0) {
+                if (e.amount != 0 || e.taxCode) {
                     e.transactionId = this.id
-                    await e.save(trx)
+                    ;(e._parent ? children : parents).push(e)
                 }
                 else if (e.id) {
-                    await e.delete(trx)
+                    deletes.push(e)
                 }
+            }
+
+            // Do deletes first.
+            for (let e of deletes) {
+                await e.delete(trx)
+                // Set id to zero in case there are any children (who would then
+                // have parentId == 0 and be promoted to a non-child)
+                e.id = 0
+            }
+            
+            // Save parents
+            for (let e of parents) {
+                await e.save(trx)
+            }
+
+            // Fill in parentId of children; Adjust; Save
+            for (let e of children) {
+                e.parentId = (e._parent!.id && e._parent!.id > 0) ? e._parent!.id : 0
+                delete e._parent
+                await e.save(trx)
             }
         }
     }
 
-    // Removes any elements with zero amounts.
+    // Removes any elements with zero amounts AND an empty tax code.
     // This only removes from this.elements. It does not remove from the database.
     condenseElements() {
         if (this.elements) {
-            this.elements = this.elements.filter(e => e.amount != 0)
+            this.elements = this.elements.filter(e => e.amount != 0 || e.taxCode)
+            // Also sort by id
+            this.elements.sort((a, b) => a.id! - b.id!)
         }
     }
 
@@ -213,7 +270,8 @@ export class Transaction extends Base {
                 join: {
                     from: 'txn.id',
                     to: 'txnElement.transactionId'
-                }
+                },
+                modify: 'sortById',
             },
             settledBy: {
                 relation: Model.HasManyRelation,

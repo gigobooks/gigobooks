@@ -1,4 +1,4 @@
-import { Model, TransactionOrKnex } from 'objection'
+import { Model, TransactionOrKnex, QueryBuilder } from 'objection'
 export { Model, TransactionOrKnex } from 'objection'
 
 // https://stackoverflow.com/questions/45123761
@@ -39,5 +39,13 @@ export class Base extends Model {
         const idColumn: string = (this.constructor as any).idColumn
         const id: any = (this as any)[idColumn]
         return (this.constructor as any).query(trx).deleteById(id)
+    }
+
+    static get modifiers() {
+        return {
+            sortById(builder: QueryBuilder<any, any>) {
+                builder.orderBy('id')
+            }
+        }
     }
 }

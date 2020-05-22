@@ -10,6 +10,10 @@ export interface IElement {
     amount?: number        
     currency?: string
     settleId?: number
+    taxCode?: string
+    parentId?: number
+    gross?: number
+    grossAmount?: number
 }
 
 export class Element extends Base {
@@ -24,8 +28,18 @@ export class Element extends Base {
     drcr?: number
     amount?: number
     currency?: string
+
     // The id of a transaction that is (partly or completely) settled by this element
     settleId?: number
+
+    // If taxCode != '' && parentId != 0, this element is a tax component of the
+    // parent element denoted by parentId
+    taxCode?: string
+    parentId?: number
+
+    // If gross != 0, then the user entered a gross amount instead of a net-tax amount
+    gross?: number
+    grossAmount?: number
 
     static tableName = 'txnElement'
     static get relationMappings() {
