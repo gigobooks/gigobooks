@@ -75,6 +75,7 @@ export class Transaction extends Base {
                 e._parent = parent!
             }
             else {
+                e.parentId = 0
                 parent = e
             }
 
@@ -210,7 +211,7 @@ export class Transaction extends Base {
             for (let e of this.elements) {
                 if (e.amount != 0 || e.taxCode) {
                     e.transactionId = this.id
-                    ;(e._parent ? children : parents).push(e)
+                    ;((e._parent || e.parentId) ? children : parents).push(e)
                 }
                 else if (e.id) {
                     deletes.push(e)
@@ -219,9 +220,17 @@ export class Transaction extends Base {
 
             // Do deletes first.
             for (let e of deletes) {
+                // If there are any children, their parent is about to be deleted
+                // so point them to this element for further processing below
+                for (let c of children) {
+                    if (c.parentId == e.id) {
+                        c._parent = e
+                    }
+                }
+
                 await e.delete(trx)
-                // Set id to zero in case there are any children (who would then
-                // have parentId == 0 and be promoted to a non-child)
+
+                // Indicate to any children that their parent has been deleted
                 e.id = 0
             }
             
@@ -230,20 +239,35 @@ export class Transaction extends Base {
                 await e.save(trx)
             }
 
-            // Fill in parentId of children; Adjust; Save
+            // Fill in parentId of children and save
+            // However, if the parent has been deleted, then maybe delete the child
             for (let e of children) {
-                e.parentId = (e._parent!.id && e._parent!.id > 0) ? e._parent!.id : 0
-                delete e._parent
-                await e.save(trx)
+                // We only care about children which have `._parent`, assigned 
+                // either from `.mergeElements()`, or from the deletion of the parent.
+                if (e._parent) {
+                    e.parentId = e._parent.id ? e._parent.id : 0
+                    delete e._parent
+
+                    if (!e.parentId && e.amount == 0) {
+                        await e.delete(trx)
+                    }
+                    else  {
+                        await e.save(trx)    
+                    }
+                }
             }
         }
     }
 
-    // Removes any elements with zero amounts AND an empty tax code.
+    // Removes non-child elements with zero amounts
+    // Removes child elements with zero amounts AND an empty tax code.
     // This only removes from this.elements. It does not remove from the database.
     condenseElements() {
         if (this.elements) {
-            this.elements = this.elements.filter(e => e.amount != 0 || e.taxCode)
+            this.elements = this.elements.filter(e => {
+                const remove = (!e.parentId) || (e.parentId && !e.taxCode)
+                return e.amount != 0 || !remove
+            })
             // Also sort by id
             this.elements.sort((a, b) => a.id! - b.id!)
         }

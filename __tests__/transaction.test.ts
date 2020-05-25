@@ -204,38 +204,65 @@ test('child elements', async done => {
 
     await t0.mergeElements([
         {accountId: 10, drcr: Debit, amount: 100, currency: 'a', description: '1'},
-        {accountId: 10, drcr: Debit, amount: 400, currency: 'a', description: '1.1', parentId: -1},
-        {accountId: 30, drcr: Credit, amount: 200, currency: 'a', description: '2'},
-        {accountId: 30, drcr: Credit, amount: 300, currency: 'a', description: '2.1', parentId: -1},
+        {accountId: 10, drcr: Debit, amount: 0, currency: 'a', description: '1.1', taxCode: 'gst', parentId: -1},
+        {accountId: 10, drcr: Debit, amount: 10, currency: 'a', description: '1.2', taxCode: 'gst', parentId: -1},
+        {accountId: 30, drcr: Credit, amount: 100, currency: 'a', description: '2'},
+        {accountId: 30, drcr: Credit, amount: 0, currency: 'a', description: '2.1', taxCode: 'gst', parentId: -1},
         {accountId: 30, drcr: Credit, amount: 0, currency: 'a', description: '2.2', taxCode: 'gst', parentId: -1},
+        {accountId: 30, drcr: Credit, amount: 10, currency: 'a', description: '2.3', taxCode: 'gst', parentId: -1},
     ])
     await t0.save()
     t0.condenseElements()
 
     // The elements have been sorted by condenseElements()
-    expect(t0.elements!.length).toBe(5)
+    expect(t0.elements!.length).toBe(7)
     expect(t0.elements![0].description).toBe('1')
     expect(t0.elements![1].description).toBe('2')
     expect(t0.elements![2].description).toBe('1.1')
-    expect(t0.elements![3].description).toBe('2.1')
-    expect(t0.elements![4].description).toBe('2.2')
+    expect(t0.elements![3].description).toBe('1.2')
+    expect(t0.elements![4].description).toBe('2.1')
+    expect(t0.elements![5].description).toBe('2.2')
+    expect(t0.elements![6].description).toBe('2.3')
+
+    expect(t0.elements![0].parentId).toBe(0)
+    expect(t0.elements![1].parentId).toBe(0)
+    expect(t0.elements![2].parentId).toBe(t0.elements![0].id)
+    expect(t0.elements![3].parentId).toBe(t0.elements![0].id)
+    expect(t0.elements![4].parentId).toBe(t0.elements![1].id)
+    expect(t0.elements![5].parentId).toBe(t0.elements![1].id)
+    expect(t0.elements![6].parentId).toBe(t0.elements![1].id)
 
     // Remove tax code from '2.2' and merge/save/remove it
     await t0.mergeElements([
         {...t0.elements![1]},
-        {...t0.elements![4], taxCode: '', parentId: -1},
+        {...t0.elements![5], taxCode: '', parentId: -1},
     ])
     await t0.save()
     t0.condenseElements()
 
-    expect(t0.elements!.length).toBe(4)
+    expect(t0.elements!.length).toBe(6)
     expect(t0.elements![0].description).toBe('1')
     expect(t0.elements![1].description).toBe('2')
     expect(t0.elements![2].description).toBe('1.1')
-    expect(t0.elements![3].description).toBe('2.1')
+    expect(t0.elements![3].description).toBe('1.2')
+    expect(t0.elements![4].description).toBe('2.1')
+    expect(t0.elements![5].description).toBe('2.3')
 
-    const t1 = await Transaction.query().findById(t0.id!).withGraphFetched('elements')
-    expect(t1).toMatchObject(t0)
+    expect(await Transaction.query().findById(t0.id!).withGraphFetched('elements')).toMatchObject(t0)
+
+    // Remove parent elements. This should remove children with zero amounts
+    await t0.mergeElements([
+        {...t0.elements![0], amount: 0},
+        {...t0.elements![1], amount: 0},
+    ])
+    await t0.save()
+    t0.condenseElements()
+
+    expect(t0.elements!.length).toBe(2)
+    expect(t0.elements![0].description).toBe('1.2')
+    expect(t0.elements![1].description).toBe('2.3')
+
+    expect(await Transaction.query().findById(t0.id!).withGraphFetched('elements')).toMatchObject(t0)
 
     done()
 })
