@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
+import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { Project, Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
@@ -141,44 +141,7 @@ export default function Invoice(props: Props) {
                         </th></tr>
                     </thead><tbody>
                     {fields.map((item, index) =>
-                        <tr key={item.id}><td>
-                            {!!item.eId && 
-                            <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
-                            <select
-                                name={`elements[${index}].accountId`}
-                                defaultValue={item.accountId}
-                                ref={form.register()}>
-                                {revenueOptions}
-                            </select>
-                        </td><td>
-                            <input
-                                name={`elements[${index}].description`}
-                                defaultValue={item.description}
-                                ref={form.register()}
-                            />
-                        </td><td>
-                            {index == 0 ?
-                            <MaybeSelect
-                                name={`elements[${index}].currency`}
-                                defaultValue={item.currency}
-                                forwardRef={form.register()}>
-                                {currencySelectOptions(item.currency)}
-                            </MaybeSelect> :
-                            <input
-                                type='hidden'
-                                name={`elements[${index}].currency`}
-                                value={item.currency}
-                                ref={form.register()}
-                            />}
-                            <input
-                                name={`elements[${index}].amount`}
-                                defaultValue={item.amount}
-                                ref={form.register()}
-                            />
-                            {form.errors.elements && form.errors.elements[index] &&
-                                form.errors.elements[index].amount &&
-                                <div>{form.errors.elements[index].amount!.message}</div>}
-                        </td></tr>
+                        <ElementFamily key={item.id} {...{form, item, index, revenueOptions}} />
                     )}
                     </tbody></table>
                 </div><div>
@@ -200,6 +163,55 @@ export default function Invoice(props: Props) {
     }
 
     return null
+}
+
+type ElementFamilyProps = {
+    form: FCV<FormData>
+    item: Partial<ArrayField<Record<string, any>, "id">>
+    index: number
+    revenueOptions: {}
+}
+
+function ElementFamily(props: ElementFamilyProps) {
+    const {form, item, index, revenueOptions} = props
+    return <tr key={item.id}><td>
+        {!!item.eId && 
+        <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
+        <select
+            name={`elements[${index}].accountId`}
+            defaultValue={item.accountId}
+            ref={form.register()}>
+            {revenueOptions}
+        </select>
+    </td><td>
+        <input
+            name={`elements[${index}].description`}
+            defaultValue={item.description}
+            ref={form.register()}
+        />
+    </td><td>
+        {index == 0 ?
+        <MaybeSelect
+            name={`elements[${index}].currency`}
+            defaultValue={item.currency}
+            forwardRef={form.register()}>
+            {currencySelectOptions(item.currency)}
+        </MaybeSelect> :
+        <input
+            type='hidden'
+            name={`elements[${index}].currency`}
+            value={item.currency}
+            ref={form.register()}
+        />}
+        <input
+            name={`elements[${index}].amount`}
+            defaultValue={item.amount}
+            ref={form.register()}
+        />
+        {form.errors.elements && form.errors.elements[index] &&
+            form.errors.elements[index].amount &&
+            <div>{form.errors.elements[index].amount!.message}</div>}
+    </td></tr>
 }
 
 function extractFormValues(t: Transaction): FormData {
