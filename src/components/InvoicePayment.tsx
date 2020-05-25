@@ -31,13 +31,19 @@ export default function InvoicePayment(props: Props) {
 
     // Initialise
     React.useEffect(() => {
+        let mounted = true
+
         Transaction.query().where('type', Transaction.InvoicePayment)
         .where(transaction.settlements()).orderBy(['date', 'id'])
         .withGraphFetched('elements')
         .then(rows => {
-            setSettlements(rows)
-            form.reset(extractFormValues(transaction, rows))    
+            if (mounted) {
+                setSettlements(rows)
+                form.reset(extractFormValues(transaction, rows))    
+            }
         })
+
+        return () => {mounted=false}
     }, [transaction.updatedAt])
 
     const onSubmit = (data: FormData) => {
