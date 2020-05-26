@@ -1,8 +1,8 @@
 var VATRates = require('vatrates')
-import { taxCodes, taxCodesOther, taxCodesUS, taxCodesEU, taxLabel } from '../src/core/tax'
+import { taxCodeInfo, taxCodes, taxCodesOther, taxCodesUS, taxCodesEU, taxLabel } from '../src/core/tax'
 
 function taxCodesFromVATRates(homeCountryCode: string) {
-    const codes: string[] = ['EU:vat;r:0']
+    const codes: string[] = ['EU:VAT;r:0']
     new VATRates().getJSON().rates.forEach((data: any) => {
         function process(rates: any, suffix = '') {
             if (rates.standard) {
@@ -105,6 +105,65 @@ test('common tax codes', () => {
     })
 })
 
+test('parsing', () => {
+    let info = taxCodeInfo('EU-AT:VAT:20')
+    expect(info.geoParts).toEqual(['EU', 'AT'])
+    expect(info.typeParts).toEqual(['VAT'])
+    expect(info.variant).toBe('')
+    expect(info.rate).toEqual('20')
+    expect(info.reverse).toBeFalsy()
+
+    info = taxCodeInfo('EU-FR:VAT;r:super-reduced:2.1')
+    expect(info.geoParts).toEqual(['EU', 'FR'])
+    expect(info.typeParts).toEqual(['VAT', 'r'])
+    expect(info.variant).toBe('super-reduced')
+    expect(info.rate).toEqual('2.1')
+    expect(info.reverse).toBeTruthy()
+
+    info = taxCodeInfo('AU:GST:10')
+    expect(info.geoParts).toEqual(['AU'])
+    expect(info.typeParts).toEqual(['GST'])
+    expect(info.variant).toBe('')
+    expect(info.rate).toEqual('10')
+    expect(info.reverse).toBeFalsy()
+
+    info = taxCodeInfo(':zero:0')
+    expect(info.geoParts).toEqual([''])
+    expect(info.typeParts).toEqual(['zero'])
+    expect(info.variant).toBe('')
+    expect(info.rate).toEqual('0')
+    expect(info.reverse).toBeFalsy()
+
+    info = taxCodeInfo(':exempt:0')
+    expect(info.geoParts).toEqual([''])
+    expect(info.typeParts).toEqual(['exempt'])
+    expect(info.variant).toBe('')
+    expect(info.rate).toEqual('0')
+    expect(info.reverse).toBeFalsy()
+
+    // Some bogus strings
+    info = taxCodeInfo(':tax:')
+    expect(info.geoParts).toEqual([''])
+    expect(info.typeParts).toEqual(['tax'])
+    expect(info.variant).toBe('')
+    expect(info.rate).toEqual('')
+    expect(info.reverse).toBeFalsy()
+
+    info = taxCodeInfo('')
+    expect(info.geoParts).toEqual([''])
+    expect(info.typeParts).toEqual([''])
+    expect(info.variant).toBe('')
+    expect(info.rate).toEqual('')
+    expect(info.reverse).toBeFalsy()
+
+    info = taxCodeInfo(':')
+    expect(info.geoParts).toEqual([''])
+    expect(info.typeParts).toEqual([''])
+    expect(info.variant).toBe('')
+    expect(info.rate).toEqual('')
+    expect(info.reverse).toBeFalsy()
+})
+
 test('labels', () => {
     expect(taxLabel('EU-AT:VAT:20')).toEqual('Austria VAT 20%')
     expect(taxLabel('EU-AT:VAT:reduced:10')).toEqual('Austria VAT (reduced) 10%')
@@ -137,6 +196,7 @@ test('labels', () => {
     expect(taxLabel(':TAX:')).toEqual('TAX')
     expect(taxLabel(':Sales Tax;r:10.123')).toEqual('Sales Tax 10.123%')
 
+    expect(taxLabel('')).toEqual('')
     expect(taxLabel(':')).toEqual('')
     expect(taxLabel('::')).toEqual('')
     expect(taxLabel(':::')).toEqual('')

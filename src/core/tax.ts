@@ -77,7 +77,7 @@ type TaxCodeInfo = {
 }
 type TaxCodeInfoPartial = Omit<TaxCodeInfo, 'label'>
 
-function taxCodeInfo(code: string): TaxCodeInfo {
+export function taxCodeInfo(code: string): TaxCodeInfo {
     const parts = code.split(':')
     const info: any = {
         code,
@@ -195,7 +195,7 @@ export function taxCodesEU(homeCountryCode = '') {
         SE: ['25', 'reduced:6', 'reduced:12'],
         UK: ['20', 'reduced:5'],
     }
-    const codes: string[] = ['EU:vat;r:0']
+    const codes: string[] = ['EU:VAT;r:0']
     const homeVATCode = homeCountryCode == 'GR' ? 'EL' : 
                         homeCountryCode == 'GB' ? 'UK' : homeCountryCode
 
@@ -271,6 +271,10 @@ export function taxCodes(subdivision = '') {
     ]
 
     return codes.map(code => taxCodeInfo(code))
+}
+
+export function taxRate(code: string) {
+    return taxCodeInfo(code).rate
 }
 
 export function taxLabel(code: string) {
