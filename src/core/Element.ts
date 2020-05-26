@@ -12,7 +12,7 @@ export interface IElement {
     settleId?: number
     taxCode?: string
     parentId?: number
-    gross?: number
+    useGross?: number
     grossAmount?: number
 }
 
@@ -38,7 +38,7 @@ export class Element extends Base {
     parentId?: number
 
     // If gross != 0, then the user entered a gross amount instead of a net-tax amount
-    gross?: number
+    useGross?: number
     grossAmount?: number
 
     static tableName = 'txnElement'

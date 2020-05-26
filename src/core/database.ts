@@ -76,7 +76,7 @@ async function m01(knex: Knex) {
         t.integer('settleId').index().defaultTo(0)
         t.text('taxCode')
         t.integer('parentId').index().defaultTo(0)
-        t.integer('gross').defaultTo(0)
+        t.integer('useGross').defaultTo(0)
         t.integer('grossAmount')
         t.text('updatedAt')
         t.text('createdAt')
