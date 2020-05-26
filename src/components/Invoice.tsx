@@ -22,6 +22,8 @@ type FormData = {
         accountId: number
         amount: string
         currency: string
+        useGross: number
+        grossAmount: string
         description?: string
     }[]
     submit?: string    // Only for displaying general submit error messages
@@ -136,8 +138,15 @@ export default function Invoice(props: Props) {
                             Revenue type
                         </th><th>
                             Description
-                        </th><th>
+                        </th><th colSpan={3}>
                             Amount
+                        </th></tr>
+                        <tr><th colSpan={3}>
+                            &nbsp;
+                        </th><th>
+                            Gross
+                        </th><th>
+                            Net
                         </th></tr>
                     </thead><tbody>
                     {fields.map((item, index) =>
@@ -174,6 +183,11 @@ type ElementFamilyProps = {
 
 function ElementFamily(props: ElementFamilyProps) {
     const {form, item, index, revenueOptions} = props
+
+    const [useGross, setUseGross] = React.useState<number>(item.useGross ? 1 : 0)
+    const [enabled, setEnabled] = React.useState<boolean>(!item.useGross || !item.grossAmount)
+    const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
+
     return <tr key={item.id}><td>
         {!!item.eId && 
         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
@@ -204,8 +218,35 @@ function ElementFamily(props: ElementFamilyProps) {
             ref={form.register()}
         />}
         <input
+            type='hidden'
+            name={`elements[${index}].useGross`}
+            value={useGross}
+            ref={form.register()}
+        />
+    </td><td>
+        <input
+            name={`elements[${index}].grossAmount`}
+            defaultValue={item.grossAmount}
+            disabled={!grossEnabled}
+            onChange={e => {
+                form.setValue(`elements[${index}].amount`, e.target.value)
+                setUseGross(e.target.value ? 1 : 0)
+                setEnabled(e.target.value ? false : true)
+            }}
+            ref={form.register()}
+        />
+        {form.errors.elements && form.errors.elements[index] &&
+            form.errors.elements[index].grossAmount &&
+            <div>{form.errors.elements[index].grossAmount!.message}</div>}
+    </td><td>
+        <input
             name={`elements[${index}].amount`}
             defaultValue={item.amount}
+            disabled={!enabled}
+            onChange={e => {
+                form.setValue(`elements[${index}].grossAmount`, e.target.value)
+                setGrossEnabled(e.target.value ? false : true)
+            }}
             ref={form.register()}
         />
         {form.errors.elements && form.errors.elements[index] &&
@@ -231,6 +272,8 @@ function extractFormValues(t: Transaction): FormData {
                     accountId: e.accountId!,
                     amount: toFormatted(e.amount!, e.currency!),
                     currency: e.currency!,
+                    useGross: e.useGross!,
+                    grossAmount: toFormatted(e.grossAmount!, e.currency!),
                     description: e.description,
                 })
             }
@@ -269,6 +312,8 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
             // Note: Use the currency value of the first item
             amount: parseFormatted(e0.amount, data.elements[0].currency),
             currency: data.elements[0].currency,
+            useGross: e0.useGross,
+            grossAmount: parseFormatted(e0.grossAmount, data.elements[0].currency),
             description: e0.description,
             settleId: 0,
         }

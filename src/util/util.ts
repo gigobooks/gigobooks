@@ -88,7 +88,7 @@ export function _validateElementAmounts(form: any, data: any, fields: string[], 
 }
 
 export function validateElementAmounts(form: any, data: any) {
-    return _validateElementAmounts(form, data, ['amount'])
+    return _validateElementAmounts(form, data, ['amount', 'grossAmount'])
 }
 
 // Like validateElementAmounts() but validates `.dr` and `.cr`
