@@ -2,10 +2,11 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
-import { toDateOnly, validateElementAmounts } from '../util/util'
+import { Project, Transaction, Account, Actor, IElement, 
+    toFormatted, parseFormatted, taxRate, taxCodeWithRate, calculateTaxes } from '../core'
+import { toDateOnly, validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { parseISO } from 'date-fns'
-import { MaybeSelect, flatSelectOptions, currencySelectOptions } from './SelectOptions'
+import { MaybeSelect, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import InvoicePayment from './InvoicePayment'
 
 type Props = {
@@ -25,6 +26,13 @@ type FormData = {
         useGross: number
         grossAmount: string
         description?: string
+        taxes?: {
+            eId?: number
+            description?: string
+            code: string
+            rate: string
+            amount: string
+        }[]
     }[]
     submit?: string    // Only for displaying general submit error messages
 }
@@ -140,6 +148,8 @@ export default function Invoice(props: Props) {
                             Description
                         </th><th colSpan={3}>
                             Amount
+                        </th><th>
+                            &nbsp;
                         </th></tr>
                         <tr><th colSpan={3}>
                             &nbsp;
@@ -147,10 +157,16 @@ export default function Invoice(props: Props) {
                             Gross
                         </th><th>
                             Net
+                        </th><th>
+                            &nbsp;
                         </th></tr>
                     </thead><tbody>
                     {fields.map((item, index) =>
-                        <ElementFamily key={item.id} {...{form, item, index, revenueOptions}} />
+                        <ElementFamily
+                            key={item.id}
+                            currency={fields[0].currency}
+                            {...{form, item, index, revenueOptions}}
+                        />
                     )}
                     </tbody></table>
                 </div><div>
@@ -178,17 +194,95 @@ type ElementFamilyProps = {
     form: FCV<FormData>
     item: Partial<ArrayField<Record<string, any>, "id">>
     index: number
+    currency: string
     revenueOptions: {}
+}
+
+type ElementFamilyState = {
+    formatted: string
+    grossFormatted: string
+    useGross: number
+    currency: string
+    rates: string[]
 }
 
 function ElementFamily(props: ElementFamilyProps) {
     const {form, item, index, revenueOptions} = props
+    const {fields, append} = useFieldArray({control: form.control, name: `elements[${index}].taxes`})
 
+    const [formatted, setFormatted] = React.useState<string>(item.amount)
+    const [grossFormatted, setGrossFormatted] = React.useState<string>(item.grossAmount)
     const [useGross, setUseGross] = React.useState<number>(item.useGross ? 1 : 0)
+    const [currency, setCurrency] = React.useState<string>(props.currency)
+    const [rates, setRates] = React.useState<string[]>(fields.map(subItem => subItem.rate))
+    const state: ElementFamilyState = {formatted, grossFormatted, useGross, currency, rates}
+
     const [enabled, setEnabled] = React.useState<boolean>(!item.useGross || !item.grossAmount)
     const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
+    const formErrors: any = form.errors
 
-    return <tr key={item.id}><td>
+    function recalculate(source: string) {
+        let inFormatted, outField, inAmount: number
+
+        if (source == 'amount') {
+            inFormatted = state.formatted
+            outField = 'grossAmount'
+        }
+        else if (source == 'grossAmount') {
+            inFormatted = state.grossFormatted
+            outField = 'amount'
+        }
+        else {
+            inFormatted = state.useGross ? state.grossFormatted : state.formatted
+            outField = state.useGross ? 'amount' : 'grossAmount'
+        }
+
+        if (inFormatted != undefined && inFormatted != '') {
+            // Validate amount/grossAmount.
+            let valid = true
+            try {
+                inAmount = parseFormatted(inFormatted, state.currency)
+            }
+            catch (e) {
+                valid = false
+            }
+
+            if (valid) {
+                const outputs = calculateTaxes({
+                    amount: inAmount!,
+                    useGross: state.useGross,
+                    rates: state.rates,
+                })
+
+                form.setValue(`elements[${index}].${outField}`, toFormatted(outputs.amount, state.currency))
+                for (let i in fields) {
+                    form.setValue(`elements[${index}].taxes[${i}].amount`, 
+                        (state.rates[i] != '' && outputs.taxes[i] != undefined) ?
+                        toFormatted(outputs.taxes[i], state.currency) : '')
+                }
+            }
+        }
+        else {
+            form.setValue(`elements[${index}].${outField}`, '')
+            for (let i in fields) {
+                form.setValue(`elements[${index}].taxes[${i}].amount`, '')
+            }
+        }
+
+        // Set state
+        switch (source) {
+            case 'currency': setCurrency(state.currency); break
+            case 'amount': setFormatted(state.formatted); break
+            case 'grossAmount':
+                setGrossFormatted(state.grossFormatted);
+                setUseGross(state.useGross);
+                break
+            case 'rates': setRates(state.rates); break
+        }
+    }
+
+    return <>
+    <tr key={item.id}><td>
         {!!item.eId && 
         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
         <select
@@ -208,19 +302,23 @@ function ElementFamily(props: ElementFamilyProps) {
         <MaybeSelect
             name={`elements[${index}].currency`}
             defaultValue={item.currency}
+            onChange={(e: {target: {value: string}}) => {
+                state.currency = e.target.value
+                recalculate('currency')
+            }}
             forwardRef={form.register()}>
             {currencySelectOptions(item.currency)}
         </MaybeSelect> :
         <input
             type='hidden'
             name={`elements[${index}].currency`}
-            value={item.currency}
+            value={currency}
             ref={form.register()}
         />}
         <input
             type='hidden'
             name={`elements[${index}].useGross`}
-            value={useGross}
+            value={state.useGross}
             ref={form.register()}
         />
     </td><td>
@@ -229,8 +327,9 @@ function ElementFamily(props: ElementFamilyProps) {
             defaultValue={item.grossAmount}
             disabled={!grossEnabled}
             onChange={e => {
-                form.setValue(`elements[${index}].amount`, e.target.value)
-                setUseGross(e.target.value ? 1 : 0)
+                state.grossFormatted = e.target.value
+                state.useGross = e.target.value ? 1 : 0
+                recalculate('grossAmount')
                 setEnabled(e.target.value ? false : true)
             }}
             ref={form.register()}
@@ -244,7 +343,8 @@ function ElementFamily(props: ElementFamilyProps) {
             defaultValue={item.amount}
             disabled={!enabled}
             onChange={e => {
-                form.setValue(`elements[${index}].grossAmount`, e.target.value)
+                state.formatted = e.target.value
+                recalculate('amount')
                 setGrossEnabled(e.target.value ? false : true)
             }}
             ref={form.register()}
@@ -252,7 +352,82 @@ function ElementFamily(props: ElementFamilyProps) {
         {form.errors.elements && form.errors.elements[index] &&
             form.errors.elements[index].amount &&
             <div>{form.errors.elements[index].amount!.message}</div>}
+    </td><td>
+        <button type='button' onClick={() => append({name: `elements[${index}].taxes`})}>
+            Add tax
+        </button>
     </td></tr>
+
+    {fields.length > 0 && <tr key={`${item.id}-taxes`}><th>
+        &nbsp;
+    </th><th>
+        description
+    </th><th>
+        tax
+    </th><th>
+        tax rate
+    </th><th>
+        amount
+    </th><th>
+        &nbsp;
+    </th></tr>}
+
+    {fields.map((subItem, subIndex) => 
+    <tr key={subItem.id}><td>
+        {!!subItem.eId && 
+        <input
+            type='hidden'
+            name={`elements[${index}].taxes[${subIndex}].eId`}
+            value={subItem.eId}
+            ref={form.register()}
+        />}
+    </td><td>
+        <input
+            name={`elements[${index}].taxes[${subIndex}].description`}
+            defaultValue={subItem.description}
+            ref={form.register()}
+        />
+    </td><td>
+        <select
+            name={`elements[${index}].taxes[${subIndex}].code`}
+            defaultValue={subItem.code}
+            onChange={e => {
+                const rate = taxRate(e.target.value)
+                form.setValue(`elements[${index}].taxes[${subIndex}].rate`, rate)
+                state.rates[subIndex] = rate
+                recalculate('rates')
+            }}
+            ref={form.register()}
+            style={{width: '100px'}}>
+            {taxSelectOptions(subItem.code)}
+        </select>
+    </td><td>
+        <input
+            name={`elements[${index}].taxes[${subIndex}].rate`}
+            defaultValue={subItem.rate}
+            onChange={e => {
+                state.rates[subIndex] = e.target.value
+                recalculate('rates')
+            }}
+            ref={form.register()}
+        />
+        <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>%</label>
+    </td><td>
+        <input
+            name={`elements[${index}].taxes[${subIndex}].amount`}
+            defaultValue={subItem.amount}
+            disabled={true}
+            ref={form.register()}
+        />
+        {formErrors.elements && formErrors.elements[index] &&
+            formErrors.elements[index].taxes && formErrors.elements[index].taxes[subIndex] &&
+            formErrors.elements[index].taxes[subIndex].amount &&
+            <div>{formErrors.elements[index].taxes[subIndex].amount.message}</div>}
+    </td><td>
+        &nbsp;
+    </td></tr>
+    )}
+    </>
 }
 
 function extractFormValues(t: Transaction): FormData {
@@ -264,9 +439,47 @@ function extractFormValues(t: Transaction): FormData {
     }
 
     if (t.elements) {
+        const children = []
         for (let e of t.elements) {
             if (e.drcr == Transaction.Credit) {
                 // Only populate credit elements
+                if (e.parentId == 0) {
+                    values.elements.push({
+                        eId: e.id,
+                        accountId: e.accountId!,
+                        amount: toFormatted(e.amount!, e.currency!),
+                        currency: e.currency!,
+                        useGross: e.useGross!,
+                        grossAmount: toFormatted(e.grossAmount!, e.currency!),
+                        description: e.description,
+                        taxes: [],
+                    })
+                }
+                else {
+                    children.push(e)
+                }
+            }
+        }
+
+        // Now populate child elements. Any orphans are promoted.
+        for (let e of children) {
+            let orphan = true
+            for (let p of values.elements) {
+                if (e.parentId == p.eId) {
+                    p.taxes!.push({
+                        eId: e.id,
+                        description: e.description,
+                        code: e.taxCode!,
+                        rate: taxRate(e.taxCode!),
+                        amount: toFormatted(e.amount!, e.currency!),
+                    })
+
+                    orphan = false
+                    break
+                }
+            }
+
+            if (orphan) {
                 values.elements.push({
                     eId: e.id,
                     accountId: e.accountId!,
@@ -291,7 +504,7 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
         form.setError('actorId', '', 'Customer is required')
         success = false
     }
-    return success && validateElementAmounts(form, data)
+    return success && validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
@@ -304,8 +517,9 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
     })
 
     // Convert form data to elements
-    const elements: IElement[] = data.elements.map(e0 => {
-        return {
+    const elements: IElement[] = []
+    data.elements.forEach(e0 => {
+        elements.push({
             id: e0.eId ? Number(e0.eId) : undefined,
             accountId: Number(e0.accountId),
             drcr: Transaction.Credit,
@@ -316,6 +530,27 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
             grossAmount: parseFormatted(e0.grossAmount, data.elements[0].currency),
             description: e0.description,
             settleId: 0,
+        })
+
+        if (e0.taxes) {
+            e0.taxes.forEach(sub => {
+                if (sub.code != '' && sub.rate != '') {
+                    elements.push({
+                        id: sub.eId ? Number(sub.eId) : undefined,
+                        accountId: Account.Reserved.TaxPayable,
+                        drcr: Transaction.Credit,
+                        // Note: Use the currency value of the first item
+                        amount: parseFormatted(sub.amount, data.elements[0].currency),
+                        currency: data.elements[0].currency,
+                        useGross: 0,
+                        grossAmount: 0,
+                        description: sub.description,
+                        settleId: 0,
+                        taxCode: taxCodeWithRate(sub.code, sub.rate),
+                        parentId: -1,
+                    })
+                }
+            })
         }
     })
 

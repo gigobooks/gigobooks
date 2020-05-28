@@ -1,7 +1,7 @@
 var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
-import { Account, Actor, Project } from '../core'
+import { Account, Actor, Project, taxCodeInfo, taxCodes } from '../core'
 
 // A thin wrapper around <select /> with the following optimisation:
 // If only one option is available, then set to disabled so it does not receive focus
@@ -170,6 +170,35 @@ export function currencySelectOptions(currency?: string) {
     return <>
         {currencies.sort().map(c =>
             <option key={c} value={c}>{c}</option>
+        )}
+    </>
+}
+
+// Returns a list of enabled tax code select options.
+// ToDo: If the supplied tax code is not in the list, it is added
+export function taxSelectOptions(code?: string, optional = true) {
+    const codes = taxCodes(Project.variables.get('subdivision'))
+
+    if (code) {
+        let missing = true
+        for (let info of codes) {
+            if (info.code == code) {
+                missing = false
+                break
+            }
+        }
+
+        if (missing) {
+            codes.push(taxCodeInfo(code))
+        }
+    }
+
+    return <>
+        {optional && <option key='' value=''>None</option>}
+        {codes.sort(function (a, b) {
+            return a.code < b.code ? -1 : 1
+        }).map(info =>
+            <option key={info.code} value={info.code}>{info.label}</option>
         )}
     </>
 }
