@@ -197,11 +197,13 @@ export function taxCodesEU(homeCountryCode = '') {
     const homeVATCode = homeCountryCode == 'GR' ? 'EL' : 
                         homeCountryCode == 'GB' ? 'UK' : homeCountryCode
 
+    /*
     if (data[homeVATCode]) {
         data[homeVATCode].forEach(suffix => {
             codes.push(`EU-${homeVATCode}:VAT;r:${suffix}`)
         })
     }
+    */
 
     Object.keys(data).forEach(cc => {
         data[cc].forEach(suffix => {
@@ -231,9 +233,11 @@ export function taxCodesUS(regionCode = '') {
         codes.push(`US-${ss}:st:${data[ss]}`)
     })
 
+    /*
     if (data[regionCode]) {
         codes.push(`US-${regionCode}:ut;r:${data[regionCode]}`)
     }
+    */
 
     return codes
 }
@@ -277,6 +281,20 @@ export function taxRate(code: string) {
 
 export function taxLabel(code: string) {
     return taxCodeInfo(code).label
+}
+
+// Given a tax code and a rate (as a string), merges the rate into the code
+export function taxCodeWithRate(code: string, rate: string) {
+    const parts = code.split(':')
+
+    switch (parts.length) {
+        case 1: parts.push('')
+        case 2: parts.push('')
+    }
+
+    // If `rate` has a colon, ignore it and any subsequent characters
+    parts[parts.length - 1] = rate.split(':')[0]
+    return parts.join(':')
 }
 
 export type TaxInputs = {
