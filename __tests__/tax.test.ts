@@ -1,5 +1,5 @@
 var VATRates = require('vatrates')
-import { taxCodeInfo, taxCodes, taxCodesOther, taxCodesUS, taxCodesEU, taxLabel } from '../src/core/tax'
+import { taxCodeInfo, taxCodes, taxCodesOther, taxCodesUS, taxCodesEU, taxLabel, calculateTaxes } from '../src/core/tax'
 
 function taxCodesFromVATRates(homeCountryCode: string) {
     const codes: string[] = ['EU:VAT;r:0']
@@ -200,4 +200,44 @@ test('labels', () => {
     expect(taxLabel(':')).toEqual('')
     expect(taxLabel('::')).toEqual('')
     expect(taxLabel(':::')).toEqual('')
+})
+
+test('calculate tax', () => {
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: []}))
+        .toEqual({amount: 100000, taxes: []})
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: ['10']}))
+        .toEqual({amount: 110000, taxes: [10000]})
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: ['10', '0.001']}))
+        .toEqual({amount: 110001, taxes: [10000, 1]})
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: ['10', '-1']}))
+        .toEqual({amount: 110000, taxes: [10000, 0]})
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: ['10', 'blah']}))
+        .toEqual({amount: 110000, taxes: [10000, 0]})
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: ['blah']}))
+        .toEqual({amount: 100000, taxes: [0]})
+
+    expect(calculateTaxes({amount: 100000, useGross: 1, rates: []}))
+        .toEqual({amount: 100000, taxes: []})
+    expect(calculateTaxes({amount: 100000, useGross: 1, rates: ['10']}))
+        .toEqual({amount: 90909, taxes: [9091]})
+    expect(calculateTaxes({amount: 100000, useGross: 1, rates: ['10', '0.001']}))
+        .toEqual({amount: 90908, taxes: [9091, 1]})
+    expect(calculateTaxes({amount: 100000, useGross: 1, rates: ['10', '-1']}))
+        .toEqual({amount: 90909, taxes: [9091, 0]})
+    expect(calculateTaxes({amount: 100000, useGross: 1, rates: ['10', 'blah']}))
+        .toEqual({amount: 90909, taxes: [9091, 0]})
+    expect(calculateTaxes({amount: 100000, useGross: 1, rates: ['blah']}))
+        .toEqual({amount: 100000, taxes: [0]})
+
+    expect(calculateTaxes({amount: 110000, useGross: 1, rates: ['10']}))
+        .toEqual({amount: 100000, taxes: [10000]})
+    expect(calculateTaxes({amount: 110001, useGross: 1, rates: ['10', '0.001']}))
+        .toEqual({amount: 100000, taxes: [10000, 1]})
+
+    // sparse rates array
+    const sparse = []
+    sparse[3] = '10'
+    sparse[5] = '10'
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: sparse}))
+        .toEqual({amount: 120000, taxes: [0, 0, 0, 10000, 0, 10000]})
 })

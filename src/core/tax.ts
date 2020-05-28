@@ -60,7 +60,7 @@ Notice that `geography` is undefined for zero-rated and exempt codes.
 
 var iso3166 = require('iso-3166-2')
 
-// Tax rates are represented as thousandth's of a percentage point
+// Since some tax rates have three decimal places, scale up by 1000 before calculating
 const TaxRateScale = 1000
 
 type TaxCodeInfo = {
@@ -71,7 +71,6 @@ type TaxCodeInfo = {
     typeParts: string[]
     variant: string
     rate: string    // Tax rate percentage as a string. Up to three decimal places
-    rate000: number // Tax rate percentage multiplied by 1000 (as a number)
     reverse: boolean    // True if this is EU reverse charge
     label: string
 }
@@ -88,7 +87,6 @@ export function taxCodeInfo(code: string): TaxCodeInfo {
     }
     info.geoParts = info.geography.split('-')
     info.typeParts = info.type.split(';')
-    info.rate000 = parseFloat(info.rate) * TaxRateScale
     info.reverse = info.typeParts.length > 1 && info.typeParts[1] == 'r'
     info.label = makeLabel(info)
 
@@ -279,4 +277,61 @@ export function taxRate(code: string) {
 
 export function taxLabel(code: string) {
     return taxCodeInfo(code).label
+}
+
+export type TaxInputs = {
+    amount: number
+    useGross: number
+    rates: string[]
+}
+
+export type TaxOutputs = {
+    amount: number
+    taxes: number[]
+}
+
+// Given a (gross or net) amount and a list of tax rates, calculate the corresponding
+// (net or gross) amount and a list of tax amounts.
+// `useGross` indicates whether the input amount is gross or net.
+// `rates` is a list of tax rate percentages. Each tax rate is expressed as a string.
+// Tax amounts are rounded to an integer
+export function calculateTaxes(input: TaxInputs): TaxOutputs {
+    const taxes = []
+    let amount = input.amount
+
+    if (input.useGross) {
+        // gross -> net
+        let total000 = 0
+        const rates000 = []
+        for (let r of input.rates) {
+            let rate000 = parseFloat(r) * TaxRateScale
+            if (Number.isNaN(rate000) || rate000 < 0) {
+                rate000 = 0
+            }
+
+            rates000.push(rate000)
+            total000 += rate000
+        }
+
+        for (let rate000 of rates000) {
+            const taxAmount = Math.round((input.amount * rate000) / (100 * TaxRateScale + total000))
+            taxes.push(taxAmount)
+            amount -= taxAmount
+        }
+    }
+    else {
+        // net -> gross
+        for (let r of input.rates) {
+            let rate000 = parseFloat(r) * TaxRateScale
+            if (Number.isNaN(rate000) || rate000 < 0) {
+                rate000 = 0
+            }
+
+            const taxAmount = Math.round((input.amount * rate000) / (100 * TaxRateScale))
+            taxes.push(taxAmount)
+            amount += taxAmount
+        }
+    }
+
+    return {amount, taxes}
 }
