@@ -83,7 +83,9 @@ const RESERVED_ACCOUNT_ID_MAX = 99
 const ReservedAccountIds = {
     Cash: 10,
     AccountsReceivable: 11,
+    TaxReceivable: 13,
     AccountsPayable: 20,
+    TaxPayable: 22,
     Equity: 30,
 }
 
@@ -92,8 +94,10 @@ export const PrepopulatedAccounts = [
     {id: ReservedAccountIds.Cash, title: 'Cash', type: 'asset'},
     {id: ReservedAccountIds.AccountsReceivable, title: 'Accounts Receivable', type: 'asset'},
     {id: 12, title: 'Long Term Assets', type: 'long-term-asset'},
+    {id: ReservedAccountIds.TaxReceivable, title: 'Tax Receivable', type: 'asset'},
     {id: ReservedAccountIds.AccountsPayable, title: 'Accounts Payable', type: 'liability'},
     {id: 21, title: 'Long Term Liabilities', type: 'long-term-liability'},
+    {id: ReservedAccountIds.TaxPayable, title: 'Tax Payable', type: 'liability'},
     {id: ReservedAccountIds.Equity, title: 'Equity', type: 'equity'},
     {id: 50, title: 'Interest Expense', type: 'interest-expense'},
     {id: 51, title: 'Taxes', type: 'tax-expense'},
