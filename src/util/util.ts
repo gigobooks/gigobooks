@@ -67,31 +67,70 @@ export function toDateOnly(date: Date): string {
     return `${date.getFullYear()}-${m < 10 ? '0' : ''}${m}-${d < 10 ? '0' : ''}${d}`
 }
 
+type ValidationOptions = {
+    listField: string
+    formListField: string
+    validateFields: string[]
+    currency: string | false
+}
+
+const defaultValidationOptions: ValidationOptions = {
+    listField: 'elements',
+    formListField: 'elements',
+    validateFields: ['amount', 'grossAmount'],
+    currency: false,
+}
+
 // A helper function for validating monetary amounts
 // Returns true if validation succeeded, false otherwise
-export function _validateElementAmounts(form: any, data: any, fields: string[], useFirstCurrency = true) {
-    let success = true
+export function validateAmounts(form: any, data: any, options0: Partial<ValidationOptions> = {}) {
+    const options = {
+        ...defaultValidationOptions,
+        ...options0,
+    }
 
-    for (let index in data.elements) {
-        for (let field of fields) {
+    for (let index in data[options.listField]) {
+        for (let field of options.validateFields) {
             try {
-                const currency = data.elements[useFirstCurrency ? 0 : index].currency
-                parseFormatted(data.elements[index][field], currency)
+                const currency = options.currency ? options.currency : data[options.listField][index].currency
+                parseFormatted(data[options.listField][index][field], currency)
             }
             catch (e) {
-                form.setError(`elements[${index}].${field}`, '', 'Invalid amount')
-                success = false
+                form.setError(`${[options.formListField]}[${index}].${field}`, '', 'Invalid amount')
+                return false
             }
         }
     }
-    return success
+    return true
 }
 
 export function validateElementAmounts(form: any, data: any) {
-    return _validateElementAmounts(form, data, ['amount', 'grossAmount'])
+    return validateAmounts(form, data, {
+        currency: data.elements[0].currency
+    })
 }
 
 // Like validateElementAmounts() but validates `.dr` and `.cr`
 export function validateElementDrCr(form: any, data: any) {
-    return _validateElementAmounts(form, data, ['dr', 'cr'], false)
+    return validateAmounts(form, data, {
+        validateFields: ['dr', 'cr'],
+    })
+}
+
+export function validateElementTaxAmounts(form: any, data: any) {
+    for (let index in data.elements) {
+        if (data.elements[index].taxes) {
+            const success = validateAmounts(form, data.elements[index], {
+                listField: 'taxes',
+                formListField: `elements[${index}].taxes`,
+                currency: data.elements[0].currency
+            })
+
+            if (!success) {
+                return false
+            }
+        }
+    }
+
+    return true
 }
