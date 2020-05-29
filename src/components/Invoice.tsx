@@ -3,7 +3,7 @@ import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FC
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { Project, Transaction, Account, Actor, IElement, 
-    toFormatted, parseFormatted, taxRate, taxCodeWithRate, calculateTaxes } from '../core'
+    toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate, calculateTaxes } from '../core'
 import { toDateOnly, validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { parseISO } from 'date-fns'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
@@ -219,6 +219,7 @@ function ElementFamily(props: ElementFamilyProps) {
 
     const [enabled, setEnabled] = React.useState<boolean>(!item.useGross || !item.grossAmount)
     const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
+    const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => taxCodeInfo(subItem.code).variable))
     const formErrors: any = form.errors
 
     function recalculate(source: string) {
@@ -392,10 +393,13 @@ function ElementFamily(props: ElementFamilyProps) {
             name={`elements[${index}].taxes[${subIndex}].code`}
             defaultValue={subItem.code}
             onChange={e => {
-                const rate = taxRate(e.target.value)
-                form.setValue(`elements[${index}].taxes[${subIndex}].rate`, rate)
-                state.rates[subIndex] = rate
+                const info = taxCodeInfo(e.target.value)
+                form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
+                state.rates[subIndex] = info.rate
                 recalculate('rates')
+
+                ratesEnabled[subIndex] = info.variable
+                setRatesEnabled([...ratesEnabled])
             }}
             ref={form.register()}
             style={{width: '100px'}}>
@@ -409,6 +413,7 @@ function ElementFamily(props: ElementFamilyProps) {
                 state.rates[subIndex] = e.target.value
                 recalculate('rates')
             }}
+            disabled={!ratesEnabled[subIndex]}
             ref={form.register()}
         />
         <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>%</label>

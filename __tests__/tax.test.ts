@@ -23,11 +23,6 @@ function taxCodesFromVATRates(homeCountryCode: string) {
         }
 
         process(data.periods[0].rates)
-        /*
-        if (data.countryCode == homeCountryCode) {
-            process(data.periods[0].rates, ';r')
-        }
-        */
     })
 
     return codes
@@ -94,7 +89,7 @@ test('cross comparison against VATRates', () => {
 
 test('common tax codes', () => {
     const codesUSCA = taxCodesUS('CA')
-    ;['US-MA:st:6.25', 'US-CA:st:7.25', /*'US-CA:ut;r:7.25'*/].forEach(item => {
+    ;['US-MA:st;x:6.25', 'US-CA:st;x:7.25'].forEach(item => {
         expect(codesUSCA).toContain(item)
     })
 
@@ -115,15 +110,6 @@ test('parsing', () => {
     expect(info.variant).toBe('')
     expect(info.rate).toEqual('20')
     expect(info.reverse).toBeFalsy()
-
-    /*
-    info = taxCodeInfo('EU-FR:VAT;r:super-reduced:2.1')
-    expect(info.geoParts).toEqual(['EU', 'FR'])
-    expect(info.typeParts).toEqual(['VAT', 'r'])
-    expect(info.variant).toBe('super-reduced')
-    expect(info.rate).toEqual('2.1')
-    expect(info.reverse).toBeTruthy()
-    */
 
     info = taxCodeInfo('AU:GST:10')
     expect(info.geoParts).toEqual(['AU'])
@@ -180,8 +166,6 @@ test('labels', () => {
     expect(taxLabel('EU-UK:VAT:20')).toEqual('United Kingdom VAT 20%')
 
     expect(taxLabel('EU:VAT;r:0')).toEqual('VAT reverse charged 0%')
-    // expect(taxLabel('EU-FR:VAT;r:20')).toEqual('France VAT reverse charged 20%')
-    // expect(taxLabel('EU-FR:VAT;r:super-reduced:2.1')).toEqual('France VAT reverse charged (super reduced) 2.1%')
 
     expect(taxLabel('AU:GST:10')).toEqual('Australia GST 10%')
     expect(taxLabel('CA:GST:5')).toEqual('Canada GST 5%')
@@ -189,10 +173,8 @@ test('labels', () => {
     expect(taxLabel('CA-QC:QST:9.975')).toEqual('(Canada) Quebec QST 9.975%')
     expect(taxLabel('CA-SK:PST:6')).toEqual('(Canada) Saskatchewan PST 6%')
 
-    expect(taxLabel('US-CA:st:')).toEqual('(United States) California Sales Tax')
-    expect(taxLabel('US-CA:st:7.25')).toEqual('(United States) California Sales Tax 7.25%')
-    expect(taxLabel('US-MA:ut:')).toEqual('(United States) Massachusetts Use Tax')
-    expect(taxLabel('US-MA:ut:6.25')).toEqual('(United States) Massachusetts Use Tax 6.25%')
+    expect(taxLabel('US-CA:st;x:')).toEqual('(United States) California Sales Tax')
+    expect(taxLabel('US-CA:st;x:7.25')).toEqual('(United States) California Sales Tax 7.25%')
 
     expect(taxLabel(':zero:0')).toEqual('Zero rated 0%')
     expect(taxLabel(':exempt:0')).toEqual('Tax exempt 0%')

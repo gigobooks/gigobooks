@@ -3,8 +3,8 @@ Breakdown of tax codes
 
 A tax code comprises a tuple (colon delimited) of 3 or 4 parts:
 
-[geography]:<type[;modifiers]>:[rate]
-[geography]:<type[;modifiers]>:[variant]:[rate]
+[geography]:<type[;flags]>:[rate]
+[geography]:<type[;flags]>:[variant]:[rate]
 
 The `geography` loosely denotes the geographical area in a hierarchical form
 (hyphen delimited) ie. `EU-AT`, `AU`, `US-CA`, `CA-BC`, `IN-AP`, `CN-AH`.
@@ -14,11 +14,16 @@ State or subdivision indicators are ISO 3166-2-ish.
 
 The second field itself is also a tuple (semi-colon delimited) of 1 or 2 parts:
 
-<type>[;modifiers]
+<type>[;flags]
 
-where `type` is one of the following: `GST`, `VAT`, `st` ((US state) sales tax), `ut` ((US state) use tax) and some others.
+where `type` is one of the following: `GST`, `VAT`, `st` (sales tax) and some others.
 
-The only modifier (so far) is 'r' which indicates a reverse charge (ie. EU reverse charge). However, it also applies to US state 'Use tax' which works in a similar way to EU reverse charge.
+`flags` is a string of zero or more characters in lexicographical order. Each character is a flag which indicates a feature or modification. Ordering of the flags is important to ensure a consistent canonical representation.
+
+Currently, two flags are defined: `r` and `x`.
+
+The flag `r` indicates a reverse charge (ie. EU reverse charge).
+The flag `x` indicates that the tax rate can be modified/supplied/overridden by the user
 
 The `variant` field is for EU VAT and is one of the following: `reduced`, `super-reduced`, `parking`. If `variant` is missing, then it the standard VAT rate is presumed. Generally, `variant` is used to handle multiple tax rates.
 
@@ -39,9 +44,7 @@ Examples:
 `EU-FR:VAT;r:super-reduced:2.1` - France VAT super-reduced rate of 2.1% (when applying a reverse charge on self)
 
 `AU:GST:10` - Australia GST rate of 10%
-`US-CA:st:` - US California sales tax. Rate not specified
-`US-CA:st:7.25` - US California state tax of 7.25%
-`US-CA:ut:7.25` - US California use tax of 7.25% (applied on self)
+`US-CA:st;x:7.25` - US California state tax of 7.25% (default)
 
 `CA:GST:5` - Canada GST rate of 5%
 `CA-BC:PST:7` - Canada British Columbia PST rate of 7%
@@ -54,8 +57,10 @@ There are also some special tax codes:
 `EU:VAT;r:0` - EU VAT reverse charge (for B2B customers)
 `:zero:0` - GST/VAT zero rated, or just zero tax
 `:exempt:0` - tax exempt
+`:user;x:` - User defined
+`:user;x:10` - User defined rate of 10% (but can be changed by the user)
 
-Notice that `geography` is undefined for zero-rated and exempt codes.
+Notice that `geography` can be undefined.
 */
 
 var iso3166 = require('iso-3166-2')
@@ -71,13 +76,14 @@ type TaxCodeInfo = {
     typeParts: string[]
     variant: string
     rate: string    // Tax rate percentage as a string. Up to three decimal places
-    reverse: boolean    // True if this is EU reverse charge
+    reverse: boolean    // True if this is EU reverse charge. This is flag `r`.
+    variable: boolean   // True if variable rate. This is flag `x`.
     label: string
 }
 type TaxCodeInfoPartial = Omit<TaxCodeInfo, 'label'>
 
 export function taxCodeInfo(code: string): TaxCodeInfo {
-    const parts = code.split(':')
+    const parts = (code || '').split(':')
     const info: any = {
         code,
         geography: parts.length < 1 ? '' : parts[0],
@@ -87,7 +93,8 @@ export function taxCodeInfo(code: string): TaxCodeInfo {
     }
     info.geoParts = info.geography.split('-')
     info.typeParts = info.type.split(';')
-    info.reverse = info.typeParts.length > 1 && info.typeParts[1] == 'r'
+    info.reverse = info.typeParts.length > 1 && info.typeParts[1].indexOf('r') >= 0
+    info.variable = info.typeParts.length > 1 && info.typeParts[1].indexOf('x') >= 0
     info.label = makeLabel(info)
 
     return info
@@ -137,8 +144,8 @@ function makeLabel(info: TaxCodeInfoPartial): string {
     switch (info.typeParts[0]) {
         case 'zero': parts.push('Zero rated'); break
         case 'exempt': parts.push('Tax exempt'); break
+        case 'user': parts.push('User defined'); break
         case 'st': parts.push('Sales Tax'); break
-        case 'ut': parts.push('Use Tax'); break
         default: parts.push(info.typeParts[0])
     }
 
@@ -194,16 +201,6 @@ export function taxCodesEU(homeCountryCode = '') {
         UK: ['20', 'reduced:5'],
     }
     const codes: string[] = ['EU:VAT;r:0']
-    const homeVATCode = homeCountryCode == 'GR' ? 'EL' : 
-                        homeCountryCode == 'GB' ? 'UK' : homeCountryCode
-
-    /*
-    if (data[homeVATCode]) {
-        data[homeVATCode].forEach(suffix => {
-            codes.push(`EU-${homeVATCode}:VAT;r:${suffix}`)
-        })
-    }
-    */
 
     Object.keys(data).forEach(cc => {
         data[cc].forEach(suffix => {
@@ -226,18 +223,11 @@ export function taxCodesUS(regionCode = '') {
         WV: '6', WI: '5', WY: '4', DC: '5.75',
         GU: '4', PR: '10.5',
     }
-
     const codes: string[] = []
 
     Object.keys(data).forEach(ss => {
-        codes.push(`US-${ss}:st:${data[ss]}`)
+        codes.push(`US-${ss}:st;x:${data[ss]}`)
     })
-
-    /*
-    if (data[regionCode]) {
-        codes.push(`US-${regionCode}:ut;r:${data[regionCode]}`)
-    }
-    */
 
     return codes
 }
@@ -246,6 +236,7 @@ export function taxCodesOther(subdivision = '') {
     return [
         ':zero:0',
         ':exempt:0',
+        ':user;x:',
         'AU:GST:10',
         'CA:GST:5',
         // 'CA-AB',
@@ -285,7 +276,7 @@ export function taxLabel(code: string) {
 
 // Given a tax code and a rate (as a string), merges the rate into the code
 export function taxCodeWithRate(code: string, rate: string) {
-    const parts = code.split(':')
+    const parts = (code || '').split(':')
 
     switch (parts.length) {
         case 1: parts.push('')
