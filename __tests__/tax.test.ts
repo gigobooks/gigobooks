@@ -207,7 +207,7 @@ test('labels', () => {
     expect(taxLabel(':::')).toEqual('')
 })
 
-test.only('taxCodeWithRate', () => {
+test('taxCodeWithRate', () => {
     expect(taxCodeWithRate('', '10')).toBe('::10')
     expect(taxCodeWithRate(':', '10')).toBe('::10')
     expect(taxCodeWithRate('::', '10')).toBe('::10')
