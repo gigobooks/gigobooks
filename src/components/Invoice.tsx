@@ -13,7 +13,7 @@ type Props = {
     arg1?: string
 }
 
-type FormData = {
+export type FormData = {
     actorId: number
     date: Date
     description?: string
@@ -430,7 +430,7 @@ function ElementFamily(props: ElementFamilyProps) {
     </>
 }
 
-function extractFormValues(t: Transaction): FormData {
+export function extractFormValues(t: Transaction): FormData {
     const values: FormData = {
         date: parseISO(t.date!),
         description: t.description,
@@ -497,7 +497,7 @@ function extractFormValues(t: Transaction): FormData {
 }
 
 // Returns true if validation succeeded, false otherwise
-function validateFormData(form: FCV<FormData>, data: FormData) {
+export function validateFormData(form: FCV<FormData>, data: FormData) {
     let success = true
 
     if (!data.actorId) {
@@ -508,7 +508,7 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
-async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
+export async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
     Object.assign(transaction, {
         description: data.description,
         type: Transaction.Invoice,
@@ -530,26 +530,26 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
             grossAmount: parseFormatted(e0.grossAmount, data.elements[0].currency),
             description: e0.description,
             settleId: 0,
+            taxCode: '',
         })
 
         if (e0.taxes) {
             e0.taxes.forEach(sub => {
-                if (sub.code != '' && sub.rate != '') {
-                    elements.push({
-                        id: sub.eId ? Number(sub.eId) : undefined,
-                        accountId: Account.Reserved.TaxPayable,
-                        drcr: Transaction.Credit,
-                        // Note: Use the currency value of the first item
-                        amount: parseFormatted(sub.amount, data.elements[0].currency),
-                        currency: data.elements[0].currency,
-                        useGross: 0,
-                        grossAmount: 0,
-                        description: sub.description,
-                        settleId: 0,
-                        taxCode: taxCodeWithRate(sub.code, sub.rate),
-                        parentId: -1,
-                    })
-                }
+                elements.push({
+                    id: sub.eId ? Number(sub.eId) : undefined,
+                    accountId: Account.Reserved.TaxPayable,
+                    drcr: Transaction.Credit,
+                    // Note: Use the currency value of the first item
+                    amount: parseFormatted(sub.amount, data.elements[0].currency),
+                    currency: data.elements[0].currency,
+                    useGross: 0,
+                    grossAmount: 0,
+                    description: sub.description,
+                    settleId: 0,
+                    taxCode: (sub.code != '' || Number(sub.rate)) ?
+                        taxCodeWithRate(sub.code, sub.rate) : '',
+                    parentId: -1,
+                })
             })
         }
     })
@@ -565,8 +565,11 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
             drcr: Transaction.Debit,
             amount: sums[currency],
             currency: currency,
+            useGross: 0,
+            grossAmount: 0,
             description: '',
             settleId: 0,
+            taxCode: '',
         })
     }
 

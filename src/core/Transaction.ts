@@ -251,8 +251,8 @@ export class Transaction extends Base {
                     if (!e.parentId && e.amount == 0) {
                         await e.delete(trx)
                     }
-                    else  {
-                        await e.save(trx)    
+                    else {
+                        await e.save(trx)
                     }
                 }
             }
