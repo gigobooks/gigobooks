@@ -1,7 +1,7 @@
 var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
-import { Account, Actor, Project, taxCodeInfo, taxCodes } from '../core'
+import { Account, Actor, Project, taxCodeInfo, TaxCodeInfo, taxCodes } from '../core'
 
 // A thin wrapper around <select /> with the following optimisation:
 // If only one option is available, then set to disabled so it does not receive focus
@@ -174,8 +174,21 @@ export function currencySelectOptions(currency?: string) {
     </>
 }
 
+function prefixLabel(prefix: string): string {
+    if (prefix == 'EU') {
+        return 'Europe'
+    }
+
+    const countryInfo = iso3166.country(prefix)
+    if (countryInfo) {
+        return countryInfo.name
+    }
+
+    return prefix
+}
+
 // Returns a list of enabled tax code select options.
-// ToDo: If the supplied tax code is not in the list, it is added
+// If the supplied tax code is not in the list, it is added
 export function taxSelectOptions(code?: string, optional = true) {
     const codes = taxCodes(Project.variables.get('subdivision'))
 
@@ -193,12 +206,47 @@ export function taxSelectOptions(code?: string, optional = true) {
         }
     }
 
+    codes.sort(function (a, b) {
+        if (a.geoParts[0] == b.geoParts[0]) {
+            if (a.geoParts.length == b.geoParts.length) {
+                return a.code < b.code ? -1 : 1
+            }
+            return a.geoParts.length - b.geoParts.length
+        }
+        return a.geoParts[0] < b.geoParts[0] ? -1 : 1
+    })
+
+    // Distribute to 'buckets'
+    const groups: Record<string, TaxCodeInfo[]> = {}
+    const other: TaxCodeInfo[] = []
+    codes.forEach(info => {
+        const prefix = info.geoParts[0]
+        if (prefix) {
+            groups[prefix] = groups[prefix] || []
+            groups[prefix].push(info)
+        }
+        else {
+            other.push(info)
+        }
+    })
+
     return <>
         {optional && <option key='' value=''>None</option>}
-        {codes.sort(function (a, b) {
-            return a.code < b.code ? -1 : 1
-        }).map(info =>
+        {other.map(info =>
             <option key={info.code} value={info.code}>{info.label}</option>
         )}
+        {Object.keys(groups).map(prefix => {
+            if (groups[prefix].length == 1) {
+                const info = groups[prefix][0]
+                return <option key={info.code} value={info.code}>{info.label}</option>
+            }
+            else {
+                return <optgroup key={prefix} label={prefixLabel(prefix)}>
+                {groups[prefix].map(info =>
+                    <option key={info.code} value={info.code}>{info.label}</option>
+                )}
+                </optgroup>
+            }
+        })}
     </>
 }

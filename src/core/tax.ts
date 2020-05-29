@@ -68,7 +68,7 @@ var iso3166 = require('iso-3166-2')
 // Since some tax rates have three decimal places, scale up by 1000 before calculating
 const TaxRateScale = 1000
 
-type TaxCodeInfo = {
+export type TaxCodeInfo = {
     code: string
     geography: string
     geoParts: string[]
@@ -134,7 +134,7 @@ function makeLabel(info: TaxCodeInfoPartial): string {
             if (subdivision) {
                 const subdivisionInfo = iso3166.subdivision(country, subdivision)
                 if (subdivisionInfo) {
-                    name = `(${name}) ${subdivisionInfo.name}`
+                    name = subdivisionInfo.name
                 }
             }
             parts.push(name)
