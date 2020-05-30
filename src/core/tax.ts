@@ -64,6 +64,7 @@ Notice that `geography` can be undefined.
 */
 
 var iso3166 = require('iso-3166-2')
+import { Project } from './Project'
 
 // Since some tax rates have three decimal places, scale up by 1000 before calculating
 const TaxRateScale = 1000
@@ -169,7 +170,7 @@ function makeLabel(info: TaxCodeInfoPartial): string {
     return parts.join(' ')
 }
 
-export function taxCodesEU(homeCountryCode = '') {
+export function taxCodesEU() {
     const data: Record<string, string[]> = {
         AT: ['20', 'reduced:10', 'reduced:13', 'parking:13'],
         BE: ['21', 'reduced:6', 'reduced:12', 'parking:12'],
@@ -211,7 +212,7 @@ export function taxCodesEU(homeCountryCode = '') {
     return codes
 }
 
-export function taxCodesUS(regionCode = '') {
+export function taxCodesUS() {
     const data: Record<string, string> = {
         AL: '4', AZ: '5.6', AR: '6.5', CA: '7.25', CO: '2.9', CT: '6.35',
         FL: '6', GA: '4', HI: '4.166', ID: '6', IL: '6.25', IN: '7',
@@ -232,12 +233,8 @@ export function taxCodesUS(regionCode = '') {
     return codes
 }
 
-export function taxCodesOther(subdivision = '') {
+export function taxCodesCA() {
     return [
-        ':zero:0',
-        ':exempt:0',
-        ':user;x:',
-        'AU:GST:10',
         'CA:GST:5',
         // 'CA-AB',
         'CA-BC:PST:7',
@@ -255,15 +252,31 @@ export function taxCodesOther(subdivision = '') {
     ]
 }
 
-export function taxCodes(subdivision = '') {
-    const [countryCode, regionCode] = subdivision.split('-')
+export function taxCodes() {
     const codes = [
-        ...taxCodesEU(countryCode),
-        ...taxCodesUS(regionCode),
-        ...taxCodesOther(),
+        ':zero:0',
+        ':exempt:0',
+        ':user;x:',
     ]
 
-    return codes.map(code => taxCodeInfo(code))
+    Project.variables.get('taxEnable').forEach((prefix: string) => {
+        switch (prefix) {
+            case 'AU': codes.push('AU:GST:10'); break
+            case 'CA': codes.push(...taxCodesCA()); break
+            case 'EU': codes.push(...taxCodesEU()); break
+            case 'US': codes.push(...taxCodesUS()); break
+        }
+    })
+
+    Project.variables.get('customTaxCodes').split('\n').forEach((code: string) => {
+        const trimmed = code.trim()
+        if (trimmed) {
+            codes.push(trimmed)
+        }
+    })
+
+    // Remove duplicates
+    return [...new Set(codes)]
 }
 
 export function taxRate(code: string) {

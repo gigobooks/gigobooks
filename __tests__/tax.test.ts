@@ -1,6 +1,22 @@
 var VATRates = require('vatrates')
-import { taxCodeInfo, taxCodes, taxCodesOther, taxCodesUS, taxCodesEU,
+import { Project } from '../src/core'
+import { taxCodeInfo, taxCodes, taxCodesEU,
     taxLabel, taxCodeWithRate, calculateTaxes } from '../src/core/tax'
+
+beforeAll(async () => {
+    await Project.create(':memory:')
+    await Project.variables.set('taxEnable', ['AU', 'CA', 'EU', 'US'])
+    await Project.variables.set('customTaxCodes', `
+        MY:GST:6
+        MY:st:10
+    `)
+    return Promise.resolve()
+})
+
+afterAll(() => {
+    Project.knex.destroy()
+    return Project.close()
+})
 
 function taxCodesFromVATRates(homeCountryCode: string) {
     const codes: string[] = ['EU:VAT;r:0']
@@ -51,7 +67,7 @@ test('cross comparison against VATRates', () => {
     taxCodesFromVATRates('').forEach(code => {
         taxLabelsFromVATRates[code] = taxLabel(code)
     })
-    taxCodesEU('').forEach(code => {
+    taxCodesEU().forEach(code => {
         taxLabeslsEU[code] = taxLabel(code)
     })
     expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
@@ -61,7 +77,7 @@ test('cross comparison against VATRates', () => {
     taxCodesFromVATRates('AT').forEach(code => {
         taxLabelsFromVATRates[code] = taxLabel(code)
     })
-    taxCodesEU('AT').forEach(code => {
+    taxCodesEU().forEach(code => {
         taxLabeslsEU[code] = taxLabel(code)
     })
     expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
@@ -71,7 +87,7 @@ test('cross comparison against VATRates', () => {
     taxCodesFromVATRates('GR').forEach(code => {
         taxLabelsFromVATRates[code] = taxLabel(code)
     })
-    taxCodesEU('GR').forEach(code => {
+    taxCodesEU().forEach(code => {
         taxLabeslsEU[code] = taxLabel(code)
     })
     expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
@@ -81,25 +97,22 @@ test('cross comparison against VATRates', () => {
     taxCodesFromVATRates('GB').forEach(code => {
         taxLabelsFromVATRates[code] = taxLabel(code)
     })
-    taxCodesEU('GB').forEach(code => {
+    taxCodesEU().forEach(code => {
         taxLabeslsEU[code] = taxLabel(code)
     })
     expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
 })
 
-test('common tax codes', () => {
-    const codesUSCA = taxCodesUS('CA')
-    ;['US-MA:st;x:6.25', 'US-CA:st;x:7.25'].forEach(item => {
-        expect(codesUSCA).toContain(item)
-    })
-
-    const codesOther = taxCodesOther()
+test('existence of tax codes', () => {
+    const codes = taxCodes()
     ;[
         'AU:GST:10',
-        'CA:GST:5',
-        'CA-BC:PST:7',
+        'CA:GST:5', 'CA-BC:PST:7',
+        'US-MA:st;x:6.25', 'US-CA:st;x:7.25',
+        // Inserted by setting `customTaxCodes` above
+        'MY:GST:6', 'MY:st:10',
     ].forEach(item => {
-        expect(codesOther).toContain(item)
+        expect(codes).toContain(item)
     })
 })
 
@@ -169,12 +182,12 @@ test('labels', () => {
 
     expect(taxLabel('AU:GST:10')).toEqual('Australia GST 10%')
     expect(taxLabel('CA:GST:5')).toEqual('Canada GST 5%')
-    expect(taxLabel('CA-PE:HST:15')).toEqual('(Canada) Prince Edward Island HST 15%')
-    expect(taxLabel('CA-QC:QST:9.975')).toEqual('(Canada) Quebec QST 9.975%')
-    expect(taxLabel('CA-SK:PST:6')).toEqual('(Canada) Saskatchewan PST 6%')
+    expect(taxLabel('CA-PE:HST:15')).toEqual('Prince Edward Island HST 15%')
+    expect(taxLabel('CA-QC:QST:9.975')).toEqual('Quebec QST 9.975%')
+    expect(taxLabel('CA-SK:PST:6')).toEqual('Saskatchewan PST 6%')
 
-    expect(taxLabel('US-CA:st;x:')).toEqual('(United States) California Sales Tax')
-    expect(taxLabel('US-CA:st;x:7.25')).toEqual('(United States) California Sales Tax 7.25%')
+    expect(taxLabel('US-CA:st;x:')).toEqual('California Sales Tax')
+    expect(taxLabel('US-CA:st;x:7.25')).toEqual('California Sales Tax 7.25%')
 
     expect(taxLabel(':zero:0')).toEqual('Zero rated 0%')
     expect(taxLabel(':exempt:0')).toEqual('Tax exempt 0%')

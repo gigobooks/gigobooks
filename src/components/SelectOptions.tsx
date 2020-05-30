@@ -190,22 +190,12 @@ function prefixLabel(prefix: string): string {
 // Returns a list of enabled tax code select options.
 // If the supplied tax code is not in the list, it is added
 export function taxSelectOptions(code?: string, optional = true) {
-    const codes = taxCodes(Project.variables.get('subdivision'))
-
-    if (code) {
-        let missing = true
-        for (let info of codes) {
-            if (info.code == code) {
-                missing = false
-                break
-            }
-        }
-
-        if (missing) {
-            codes.push(taxCodeInfo(code))
-        }
+    const codes0 = taxCodes()
+    if (code && codes0.indexOf(code) == -1) {
+        codes0.push(code)
     }
 
+    const codes = codes0.map(code => taxCodeInfo(code))
     codes.sort(function (a, b) {
         if (a.geoParts[0] == b.geoParts[0]) {
             if (a.geoParts.length == b.geoParts.length) {

@@ -1,11 +1,10 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { Project } from '../core'
-import { countrySubdivisionOptions, countryOptions } from './SelectOptions'
 
 type FormData = {
-    country: string
-    subdivision: string
+    taxEnable: string[]
+    customTaxCodes: string
     submit?: string    // Only for displaying general submit error messages
 }
 
@@ -30,21 +29,16 @@ export default function SettingsTax() {
         <h1>Tax Settings</h1>
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
-                <label htmlFor='country'>Country:</label>
-                <select
-                    name='country'
-                    onChange={e => {
-                        form.reset({country: e.target.value})
-                    }}
-                    ref={form.register}
-                >
-                    {countryOptions()}
+                <label htmlFor='taxEnable'>Enable taxes:</label>
+                <select name='taxEnable' multiple ref={form.register}>
+                    <option key='AU' value='AU'>Australia</option>
+                    <option key='CA' value='CA'>Canada</option>
+                    <option key='EU' value='EU'>Europe</option>
+                    <option key='US' value='US'>United States</option>
                 </select>
             </div><div>
-                <label htmlFor='subdivision'>Subdivision:</label>
-                <select name='subdivision' ref={form.register}>
-                    {countrySubdivisionOptions(formValues.country)}
-                </select>
+                <label htmlFor='customTaxCodes'>Custom tax codes:</label>
+                <textarea name='customTaxCodes' ref={form.register}/>
             </div><div>
                 {form.errors.submit && form.errors.submit.message}
             </div><div>
@@ -56,8 +50,8 @@ export default function SettingsTax() {
 
 function extractFormValues(): FormData {
     const values = Project.variables.getMultiple([
-        'country',
-        'subdivision',
+        'taxEnable',
+        'customTaxCodes',
     ]) as FormData
 
     return values

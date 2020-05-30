@@ -7,6 +7,8 @@ import { Variables } from './Variables'
 const defaultVariables = {
     currency: 'USD',
     otherCurrencies: [],
+    taxEnable: [],
+    customTaxCodes: '',
 }
 
 // ToDo: Validate the database, isModified flag
