@@ -226,7 +226,7 @@ export function taxSelectOptions(code?: string, optional = true) {
             <option key={info.code} value={info.code}>{info.label}</option>
         )}
         {Object.keys(groups).map(prefix => {
-            if (groups[prefix].length == 1) {
+            if (groups[prefix].length == 1 && groups[prefix][0].geoParts.length == 1) {
                 const info = groups[prefix][0]
                 return <option key={info.code} value={info.code}>{info.label}</option>
             }
