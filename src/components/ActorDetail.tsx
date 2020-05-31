@@ -12,6 +12,8 @@ type Props = {
 type FormData = {
     title: string
     type: string
+    taxId: string
+    address: string
     submit?: string    // Only for displaying general submit error messages
 }
 
@@ -75,9 +77,16 @@ export default function ActorDetail(props: Props) {
                 `New ${isCustomer ? 'customer' : 'supplier'}`}</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
-                    <label htmlFor='title'>Title:</label>
+                    <label htmlFor='title'>Name:</label>
                     <input name='title' ref={form.register({required: 'Title is required'})} />
                     {form.errors.title && form.errors.title.message}
+                </div><div>
+                    <label htmlFor='taxId'>Tax registration (type and id):</label>
+                    <input name='taxId' ref={form.register()} />
+                    {form.errors.taxId && form.errors.taxId.message}
+                </div><div>
+                    <label htmlFor='address'>Address:</label>
+                    <textarea name='address' ref={form.register}/>
                 </div><div>
                     <input name='type' type='hidden' value={actorType} ref={form.register} />
                     {form.errors.submit && form.errors.submit.message}
@@ -95,6 +104,8 @@ function extractFormValues(a: Actor): FormData {
     return {
         title: a.title!,
         type: a.type!,
+        taxId: a.taxId!,
+        address: a.address!,
     }
 }
 

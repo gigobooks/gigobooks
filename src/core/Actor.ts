@@ -19,6 +19,8 @@ export class Actor extends Base {
     id?: number
     title?: string
     type?: ActorType
+    taxId?: string
+    address?: string
 
     static tableName = 'actor'
 }

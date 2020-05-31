@@ -51,6 +51,8 @@ async function m01(knex: Knex) {
         t.integer('id').notNullable().primary()
         t.text('title')
         t.text('type')
+        t.text('taxId')
+        t.text('address')
         t.text('updatedAt')
         t.text('createdAt')
     })
