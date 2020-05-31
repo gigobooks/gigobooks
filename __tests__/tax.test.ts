@@ -2,6 +2,12 @@ var VATRates = require('vatrates')
 import { Project } from '../src/core'
 import { taxCodeInfo, taxCodes, taxCodesEU,
     taxLabel, taxCodeWithRate, calculateTaxes } from '../src/core/tax'
+import { CalculateTaxState, formCalculateTaxes } from '../src/components/form'
+import { MockForm } from './support'
+
+beforeEach(() => {
+    MockForm.clear()
+})
 
 beforeAll(async () => {
     await Project.create(':memory:')
@@ -249,4 +255,62 @@ test('calculate tax', () => {
     sparse[5] = '10'
     expect(calculateTaxes({amount: 100000, useGross: 0, rates: sparse}))
         .toEqual({amount: 120000, taxes: [0, 0, 0, 10000, 0, 10000]})
+})
+
+test('form calculate tax', () => {
+    function defaults() {
+        return {
+            setFormatted: jest.fn(),
+            setGrossFormatted: jest.fn(),
+            useGross: 0,
+            setUseGross: jest.fn(),
+            currency: 'USD',
+            setCurrency: jest.fn(),
+            setRates: jest.fn(),
+        }
+    }
+
+    let state: CalculateTaxState
+    state = {...defaults(), formatted: '100', grossFormatted: '', rates: []}
+    formCalculateTaxes(MockForm.clear(), `elements[0]`, state, 'amount')
+    expect(MockForm.values).toStrictEqual({
+        'elements[0].grossAmount': '100.00'
+    })
+    expect(state.setFormatted).toHaveBeenCalled()
+
+    state = {...defaults(), formatted: '100', grossFormatted: '', rates: ['10']}
+    formCalculateTaxes(MockForm.clear(), `elements[0]`, state, 'amount')
+    expect(MockForm.values).toStrictEqual({
+        'elements[0].grossAmount': '110.00',
+        'elements[0].taxes[0].amount': '10.00',
+    })
+    expect(state.setFormatted).toHaveBeenCalled()
+
+    state = {...defaults(), formatted: '', grossFormatted: '115', useGross: 1, rates: ['10', '5']}
+    formCalculateTaxes(MockForm.clear(), `elements[0]`, state, 'grossAmount')
+    expect(MockForm.values).toStrictEqual({
+        'elements[0].amount': '100.00',
+        'elements[0].taxes[0].amount': '10.00',
+        'elements[0].taxes[1].amount': '5.00',
+    })
+    expect(state.setGrossFormatted).toHaveBeenCalled()
+    expect(state.setUseGross).toHaveBeenCalled()
+
+    state = {...defaults(), formatted: '100', grossFormatted: '', useGross: 0, rates: ['10', '5']}
+    formCalculateTaxes(MockForm.clear(), `elements[0]`, state, 'currency')
+    expect(MockForm.values).toStrictEqual({
+        'elements[0].grossAmount': '115.00',
+        'elements[0].taxes[0].amount': '10.00',
+        'elements[0].taxes[1].amount': '5.00',
+    })
+    expect(state.setCurrency).toHaveBeenCalled()
+
+    state = {...defaults(), formatted: '', grossFormatted: '', useGross: 1, rates: ['', '5']}
+    formCalculateTaxes(MockForm.clear(), `elements[0]`, state, 'rates')
+    expect(MockForm.values).toStrictEqual({
+        'elements[0].amount': '',
+        'elements[0].taxes[0].amount': '',
+        'elements[0].taxes[1].amount': '',
+    })
+    expect(state.setRates).toHaveBeenCalled()
 })

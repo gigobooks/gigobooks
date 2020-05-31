@@ -7,6 +7,7 @@ import { Project, Transaction, Account, Actor, IElement,
 import { toDateOnly, validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { parseISO } from 'date-fns'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
+import { formCalculateTaxes } from './form'
 import InvoicePayment from './InvoicePayment'
 
 type Props = {
@@ -198,14 +199,6 @@ type ElementFamilyProps = {
     revenueOptions: {}
 }
 
-type ElementFamilyState = {
-    formatted: string
-    grossFormatted: string
-    useGross: number
-    currency: string
-    rates: string[]
-}
-
 function ElementFamily(props: ElementFamilyProps) {
     const {form, item, index, revenueOptions} = props
     const {fields, append} = useFieldArray({control: form.control, name: `elements[${index}].taxes`})
@@ -215,72 +208,11 @@ function ElementFamily(props: ElementFamilyProps) {
     const [useGross, setUseGross] = React.useState<number>(item.useGross ? 1 : 0)
     const [currency, setCurrency] = React.useState<string>(props.currency)
     const [rates, setRates] = React.useState<string[]>(fields.map(subItem => subItem.rate))
-    const state: ElementFamilyState = {formatted, grossFormatted, useGross, currency, rates}
-
+    const state = {formatted, setFormatted, grossFormatted, setGrossFormatted, useGross, setUseGross, currency, setCurrency, rates, setRates}
     const [enabled, setEnabled] = React.useState<boolean>(!item.useGross || !item.grossAmount)
     const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
     const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => taxCodeInfo(subItem.code).variable))
     const formErrors: any = form.errors
-
-    function recalculate(source: string) {
-        let inFormatted, outField, inAmount: number
-
-        if (source == 'amount') {
-            inFormatted = state.formatted
-            outField = 'grossAmount'
-        }
-        else if (source == 'grossAmount') {
-            inFormatted = state.grossFormatted
-            outField = 'amount'
-        }
-        else {
-            inFormatted = state.useGross ? state.grossFormatted : state.formatted
-            outField = state.useGross ? 'amount' : 'grossAmount'
-        }
-
-        if (inFormatted != undefined && inFormatted != '') {
-            // Validate amount/grossAmount.
-            let valid = true
-            try {
-                inAmount = parseFormatted(inFormatted, state.currency)
-            }
-            catch (e) {
-                valid = false
-            }
-
-            if (valid) {
-                const outputs = calculateTaxes({
-                    amount: inAmount!,
-                    useGross: state.useGross,
-                    rates: state.rates,
-                })
-
-                form.setValue(`elements[${index}].${outField}`, toFormatted(outputs.amount, state.currency))
-                for (let i in fields) {
-                    form.setValue(`elements[${index}].taxes[${i}].amount`, 
-                        (state.rates[i] != '' && outputs.taxes[i] != undefined) ?
-                        toFormatted(outputs.taxes[i], state.currency) : '')
-                }
-            }
-        }
-        else {
-            form.setValue(`elements[${index}].${outField}`, '')
-            for (let i in fields) {
-                form.setValue(`elements[${index}].taxes[${i}].amount`, '')
-            }
-        }
-
-        // Set state
-        switch (source) {
-            case 'currency': setCurrency(state.currency); break
-            case 'amount': setFormatted(state.formatted); break
-            case 'grossAmount':
-                setGrossFormatted(state.grossFormatted);
-                setUseGross(state.useGross);
-                break
-            case 'rates': setRates(state.rates); break
-        }
-    }
 
     return <>
     <tr key={item.id}><td>
@@ -305,7 +237,7 @@ function ElementFamily(props: ElementFamilyProps) {
             defaultValue={item.currency}
             onChange={(e: {target: {value: string}}) => {
                 state.currency = e.target.value
-                recalculate('currency')
+                formCalculateTaxes(form, `elements[${index}]`, state, 'currency')
             }}
             forwardRef={form.register()}>
             {currencySelectOptions(item.currency)}
@@ -330,7 +262,7 @@ function ElementFamily(props: ElementFamilyProps) {
             onChange={e => {
                 state.grossFormatted = e.target.value
                 state.useGross = e.target.value ? 1 : 0
-                recalculate('grossAmount')
+                formCalculateTaxes(form, `elements[${index}]`, state, 'grossAmount')
                 setEnabled(e.target.value ? false : true)
             }}
             ref={form.register()}
@@ -345,7 +277,7 @@ function ElementFamily(props: ElementFamilyProps) {
             disabled={!enabled}
             onChange={e => {
                 state.formatted = e.target.value
-                recalculate('amount')
+                formCalculateTaxes(form, `elements[${index}]`, state, 'amount')
                 setGrossEnabled(e.target.value ? false : true)
             }}
             ref={form.register()}
@@ -396,7 +328,7 @@ function ElementFamily(props: ElementFamilyProps) {
                 const info = taxCodeInfo(e.target.value)
                 form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
                 state.rates[subIndex] = info.rate
-                recalculate('rates')
+                formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
 
                 ratesEnabled[subIndex] = info.variable
                 setRatesEnabled([...ratesEnabled])
@@ -411,7 +343,7 @@ function ElementFamily(props: ElementFamilyProps) {
             defaultValue={subItem.rate}
             onChange={e => {
                 state.rates[subIndex] = e.target.value
-                recalculate('rates')
+                formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
             }}
             disabled={!ratesEnabled[subIndex]}
             ref={form.register()}
