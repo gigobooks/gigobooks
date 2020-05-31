@@ -2,7 +2,7 @@
 class _MockForm {
     values: Record<string, any>
 
-    constructor(public field: string, public type: string, public message: string) {
+    constructor(public errorField: string, public errorType: string, public errorMessage: string) {
         this.values = {}
     }
 
@@ -11,20 +11,19 @@ class _MockForm {
     }
 
     setError(field: string, type?: string, message?: string) {
-        this.field = field
-        this.type = type!
-        this.message = message!
+        this.errorField = field
+        this.errorType = type!
+        this.errorMessage = message!
     }
 
     clear() {
-        this.field = ''
-        this.type = ''
-        this.message = ''
+        this.errorField = ''
+        this.errorType = ''
+        this.errorMessage = ''
         this.values = {}
         return this
     }
 }
 
 export const MockForm: any = new _MockForm('', '', '')
-
-test('dummy no op', () => {})
+export default MockForm

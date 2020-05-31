@@ -3,11 +3,7 @@ import { Project } from '../src/core'
 import { taxCodeInfo, taxCodes, taxCodesEU,
     taxLabel, taxCodeWithRate, calculateTaxes } from '../src/core/tax'
 import { CalculateTaxState, formCalculateTaxes } from '../src/components/form'
-import { MockForm } from './support'
-
-beforeEach(() => {
-    MockForm.clear()
-})
+import { MockForm } from '../src/test/MockForm'
 
 beforeAll(async () => {
     await Project.create(':memory:')
