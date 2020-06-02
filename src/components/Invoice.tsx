@@ -2,8 +2,8 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account, Actor, IElement, 
-    toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate, calculateTaxes } from '../core'
+import { Project, Transaction, Account, Actor, IElement,
+    toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
 import { toDateOnly, validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { parseISO } from 'date-fns'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
