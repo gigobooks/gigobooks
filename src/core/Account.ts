@@ -9,6 +9,7 @@ export enum AccountType {
     Equity = 'equity',
     Revenue = 'revenue',
     Expense = 'expense',
+    GrossExpense = 'gross-expense',
     InterestExpense = 'interest-expense',
     TaxExpense = 'tax-expense',
     DepreciationExpense = 'depreciation-expense',
@@ -40,9 +41,9 @@ const AccountTypeGroupInfo: any = {
     },
     [AccountType.Expense]: {
         label: 'Expense',
-        types: [AccountType.Expense, AccountType.InterestExpense,
-            AccountType.TaxExpense, AccountType.DepreciationExpense,
-            AccountType.Loss],
+        types: [AccountType.Expense, AccountType.GrossExpense,
+            AccountType.InterestExpense, AccountType.TaxExpense,
+            AccountType.DepreciationExpense, AccountType.Loss],
         prefix: 5,
     },
 }
@@ -57,8 +58,9 @@ export const AccountTypeInfo: any = {
     [AccountType.Equity]: { label: 'Equity', group: AccountType.Equity },
     [AccountType.Revenue]: { label: 'Revenue', group: AccountType.Revenue },
     [AccountType.Expense]: { label: 'Expense', group: AccountType.Expense },
+    [AccountType.GrossExpense]: { label: 'Gross expense', group: AccountType.Expense },
     [AccountType.InterestExpense]: { label: 'Interest expense', group: AccountType.Expense },
-    [AccountType.TaxExpense]: { label: 'Tax expense', group: AccountType.Expense },
+    [AccountType.TaxExpense]: { label: 'Income tax expense', group: AccountType.Expense },
     [AccountType.DepreciationExpense]: { label: 'Depreciation expense', group: AccountType.Expense },
     [AccountType.Gain]: { label: 'Gain', group: AccountType.Revenue,
         description: 'A one-off gain from the sale or disposal of an asset' },
@@ -68,7 +70,7 @@ export const AccountTypeInfo: any = {
 
 const DebitTypes: any = [
     AccountType.Asset, AccountType.LongTermAsset,
-    AccountType.Expense, AccountType.InterestExpense, 
+    AccountType.Expense, AccountType.GrossExpense, AccountType.InterestExpense, 
     AccountType.TaxExpense, AccountType.DepreciationExpense, 
     // Apparently dividends are debit balance too,
     // but dividend isn't an account type. Huh ??
@@ -99,9 +101,10 @@ export const PrepopulatedAccounts = [
     {id: 21, title: 'Long Term Liabilities', type: 'long-term-liability'},
     {id: ReservedAccountIds.TaxPayable, title: 'Tax Payable', type: 'liability'},
     {id: ReservedAccountIds.Equity, title: 'Equity', type: 'equity'},
-    {id: 50, title: 'Interest Expense', type: 'interest-expense'},
-    {id: 51, title: 'Taxes', type: 'tax-expense'},
-    {id: 52, title: 'Depreciation Expense', type: 'depreciation-expense'},
+    {id: 50, title: 'Cost of Goods Sold', type: 'gross-expense'},
+    {id: 51, title: 'Interest Expense', type: 'interest-expense'},
+    {id: 52, title: 'Income Tax Expense', type: 'tax-expense'},
+    {id: 53, title: 'Depreciation Expense', type: 'depreciation-expense'},
 
     // Unreserved accounts
     {id: 200, title: 'Credit Card', type: 'liability'},
@@ -134,6 +137,7 @@ export class Account extends Base {
     static Equity = AccountType.Equity
     static Revenue = AccountType.Revenue
     static Expense = AccountType.Expense
+    static GrossExpense = AccountType.GrossExpense
     static InterestExpense = AccountType.InterestExpense
     static TaxExpense = AccountType.TaxExpense
     static DepreciationExpense = AccountType.DepreciationExpense
