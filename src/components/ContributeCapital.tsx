@@ -2,9 +2,10 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account, IElement, toFormatted, parseFormatted } from '../core'
-import { toDateOnly, validateElementAmounts } from '../util/util'
-import { parseISO } from 'date-fns'
+import { Project, Transaction, Account, IElement,
+    dateFormatString as dfs, toDateOnly, parseISO,
+    toFormatted, parseFormatted } from '../core'
+import { validateElementAmounts } from '../util/util'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions } from './SelectOptions'
 
 type Props = {
@@ -98,7 +99,7 @@ export default function ContributeCapital(props: Props) {
                     <label htmlFor='date'>Date:</label>
                     <Controller
                         // No-op for DatePicker.onChange()
-                        as={<DatePicker onChange={() => {}} />}
+                        as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
                         control={form.control}
                         register={form.register()}
                         name='date'

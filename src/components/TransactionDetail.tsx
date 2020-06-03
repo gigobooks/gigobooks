@@ -2,9 +2,10 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account, Actor, IElement, toFormatted, parseFormatted } from '../core'
-import { toDateOnly, validateElementDrCr } from '../util/util'
-import { parseISO } from 'date-fns'
+import { Project, Transaction, Account, Actor, IElement,
+    dateFormatString as dfs, toDateOnly, parseISO,
+    toFormatted, parseFormatted } from '../core'
+import { validateElementDrCr } from '../util/util'
 import { MaybeSelect, accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
 
 type Props = {
@@ -113,7 +114,7 @@ export default function TransactionDetail(props: Props) {
                     <label htmlFor='date'>Date:</label>
                     <Controller
                         // No-op for DatePicker.onChange()
-                        as={<DatePicker onChange={() => {}} />}
+                        as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
                         control={form.control}
                         register={form.register()}
                         name='date'

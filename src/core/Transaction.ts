@@ -1,7 +1,7 @@
 import { QueryBuilder } from 'objection'
 import { Base, Model, TransactionOrKnex } from './Base'
 import { Element, IElement } from './Element'
-import { isDateOnly } from '../util/util'
+import { isDateOnly } from './date'
 import { Project } from './Project'
 import Account from './Account'
 

@@ -3,9 +3,9 @@ import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FC
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { Project, Transaction, Account, Actor, IElement,
+    dateFormatString as dfs, toDateOnly, parseISO,
     toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
-import { toDateOnly, validateElementAmounts, validateElementTaxAmounts } from '../util/util'
-import { parseISO } from 'date-fns'
+import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
 
@@ -132,7 +132,7 @@ export default function Sale(props: Props) {
                     <label htmlFor='date'>Date:</label>
                     <Controller
                         // No-op for DatePicker.onChange()
-                        as={<DatePicker onChange={() => {}} />}
+                        as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
                         control={form.control}
                         register={form.register()}
                         name='date'

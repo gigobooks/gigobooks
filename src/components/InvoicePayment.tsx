@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account,  IElement, toFormatted, parseFormatted } from '../core'
-import { toDateOnly } from '../util/util'
-import { parseISO } from 'date-fns'
+import { Transaction, Account, IElement,
+    dateFormatString as dfs, toDateOnly, parseISO,
+    toFormatted, parseFormatted } from '../core'
 import { MaybeSelect, currencySelectOptions } from './SelectOptions'
 
 type Props = {
@@ -91,7 +91,7 @@ export default function InvoicePayment(props: Props) {
                     </td><td>
                         <Controller
                             // No-op for DatePicker.onChange()
-                            as={<DatePicker onChange={() => {}} />}
+                            as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
                             control={form.control}
                             register={form.register()}
                             name={`payments[${index}].date`}
