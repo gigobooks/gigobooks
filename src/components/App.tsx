@@ -73,9 +73,9 @@ const Menu = () => {
         Suppliers - <Link to='/suppliers/new'>new</Link><br />
         <Link to='/transactions'>Transactions</Link> - <Link to='/transactions/new'>new</Link><br />
         Contributions - <Link to='/contributions/new'>new</Link><br />
-        Sales - <Link to='/sales/new'>new</Link><br />
+        Cash sales - <Link to='/sales/new'>new</Link><br />
         Invoices - <Link to='/invoices/new'>new</Link><br />
-        Purchases - <Link to='/purchases/new'>new</Link><br />
+        Cash purchases - <Link to='/purchases/new'>new</Link><br />
         <Link to='/settings'>Settings</Link> - <Link to='/settings/tax'>tax</Link><br />
         <Link to='/debug'>Debug</Link>
 

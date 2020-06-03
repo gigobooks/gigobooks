@@ -126,7 +126,7 @@ export default function Expense(props: Props) {
     }
     else if (transaction && accountOptions && sourceOptions && supplierOptions) {
         return <div>
-            <h1>{transaction.id ? `Purchase ${transaction.id}` : 'New purchase'}</h1>
+            <h1>{transaction.id ? `Cash purchase ${transaction.id}` : 'New cash purchase'}</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Supplier:</label>

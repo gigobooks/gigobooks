@@ -120,7 +120,7 @@ export default function Sale(props: Props) {
     }
     else if (transaction && revenueOptions && assetOptions && customerOptions) {
         return <div>
-            <h1>{transaction.id ? `Sale ${transaction.id}` : 'New sale'}</h1>
+            <h1>{transaction.id ? `Cash sale ${transaction.id}` : 'New cash sale'}</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Customer:</label>
