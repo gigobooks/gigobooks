@@ -1,3 +1,5 @@
+import { Project } from './Project'
+
 const cache: Record<string, string> = {}
 
 // Extract the date format string of a locale
@@ -35,4 +37,17 @@ export function toDateOnly(date: Date): string {
     const m = date.getMonth() + 1
     const d = date.getDate()
     return `${date.getFullYear()}-${m < 10 ? '0' : ''}${m}-${d < 10 ? '0' : ''}${d}`
+}
+
+export type FiscalYearStart = {
+    date: number
+    month: number
+}
+
+export function fiscalYearStart() {
+    const raw = Project.variables.get('fiscalYear')
+    return {
+        date: Number(raw.substring(0, 2)),
+        month: Number(raw.substring(2, 4)),
+    }
 }

@@ -9,6 +9,7 @@ const defaultVariables = {
     otherCurrencies: [],
     taxEnable: [],
     customTaxCodes: '',
+    fiscalYear: '0101'
 }
 
 // ToDo: Validate the database, isModified flag
