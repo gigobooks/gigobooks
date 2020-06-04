@@ -39,7 +39,7 @@ export type FormData = {
     submit?: string    // Only for displaying general submit error messages
 }
 
-export default function Expense(props: Props) {
+export default function Purchase(props: Props) {
     // argId == 0 means creating a new transaction
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
