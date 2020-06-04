@@ -15,6 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
 import Invoice from './Invoice'
 import Purchase from './Purchase'
+import Bill from './Bill'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -76,6 +77,7 @@ const Menu = () => {
         Cash sales - <Link to='/sales/new'>new</Link><br />
         Invoices - <Link to='/invoices/new'>new</Link><br />
         Cash purchases - <Link to='/purchases/new'>new</Link><br />
+        Bills - <Link to='/bills/new'>new</Link><br />
         <Link to='/settings'>Settings</Link> - <Link to='/settings/tax'>tax</Link><br />
         <Link to='/debug'>Debug</Link>
 
@@ -92,6 +94,9 @@ const Menu = () => {
 
 const Main = () => {
     return <Switch>
+        <Route path='/bills/:arg1'>
+            <DispatchWithParams element={Bill} />
+        </Route>
         <Route path='/purchases/:arg1'>
             <DispatchWithParams element={Purchase} />
         </Route>

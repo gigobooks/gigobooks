@@ -15,6 +15,7 @@ export enum TransactionType {
     Invoice = 'invoice',
     InvoicePayment = 'invoice-payment',
     Purchase = 'purchase',
+    Bill = 'bill',
 }
 
 export class Transaction extends Base {
@@ -27,6 +28,7 @@ export class Transaction extends Base {
     static Invoice = TransactionType.Invoice
     static InvoicePayment = TransactionType.InvoicePayment
     static Purchase = TransactionType.Purchase
+    static Bill = TransactionType.Bill
 
     id?: number
     description?: string
