@@ -188,7 +188,9 @@ export default function Invoice(props: Props) {
 
         return <div>
             {invoiceForm}
-            {!!transaction.id && <InvoicePayment transaction={transaction} />}
+            {!!transaction.id &&
+            transaction.elements && transaction.elements.length > 0 &&
+            <InvoicePayment transaction={transaction} />}
         </div>
     }
 
