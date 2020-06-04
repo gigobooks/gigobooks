@@ -46,7 +46,7 @@ export default function ContributeCapital(props: Props) {
         // Load asset accounts
         Account.query().select()
         .whereIn('type', [Account.Asset, Account.LongTermAsset])
-        .whereNot('id', Account.Reserved.AccountsReceivable)
+        .whereNotIn('id', [Account.Reserved.AccountsReceivable, Account.Reserved.TaxReceivable])
         .orderBy(['type', 'title'])
         .then(rows => {
             setAssetOptions(flatSelectOptions(rows))

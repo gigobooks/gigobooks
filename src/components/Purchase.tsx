@@ -61,7 +61,7 @@ export default function Purchase(props: Props) {
         Account.query().select()
         .whereIn('type', [Account.Asset, Account.LongTermAsset,
             ...Account.TypeGroupInfo[Account.Expense].types])
-        .whereNot('id', Account.Reserved.AccountsReceivable)
+        .whereNotIn('id', [Account.Reserved.AccountsReceivable, Account.Reserved.TaxReceivable])
         .orderBy(['title'])
         .then(rows => {
             // Split into expenses and assets

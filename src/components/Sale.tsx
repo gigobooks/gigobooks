@@ -60,7 +60,7 @@ export default function Sale(props: Props) {
         // Load revenue and asset accounts
         Account.query().select()
         .whereIn('type', [Account.Asset, ...Account.TypeGroupInfo[Account.Revenue].types])
-        .whereNot('id', Account.Reserved.AccountsReceivable)
+        .whereNotIn('id', [Account.Reserved.AccountsReceivable, Account.Reserved.TaxReceivable])
         .orderBy(['title'])
         .then((rows) => {
             // Split into revenues and assets

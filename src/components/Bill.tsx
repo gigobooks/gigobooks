@@ -60,7 +60,6 @@ export default function Bill(props: Props) {
         Account.query().select()
         .whereIn('type', [Account.LongTermAsset,
             ...Account.TypeGroupInfo[Account.Expense].types])
-        // .whereNot('id', Account.Reserved.AccountsReceivable)
         .orderBy(['title'])
         .then(rows => {
             const groupInfo = {
