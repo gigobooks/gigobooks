@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { Project } from '../core'
+import { playSuccess, playAlert } from '../util/sound'
 
 type FormData = {
     taxEnable: string[]
@@ -19,8 +20,10 @@ export default function SettingsTax() {
 
     const onSubmit = async (data: FormData) => {
         saveFormData(data).then(() => {
+            playSuccess()
             form.reset(extractFormValues())
         }).catch(e => {
+            playAlert()
             form.setError('submit', '', e.toString())
         })
     }

@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker'
 import { Transaction, Account, IElement,
     dateFormatString as dfs, toDateOnly, parseISO,
     toFormatted, parseFormatted } from '../core'
+import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, currencySelectOptions } from './SelectOptions'
 
 type Props = {
@@ -48,14 +49,17 @@ export default function InvoicePayment(props: Props) {
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
+            playAlert()
             return
         }
 
         saveFormData(form, transaction!, settlements, data).then(savedId => {
             if (savedId) {
+                playSuccess()
                 form.reset(extractFormValues(transaction, settlements))
             }
         }).catch(e => {
+            playAlert()
             form.setError(`payments[${data.index}].submit`, '', e.toString())
         })
     }

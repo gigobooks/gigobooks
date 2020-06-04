@@ -6,6 +6,7 @@ import { Project, Transaction, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO,
     toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
+import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
 
@@ -100,17 +101,20 @@ export default function Sale(props: Props) {
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
+            playAlert()
             return
         }
 
         saveFormData(form, transaction!, data).then(savedId => {
             if (savedId) {
+                playSuccess()
                 form.reset(extractFormValues(transaction!))
                 if (argId == 0) {
                     setRedirectId(savedId)
                 }
             }
         }).catch(e => {
+            playAlert()
             form.setError('submit', '', e.toString())
         })
     }

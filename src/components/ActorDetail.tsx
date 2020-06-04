@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import { Actor } from '../core'
+import { playSuccess, playAlert } from '../util/sound'
 
 type Props = {
     arg1?: string
@@ -58,11 +59,13 @@ export default function ActorDetail(props: Props) {
 
     const onSubmit = async (data: FormData) => {
         saveFormData(actor!, data).then(savedId => {
+            playSuccess()
             form.reset(extractFormValues(actor!))
             if (argId == 0 && savedId) {
                 setRedirectId(savedId)
             }
         }).catch(e => {
+            playAlert()
             form.setError('submit', '', e.toString())
         })
     }

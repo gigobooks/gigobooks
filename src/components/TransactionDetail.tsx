@@ -6,6 +6,7 @@ import { Project, Transaction, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO,
     toFormatted, parseFormatted } from '../core'
 import { validateElementDrCr } from '../util/util'
+import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
 
 type Props = {
@@ -82,17 +83,20 @@ export default function TransactionDetail(props: Props) {
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
+            playAlert()
             return
         }
 
         saveFormData(form, transaction!, data).then(savedId => {
             if (savedId) {
+                playSuccess()
                 form.reset(extractFormValues(transaction!))
                 if (argId == 0) {
                     setRedirectId(savedId)
                 }
             }
         }).catch(e => {
+            playAlert()
             form.setError('submit', '', e.toString())
         })
     }

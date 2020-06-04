@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { Project } from '../core'
+import { playSuccess, playAlert } from '../util/sound'
 import { currencySelectOptionsAll } from './SelectOptions'
 
 type FormData = {
@@ -22,8 +23,10 @@ export default function Settings() {
 
     const onSubmit = async (data: FormData) => {
         saveFormData(data).then(() => {
+            playSuccess()
             form.reset(extractFormValues())
         }).catch(e => {
+            playAlert()
             form.setError('submit', '', e.toString())
         })
     }
