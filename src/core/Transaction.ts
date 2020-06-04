@@ -16,6 +16,7 @@ export enum TransactionType {
     InvoicePayment = 'invoice-payment',
     Purchase = 'purchase',
     Bill = 'bill',
+    BillPayment = 'bill-payment',
 }
 
 export class Transaction extends Base {
@@ -29,6 +30,7 @@ export class Transaction extends Base {
     static InvoicePayment = TransactionType.InvoicePayment
     static Purchase = TransactionType.Purchase
     static Bill = TransactionType.Bill
+    static BillPayment = TransactionType.BillPayment
 
     id?: number
     description?: string
@@ -329,12 +331,12 @@ export class Transaction extends Base {
 
     // Calculates totals for each currency and returns them as an array
     static getSums(elements: IElement[]) {
-        return Transaction.getBalances(elements, true)
+        return Transaction._getBalances(elements, true)
     }
 
     // Calculates balances for each currency and returns them as an array
     // If `sum` is true, then calculate totals instead (ie. ignore `drcr`)
-    static getBalances(elements: IElement[], sum = false) {
+    static _getBalances(elements: IElement[], sum = false) {
         const balances: Record<string, number> = {}
 
         elements.forEach(e => {
@@ -348,8 +350,21 @@ export class Transaction extends Base {
         return balances
     }
 
+    static getDebitBalances(elements: IElement[]) {
+        return Transaction._getBalances(elements)
+    }
+
+    static getCreditBalances(elements: IElement[]) {
+        const balances = Transaction._getBalances(elements)
+        // Credit balances are negative so negate them to be positive
+        Object.keys(balances).forEach(key => {
+            balances[key] = -balances[key]
+        })
+        return balances
+    }
+
     static isBalanced(elements: IElement[]) {
-        const balances = Transaction.getBalances(elements)
+        const balances = Transaction._getBalances(elements)
         return Object.keys(balances).every(currency => {
             return balances[currency] == 0
         })

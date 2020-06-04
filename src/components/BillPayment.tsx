@@ -23,7 +23,7 @@ type FormData = {
     index: number
 }
 
-export default function InvoicePayment(props: Props) {
+export default function BillPayment(props: Props) {
     const transaction = props.transaction
     const [settlements, setSettlements] = React.useState<Transaction[]>([])
 
@@ -34,7 +34,7 @@ export default function InvoicePayment(props: Props) {
     React.useEffect(() => {
         let mounted = true
 
-        Transaction.query().where('type', Transaction.InvoicePayment)
+        Transaction.query().where('type', Transaction.BillPayment)
         .where(transaction.settlements()).orderBy(['date', 'id'])
         .withGraphFetched('elements')
         .then(rows => {
@@ -151,13 +151,13 @@ export default function InvoicePayment(props: Props) {
             </form>
         </div>
 
-        // Collect all the entries to AccountsReceivable together and calculate
-        // the unpaid portion of the invoice.
+        // Collect all the entries to AccountsPayable together and calculate
+        // the unpaid portion of the bill.
         const allElements: IElement[] = []
         const allTransactions = [transaction, ...settlements]
         allTransactions.forEach(t => allElements.push(...t.elements!))
-        const balances = Transaction.getDebitBalances(allElements.filter(
-            e => e.accountId == Account.Reserved.AccountsReceivable))
+        const balances = Transaction.getCreditBalances(allElements.filter(
+            e => e.accountId == Account.Reserved.AccountsPayable))
 
         const balancesPane = <div>
             <h2>Balance</h2>
@@ -189,7 +189,7 @@ function extractFormValues(transaction: Transaction, settlements: Transaction[])
 
     settlements.forEach(s => {
         s.elements!.forEach(e => {
-            if (e.drcr == Transaction.Credit && e.accountId == Account.Reserved.AccountsReceivable) {
+            if (e.drcr == Transaction.Debit && e.accountId == Account.Reserved.AccountsPayable) {
                 values.payments.push({
                     tId: s.id,
                     date: parseISO(s.date!),
@@ -239,18 +239,18 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction,
 
         const elements: IElement[] = [{
             id: payment.getFirstDrElement()!.id,
-            accountId: Account.Reserved.Cash,
+            accountId: Account.Reserved.AccountsPayable,
             drcr: Transaction.Debit,
             amount,
             currency: item.currency,
-            // no settleid needed here 
+            settleId: transaction.id
         }, {
             id: payment.getFirstCrElement()!.id,
-            accountId: Account.Reserved.AccountsReceivable,
+            accountId: Account.Reserved.Cash,
             drcr: Transaction.Credit,
             amount,
             currency: item.currency,
-            settleId: transaction.id
+            // no settleid needed here 
         }]
 
         // Merge and save.
@@ -264,23 +264,23 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction,
         // Create a new payment transaction
         const payment = Transaction.construct({
             description: item.description,
-            type: Transaction.InvoicePayment,
+            type: Transaction.BillPayment,
             date: toDateOnly(item.date),
             actorId: transaction.actorId,
         })
 
         const elements: IElement[] = [{
-            accountId: Account.Reserved.Cash,
+            accountId: Account.Reserved.AccountsPayable,
             drcr: Transaction.Debit,
             amount,
             currency: item.currency,
-            // no settleid needed here 
+            settleId: transaction.id
         }, {
-            accountId: Account.Reserved.AccountsReceivable,
+            accountId: Account.Reserved.Cash,
             drcr: Transaction.Credit,
             amount,
             currency: item.currency,
-            settleId: transaction.id
+            // no settleid needed here 
         }]
 
         // Merge and save.

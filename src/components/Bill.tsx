@@ -9,6 +9,7 @@ import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, flatSelectOptions, accountSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
+import BillPayment from './BillPayment'
 
 type Props = {
     arg1?: string
@@ -193,6 +194,9 @@ export default function Bill(props: Props) {
 
         return <div>
             {billForm}
+            {!!transaction.id &&
+            transaction.elements && transaction.elements.length > 0 &&
+            <BillPayment transaction={transaction} />}
         </div>
     }
 
