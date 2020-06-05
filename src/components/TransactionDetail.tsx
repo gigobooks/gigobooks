@@ -3,7 +3,7 @@ import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 're
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { Project, Transaction, Account, Actor, IElement,
-    dateFormatString as dfs, toDateOnly, parseISO,
+    dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted } from '../core'
 import { validateElementDrCr } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
@@ -75,7 +75,7 @@ export default function TransactionDetail(props: Props) {
             const currency = Project.variables.get('currency')
             form.reset({
                 actorId: 0,
-                date: new Date(),
+                date: lastSavedDate(),
                 elements: [{currency}, {currency}],
             })
         }

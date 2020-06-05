@@ -28,36 +28,40 @@ export class Variables {
         }
     }
 
-    async set(name: string, value: any) {
-        const now = new Date()
-        const q = this.knex('variable').insert({
-            name,
-            value: JSON.stringify(value),
-            updatedAt: now,
-            createdAt: now,
-        }).toSQL().toNative()
-        await this.knex.raw(q.sql + upsertSuffix, q.bindings)
+    async set(name: string, value: any, sessionOnly = false) {
+        if (!sessionOnly) {
+            const now = new Date()
+            const q = this.knex('variable').insert({
+                name,
+                value: JSON.stringify(value),
+                updatedAt: now,
+                createdAt: now,
+            }).toSQL().toNative()
+            await this.knex.raw(q.sql + upsertSuffix, q.bindings)
+        }
 
         // Update the cache
         this.cache[name] = value
     }
 
     // Given an object, takes each property and sets it as a variable
-    async setMultiple(obj: Record<string, any>) {
-        const now = new Date()
-        const variables = []
+    async setMultiple(obj: Record<string, any>, sessionOnly = false) {
+        if (!sessionOnly) {
+            const now = new Date()
+            const variables = []
 
-        for (let name of Object.keys(obj)) {
-            variables.push({
-                name,
-                value: JSON.stringify(obj[name]),
-                updatedAt: now,
-                createdAt: now,    
-            })
+            for (let name of Object.keys(obj)) {
+                variables.push({
+                    name,
+                    value: JSON.stringify(obj[name]),
+                    updatedAt: now,
+                    createdAt: now,    
+                })
+            }
+
+            const q = this.knex('variable').insert(variables).toSQL().toNative()
+            await this.knex.raw(q.sql + upsertSuffix, q.bindings)
         }
-
-        const q = this.knex('variable').insert(variables).toSQL().toNative()
-        await this.knex.raw(q.sql + upsertSuffix, q.bindings)
 
         // Update the cache
         Object.assign(this.cache, obj)

@@ -1,3 +1,4 @@
+import { parseISO } from 'date-fns'
 import { Project } from './Project'
 
 const cache: Record<string, string> = {}
@@ -50,4 +51,9 @@ export function fiscalYearStart() {
         date: Number(raw.substring(0, 2)),
         month: Number(raw.substring(2, 4)),
     }
+}
+
+export function lastSavedDate() {
+    const dateOnly = Project.variables.get('lastSavedDate')
+    return dateOnly ? parseISO(dateOnly) : new Date()
 }

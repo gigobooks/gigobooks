@@ -206,6 +206,8 @@ export class Transaction extends Base {
             await Transaction.query(trx).patch(this).where('id', this.id)
         }
 
+        Project.variables.set('lastSavedDate', this.date, true)
+
         if (this.elements) {
             // Separate elements into three batches: Non-child, children, and deletes
             const parents: TElement[] = []

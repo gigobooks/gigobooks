@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import DatePicker from 'react-datepicker'
 import { Transaction, Account, IElement,
-    dateFormatString as dfs, toDateOnly, parseISO,
+    dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, currencySelectOptions } from './SelectOptions'
@@ -202,7 +202,7 @@ function extractFormValues(transaction: Transaction, settlements: Transaction[])
     })
 
     values.payments.push({
-        date: new Date(),
+        date: lastSavedDate(),
         amount: '',
         currency: transaction.elements![0].currency!
     })
