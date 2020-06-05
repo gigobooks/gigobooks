@@ -68,7 +68,7 @@ function makeKnex(filename, preExistingConnection) {
             }
 
             const callObj = connection.txConnection ? connection.txConnection : connection.mainConnection
-            const callMethod = obj.method == 'select' ? 'query' : 'exec'
+            const callMethod = ((!obj.method && obj.sql.toLowerCase().startsWith('select')) || obj.method == 'select') ? 'query' : 'exec'
             return new Promise(function(resolver, rejecter) {
                 if (!callObj || !callObj[callMethod]) {
                     return rejecter(
