@@ -36,6 +36,7 @@
     "@types/react-sidebar": "^3.0.0",
     "@types/react-table": "^7.0.16",
     "@types/styled-components": "^5.1.0",
+    "@types/webpack-env": "^1.15.2",
     "css-loader": "^3.5.2",
     "jest": "^25.4.0",
     "patch-package": "^6.2.2",

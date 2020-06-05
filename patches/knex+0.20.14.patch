@@ -1,0 +1,12 @@
+diff --git a/node_modules/knex/package.json b/node_modules/knex/package.json
+index b6704e5..023e04b 100644
+--- a/node_modules/knex/package.json
++++ b/node_modules/knex/package.json
+@@ -159,7 +159,6 @@
+     }
+   ],
+   "browser": {
+-    "./lib/migrate/Migrator.js": "./lib/util/noop.js",
+     "./lib/bin/cli.js": "./lib/util/noop.js",
+     "./lib/seed/Seeder.js": "./lib/util/noop.js",
+     "mssql": false,

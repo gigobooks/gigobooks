@@ -65,3 +65,5 @@ sqlite = (function() {
         Database
     }
 })()
+
+jest.mock('./src/util/knex-migrations', () => require('./src/test/__mocks__/knex-migrations'))
