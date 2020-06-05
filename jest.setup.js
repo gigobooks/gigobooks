@@ -65,3 +65,5 @@ sqlite = (function() {
         Database
     }
 })()
+
+jest.mock('./src/util/sound', () => require('./src/test/__mocks__/sound'))
