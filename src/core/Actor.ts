@@ -16,6 +16,9 @@ export class Actor extends Base {
     static Supplier = ActorType.Supplier
     static TypeInfo = ActorTypeInfo
 
+    static NewCustomer = -1
+    static NewSupplier = -2
+
     id?: number
     title?: string
     type?: ActorType

@@ -2,7 +2,8 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account, Actor, IElement,
+import { TransactionOrKnex, Model,
+    Project, Transaction, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
@@ -17,6 +18,7 @@ type Props = {
 
 export type FormData = {
     actorId: number
+    actorTitle?: string
     date: Date
     description?: string
     elements: {
@@ -48,6 +50,7 @@ export default function Purchase(props: Props) {
     const [accountOptions, setAccountOptions] = React.useState<{}>()
     const [sourceOptions, setSourceOptions] = React.useState<{}>()
     const [supplierOptions, setSupplierOptions] = React.useState<{}>()
+    const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
     const [redirectId, setRedirectId] = React.useState<number>(0)
 
     const form = useForm<FormData>()
@@ -75,11 +78,12 @@ export default function Purchase(props: Props) {
             setSourceOptions(flatSelectOptions(rows.filter(a => a.type == Account.Asset)))
         })
 
-        // Load customers
+        // Load suppliers
         Actor.query().select()
         .where('type', Actor.Supplier)
         .orderBy('title')
-        .then(rows => {
+        .then((rows: any[]) => {
+            rows.push({id: Actor.NewSupplier, title: '<new supplier>', type: Actor.Supplier})
             setSupplierOptions(flatSelectOptions(rows))
         })
         
@@ -104,7 +108,7 @@ export default function Purchase(props: Props) {
                 accountId: Account.Reserved.Cash,
             })
         }
-    }, [props.arg1])
+    }, [props.arg1, transaction && transaction.id ? transaction.updatedAt : 0])
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -112,10 +116,11 @@ export default function Purchase(props: Props) {
             return
         }
 
-        saveFormData(form, transaction!, data).then(savedId => {
+        Model.transaction(trx => saveFormData(trx, transaction!, data)).then(savedId => {
             if (savedId) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
+                setActorTitleEnable(false)
                 if (argId == 0) {
                     setRedirectId(savedId)
                 }
@@ -135,10 +140,22 @@ export default function Purchase(props: Props) {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Supplier:</label>
-                    <select name='actorId' ref={form.register}>
+                    <select
+                        name='actorId'
+                        onChange={e => {
+                            const value = Number(e.target.value)
+                            setActorTitleEnable(value == Actor.NewSupplier)
+                        }}
+                        ref={form.register}>
                         {supplierOptions}
                     </select>
                     {form.errors.actorId && form.errors.actorId.message}
+
+                    {actorTitleEnable && <>
+                        <label htmlFor='actorTitle'>Name:</label>
+                        <input name='actorTitle' ref={form.register} />
+                        {form.errors.actorTitle && form.errors.actorTitle.message}
+                    </>}
                 </div><div>
                     <label htmlFor='date'>Date:</label>
                     <Controller
@@ -388,6 +405,7 @@ export function extractFormValues(t: Transaction): FormData {
         date: parseISO(t.date!),
         description: t.description,
         actorId: t.actorId!,
+        actorTitle: '',
         elements: [],
         accountId: t.getFirstCrElement()!.accountId!,
     }
@@ -458,11 +476,23 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
         form.setError('actorId', '', 'Supplier is required')
         success = false
     }
+
+    if (data.actorId == Actor.NewSupplier && !data.actorTitle) {
+        form.setError('actorTitle', '', 'Name is required')
+        return false
+    }
+
     return success && validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
-export async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
+export async function saveFormData(trx: TransactionOrKnex, transaction: Transaction, data: FormData): Promise<number> {
+    if (data.actorId == Actor.NewSupplier) {
+        const actor = Actor.construct({title: data.actorTitle!.trim(), type: Actor.Supplier})
+        await actor.save(trx)
+        data.actorId = actor.id!
+    }
+
     Object.assign(transaction, {
         description: data.description,
         type: Transaction.Purchase,
@@ -539,7 +569,7 @@ export async function saveFormData(form: FCV<FormData>, transaction: Transaction
 
     // Merge and save.
     await transaction.mergeElements(elements)
-    await transaction.save()
+    await transaction.save(trx)
     transaction.condenseElements()
 
     return transaction.id!

@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import DatePicker from 'react-datepicker'
-import { Transaction, Account, IElement,
+import { TransactionOrKnex, Model,
+    Transaction, Account, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
@@ -53,7 +54,7 @@ export default function BillPayment(props: Props) {
             return
         }
 
-        saveFormData(form, transaction!, settlements, data).then(savedId => {
+        Model.transaction(trx => saveFormData(trx, transaction!, settlements, data)).then(savedId => {
             if (savedId) {
                 playSuccess()
                 form.reset(extractFormValues(transaction, settlements))
@@ -226,7 +227,7 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
 }
 
 // Returns: id of the payment/transaction that was saved/created, 0 otherwise
-async function saveFormData(form: FCV<FormData>, transaction: Transaction, 
+async function saveFormData(trx: TransactionOrKnex, transaction: Transaction, 
     settlements: Transaction[], data: FormData): Promise<number> {
 
     const item = data.payments[data.index]
@@ -255,7 +256,7 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction,
 
         // Merge and save.
         await payment.mergeElements(elements)
-        await payment.save()
+        await payment.save(trx)
         payment.condenseElements()
 
         return payment.id!
@@ -285,7 +286,7 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction,
 
         // Merge and save.
         await payment.mergeElements(elements)
-        await payment.save()
+        await payment.save(trx)
         payment.condenseElements()
 
         settlements.push(payment)

@@ -2,7 +2,8 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account, Actor, IElement,
+import { TransactionOrKnex, Model,
+    Project, Transaction, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
@@ -18,6 +19,7 @@ type Props = {
 
 export type FormData = {
     actorId: number
+    actorTitle?: string
     date: Date
     description?: string
     elements: {
@@ -47,6 +49,7 @@ export default function Invoice(props: Props) {
     const [transaction, setTransaction] = React.useState<Transaction>()
     const [revenueOptions, setRevenueOptions] = React.useState<{}>()
     const [customerOptions, setCustomerOptions] = React.useState<{}>()
+    const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
     const [redirectId, setRedirectId] = React.useState<number>(0)
 
     const form = useForm<FormData>()
@@ -69,7 +72,8 @@ export default function Invoice(props: Props) {
         Actor.query().select()
         .where('type', Actor.Customer)
         .orderBy('title')
-        .then(rows => {
+        .then((rows: any[]) => {
+            rows.push({id: Actor.NewCustomer, title: '<new customer>', type: Actor.Customer})
             setCustomerOptions(flatSelectOptions(rows))
         })
         
@@ -93,7 +97,7 @@ export default function Invoice(props: Props) {
                 elements: [{currency}, {currency}],
             })
         }
-    }, [props.arg1])
+    }, [props.arg1, transaction && transaction.id ? transaction.updatedAt : 0])
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -101,10 +105,11 @@ export default function Invoice(props: Props) {
             return
         }
 
-        saveFormData(form, transaction!, data).then(savedId => {
+        Model.transaction(trx => saveFormData(trx, transaction!, data)).then(savedId => {
             if (savedId) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
+                setActorTitleEnable(false)
                 if (argId == 0) {
                     setRedirectId(savedId)
                 }
@@ -124,10 +129,22 @@ export default function Invoice(props: Props) {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Customer:</label>
-                    <select name='actorId' ref={form.register}>
+                    <select
+                        name='actorId'
+                        onChange={e => {
+                            const value = Number(e.target.value)
+                            setActorTitleEnable(value == Actor.NewCustomer)
+                        }}
+                        ref={form.register}>
                         {customerOptions}
                     </select>
                     {form.errors.actorId && form.errors.actorId.message}
+
+                    {actorTitleEnable && <>
+                        <label htmlFor='actorTitle'>Name:</label>
+                        <input name='actorTitle' ref={form.register} />
+                        {form.errors.actorTitle && form.errors.actorTitle.message}
+                    </>}
                 </div><div>
                     <label htmlFor='date'>Date:</label>
                     <Controller
@@ -379,6 +396,7 @@ export function extractFormValues(t: Transaction): FormData {
         date: parseISO(t.date!),
         description: t.description,
         actorId: t.actorId!,
+        actorTitle: '',
         elements: [],
     }
 
@@ -448,11 +466,23 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
         form.setError('actorId', '', 'Customer is required')
         success = false
     }
+
+    if (data.actorId == Actor.NewCustomer && !data.actorTitle) {
+        form.setError('actorTitle', '', 'Name is required')
+        return false
+    }
+
     return success && validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
-export async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
+export async function saveFormData(trx: TransactionOrKnex, transaction: Transaction, data: FormData): Promise<number> {
+    if (data.actorId == Actor.NewCustomer) {
+        const actor = Actor.construct({title: data.actorTitle!.trim(), type: Actor.Customer})
+        await actor.save(trx)
+        data.actorId = actor.id!
+    }
+
     Object.assign(transaction, {
         description: data.description,
         type: Transaction.Invoice,
@@ -529,7 +559,7 @@ export async function saveFormData(form: FCV<FormData>, transaction: Transaction
 
     // Merge and save.
     await transaction.mergeElements(elements)
-    await transaction.save()
+    await transaction.save(trx)
     transaction.condenseElements()
 
     return transaction.id!

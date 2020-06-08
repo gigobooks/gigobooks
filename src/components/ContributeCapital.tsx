@@ -2,7 +2,8 @@ import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
-import { Project, Transaction, Account, IElement,
+import { TransactionOrKnex, Model,
+    Project, Transaction, Account, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted } from '../core'
 import { validateElementAmounts } from '../util/util'
@@ -71,7 +72,7 @@ export default function ContributeCapital(props: Props) {
                 elements: [{currency}, {currency}],
             })
         }
-    }, [props.arg1])
+    }, [props.arg1, transaction && transaction.id ? transaction.updatedAt : 0])
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -79,7 +80,7 @@ export default function ContributeCapital(props: Props) {
             return
         }
 
-        saveFormData(form, transaction!, data).then(savedId => {
+        Model.transaction(trx => saveFormData(trx, transaction!, data)).then(savedId => {
             if (savedId) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
@@ -229,7 +230,7 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
-async function saveFormData(form: FCV<FormData>, transaction: Transaction, data: FormData): Promise<number> {
+async function saveFormData(trx: TransactionOrKnex, transaction: Transaction, data: FormData): Promise<number> {
     Object.assign(transaction, {
         description: data.description,
         type: Transaction.Contribution,
@@ -278,7 +279,7 @@ async function saveFormData(form: FCV<FormData>, transaction: Transaction, data:
 
     // Merge and save.
     await transaction.mergeElements(elements)
-    await transaction.save()
+    await transaction.save(trx)
     transaction.condenseElements()
 
     return transaction.id!
