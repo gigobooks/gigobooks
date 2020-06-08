@@ -141,11 +141,8 @@ export default function TransactionDetail(props: Props) {
                         register={form.register()}
                         name='date'
                         valueName='selected'
-                        onChange={([selected]) => {
-                            return selected
-                        }}
-                        rules={{required: 'Date is required'}}
-                    />
+                        onChange={([selected]) => selected}
+                        />
                     {form.errors.date && form.errors.date.message}
                 </div><div>
                     <label htmlFor='description'>Description:</label>
@@ -255,7 +252,10 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
         form.setError('actorTitle', '', 'Name is required')
         return false
     }
-
+    if (!data.date) {
+        form.setError('date', '', 'Date is required')
+        return false
+    }
     if (!validateElementDrCr(form, data)) {
         return false
     }

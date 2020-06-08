@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, FormContextValues as FCV } from 'react-hook-form'
 import { Project } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { currencySelectOptionsAll } from './SelectOptions'
@@ -23,6 +23,11 @@ export default function Settings() {
     }, [])
 
     const onSubmit = async (data: FormData) => {
+        if (!validateFormData(form, data)) {
+            playAlert()
+            return
+        }
+
         saveFormData(data).then(() => {
             playSuccess()
             form.reset(extractFormValues())
@@ -37,7 +42,7 @@ export default function Settings() {
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
                 <label htmlFor='title'>Title:</label>
-                <input name='title' ref={form.register({required: 'Title is required'})} />
+                <input name='title' ref={form.register} />
                 {form.errors.title && form.errors.title.message}
             </div><div>
                 <label htmlFor='address'>Address:</label>
@@ -85,6 +90,15 @@ function extractFormValues(): FormData {
         values.otherCurrencies = ['none']
     }
     return values
+}
+
+// Returns true if validation succeeded, false otherwise
+export function validateFormData(form: FCV<FormData>, data: FormData) {
+    if (!data.title) {
+        form.setError('title', '', 'Title is required')
+        return false
+    }
+    return true
 }
 
 // Returns: positive for success, 0 otherwise

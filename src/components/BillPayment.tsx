@@ -101,11 +101,8 @@ export default function BillPayment(props: Props) {
                             register={form.register()}
                             name={`payments[${index}].date`}
                             valueName='selected'
-                            onChange={([selected]) => {
-                                return selected
-                            }}
-                            rules={{required: 'Date is required'}}
-                        />
+                            onChange={([selected]) => selected}
+                            />
                         {form.errors.payments && form.errors.payments[index] && 
                             form.errors.payments[index].date &&
                             <div>{form.errors.payments[index].date!.message}</div>}
@@ -213,17 +210,20 @@ function extractFormValues(transaction: Transaction, settlements: Transaction[])
 
 // Returns true if validation succeeded, false otherwise
 function validateFormData(form: FCV<FormData>, data: FormData) {
-    let success = true
+    if (!data.payments[data.index].date) {
+        form.setError(`payments[${data.index}].date`, '', 'Date is required')
+        return false
+    }
 
     try {
         parseFormatted(data.payments[data.index].amount, data.payments[data.index].currency)
     }
     catch (e) {
         form.setError(`payments[${data.index}].amount`, '', 'Invalid amount')
-        success = false
+        return false
     }
 
-    return success
+    return true
 }
 
 // Returns: id of the payment/transaction that was saved/created, 0 otherwise

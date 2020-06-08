@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, FormContextValues as FCV } from 'react-hook-form'
 import { Project } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
@@ -19,6 +19,11 @@ export default function SettingsTax() {
     }, [])
 
     const onSubmit = async (data: FormData) => {
+        if (!validateFormData(form, data)) {
+            playAlert()
+            return
+        }
+
         saveFormData(data).then(() => {
             playSuccess()
             form.reset(extractFormValues())
@@ -63,6 +68,11 @@ function extractFormValues(): FormData {
     ]) as FormData
 
     return values
+}
+
+// Returns true if validation succeeded, false otherwise
+export function validateFormData(form: FCV<FormData>, data: FormData) {
+    return true
 }
 
 // Returns: positive for success, 0 otherwise

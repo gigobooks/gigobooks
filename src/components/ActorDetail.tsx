@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, FormContextValues as FCV } from 'react-hook-form'
 import { Redirect } from 'react-router-dom'
 import { Actor } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
@@ -59,6 +59,11 @@ export default function ActorDetail(props: Props) {
     }, [props.arg1])
 
     const onSubmit = async (data: FormData) => {
+        if (!validateFormData(form, data)) {
+            playAlert()
+            return
+        }
+
         saveFormData(actor!, data).then(savedId => {
             playSuccess()
             form.reset(extractFormValues(actor!))
@@ -82,7 +87,7 @@ export default function ActorDetail(props: Props) {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='title'>Name:</label>
-                    <input name='title' ref={form.register({required: 'Title is required'})} />
+                    <input name='title' ref={form.register} />
                     {form.errors.title && form.errors.title.message}
                 </div><div>
                     <label htmlFor='taxId'>Tax registration (type and id):</label>
@@ -111,6 +116,15 @@ function extractFormValues(a: Actor): FormData {
         taxId: a.taxId!,
         address: a.address!,
     }
+}
+
+// Returns true if validation succeeded, false otherwise
+export function validateFormData(form: FCV<FormData>, data: FormData) {
+    if (!data.title) {
+        form.setError('title', '', 'Name is required')
+        return false
+    }
+    return true
 }
 
 // Returns: id of the object that was saved/created, 0 otherwise

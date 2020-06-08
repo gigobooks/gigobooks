@@ -159,11 +159,8 @@ export default function Sale(props: Props) {
                         register={form.register()}
                         name='date'
                         valueName='selected'
-                        onChange={([selected]) => {
-                            return selected
-                        }}
-                        rules={{required: 'Date is required'}}
-                    />
+                        onChange={([selected]) => selected}
+                        />
                     {form.errors.date && form.errors.date.message}
                 </div><div>
                     <label htmlFor='description'>Description:</label>
@@ -464,19 +461,19 @@ export function extractFormValues(t: Transaction): FormData {
 
 // Returns true if validation succeeded, false otherwise
 export function validateFormData(form: FCV<FormData>, data: FormData) {
-    let success = true
-
     if (!data.actorId) {
         form.setError('actorId', '', 'Customer is required')
-        success = false
+        return false
     }
-
     if (data.actorId == Actor.NewCustomer && !data.actorTitle) {
         form.setError('actorTitle', '', 'Name is required')
         return false
     }
-
-    return success && validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)
+    if (!data.date) {
+        form.setError('date', '', 'Date is required')
+        return false
+    }
+    return validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise

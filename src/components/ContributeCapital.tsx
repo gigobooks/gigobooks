@@ -110,10 +110,7 @@ export default function ContributeCapital(props: Props) {
                         register={form.register()}
                         name='date'
                         valueName='selected'
-                        onChange={([selected]) => {
-                            return selected
-                        }}
-                        rules={{required: 'Date is required'}}
+                        onChange={([selected]) => selected}
                     />
                     {form.errors.date && form.errors.date.message}
                 </div><div>
@@ -226,6 +223,10 @@ function extractFormValues(t: Transaction): FormData {
 
 // Returns true if validation succeeded, false otherwise
 function validateFormData(form: FCV<FormData>, data: FormData) {
+    if (!data.date) {
+        form.setError('date', '', 'Date is required')
+        return false
+    }
     return validateElementAmounts(form, data)
 }
 
