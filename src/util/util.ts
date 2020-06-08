@@ -91,9 +91,9 @@ export function validateAmounts(form: any, data: any, options0: Partial<Validati
 }
 
 export function validateElementAmounts(form: any, data: any) {
-    return validateAmounts(form, data, {
+    return data.elements && data.elements.length > 0 ? validateAmounts(form, data, {
         currency: data.elements[0].currency
-    })
+    }) : true
 }
 
 // Like validateElementAmounts() but validates `.dr` and `.cr`

@@ -259,10 +259,12 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
     if (!validateElementDrCr(form, data)) {
         return false
     }
+    if (!data.elements || data.elements.length == 0) {
+        form.setError('submit', '', 'Nothing to save')
+        return false
+    }
 
-    let success = true
     const balances: Record<string, number> = {}
-
     data.elements.forEach(e => {
         const currency = e.currency!
         if (balances[currency] == undefined) {
@@ -273,10 +275,9 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
 
     if (Object.keys(balances).some(currency => balances[currency] != 0)) {
         form.setError('submit', '', 'Entries do not balance')
-        success = false
+        return false
     }
-
-    return success
+    return true
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise

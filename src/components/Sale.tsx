@@ -392,13 +392,14 @@ function ElementFamily(props: ElementFamilyProps) {
 }
 
 export function extractFormValues(t: Transaction): FormData {
+    const firstDrElement = t.getFirstDrElement()
     const values: FormData = {
         date: parseISO(t.date!),
         description: t.description,
         actorId: t.actorId!,
         actorTitle: '',
         elements: [],
-        accountId: t.getFirstDrElement()!.accountId!,
+        accountId: firstDrElement ? firstDrElement.accountId! : Account.Reserved.Cash,
     }
 
     if (t.elements) {
@@ -471,6 +472,10 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
     }
     if (!data.date) {
         form.setError('date', '', 'Date is required')
+        return false
+    }
+    if (!data.elements || data.elements.length == 0) {
+        form.setError('submit', '', 'Nothing to save')
         return false
     }
     return validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)

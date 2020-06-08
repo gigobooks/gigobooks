@@ -469,6 +469,10 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
         form.setError('date', '', 'Date is required')
         return false
     }
+    if (!data.elements || data.elements.length == 0) {
+        form.setError('submit', '', 'Nothing to save')
+        return false
+    }
     return validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)
 }
 
