@@ -48,6 +48,10 @@ module.exports = {
     // knex requires pg-connection-string which requires fs
     // replace pg-connection-string by a noop (conveniently from knex itself)
     new webpack.NormalModuleReplacementPlugin(/pg-connection-string/, 'knex/lib/util/noop'),
+
+    // No-op these as they also reference fs
+    new webpack.NormalModuleReplacementPlugin(/MigrationGenerator/, 'knex/lib/util/noop'),
+    new webpack.NormalModuleReplacementPlugin(/fs-migrations/, 'knex/lib/util/noop'),
   ],
 
   performance: {

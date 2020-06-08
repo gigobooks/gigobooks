@@ -66,4 +66,5 @@ sqlite = (function() {
     }
 })()
 
+jest.mock('./src/util/knex-migrations', () => require('./src/test/__mocks__/knex-migrations'))
 jest.mock('./src/util/sound', () => require('./src/test/__mocks__/sound'))

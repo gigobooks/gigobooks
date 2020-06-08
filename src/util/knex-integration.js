@@ -1,6 +1,7 @@
 const Knex = require('knex')
 const Client_SQLite3 = require('knex/lib/dialects/sqlite3')
 const knexSnakeCaseMappers = require('objection').knexSnakeCaseMappers
+const migrations = require('./knex-migrations')
 
 let connectionId = 0
 
@@ -114,6 +115,7 @@ function makeKnex(filename, preExistingConnection) {
         useNullAsDefault: true,
         client: Client_SQLite3,
         preExistingConnection,
+        ...migrations,
         ...knexSnakeCaseMappers()
     })
 }
