@@ -4,6 +4,7 @@ import { Project } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
 type FormData = {
+    taxId: string
     taxEnable: string[]
     customTaxCodes: string
     submit?: string    // Only for displaying general submit error messages
@@ -11,7 +12,6 @@ type FormData = {
 
 export default function SettingsTax() {
     const form = useForm<FormData>()
-    const formValues: any = form.getValues()
 
     // Initialise
     React.useEffect(() => {
@@ -32,6 +32,10 @@ export default function SettingsTax() {
         <h1>Tax Settings</h1>
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
+                <label htmlFor='taxId'>Tax registrations (type and id):</label>
+                <textarea name='taxId' ref={form.register} />
+                {form.errors.taxId && form.errors.taxId.message}
+            </div><div>
                 <label htmlFor='taxEnable'>Enable taxes:</label>
                 <select name='taxEnable' multiple ref={form.register}>
                     <option key='AU' value='AU'>Australia</option>
@@ -53,6 +57,7 @@ export default function SettingsTax() {
 
 function extractFormValues(): FormData {
     const values = Project.variables.getMultiple([
+        'taxId',
         'taxEnable',
         'customTaxCodes',
     ]) as FormData

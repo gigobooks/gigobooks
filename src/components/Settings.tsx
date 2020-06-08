@@ -6,6 +6,7 @@ import { currencySelectOptionsAll } from './SelectOptions'
 
 type FormData = {
     title: string
+    address: string
     currency: string
     otherCurrencies: string[]
     fiscalYear: string
@@ -39,6 +40,10 @@ export default function Settings() {
                 <input name='title' ref={form.register({required: 'Title is required'})} />
                 {form.errors.title && form.errors.title.message}
             </div><div>
+                <label htmlFor='address'>Address:</label>
+                <textarea name='address' ref={form.register}/>
+                {form.errors.address && form.errors.address.message}
+            </div><div>
                 <label htmlFor='currency'>Primary currency:</label>
                 <select name='currency' ref={form.register}>
                     {currencySelectOptionsAll()}
@@ -70,6 +75,7 @@ export default function Settings() {
 function extractFormValues(): FormData {
     const values = Project.variables.getMultiple([
         'title',
+        'address',
         'currency',
         'otherCurrencies',
         'fiscalYear',

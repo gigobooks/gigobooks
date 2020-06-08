@@ -5,11 +5,14 @@ import { prepopulate, maybeMigrate } from './database'
 import { Variables } from './Variables'
 
 const defaultVariables = {
+    title: '',
+    address: '',
     currency: 'USD',
     otherCurrencies: [],
     taxEnable: [],
     customTaxCodes: '',
-    fiscalYear: '0101'
+    fiscalYear: '0101',
+    // lastSavedDate
 }
 
 // ToDo: Validate the database, isModified flag

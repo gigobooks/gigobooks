@@ -85,7 +85,7 @@ export default function ActorDetail(props: Props) {
                     {form.errors.title && form.errors.title.message}
                 </div><div>
                     <label htmlFor='taxId'>Tax registration (type and id):</label>
-                    <input name='taxId' ref={form.register()} />
+                    <input name='taxId' ref={form.register} />
                     {form.errors.taxId && form.errors.taxId.message}
                 </div><div>
                     <label htmlFor='address'>Address:</label>
