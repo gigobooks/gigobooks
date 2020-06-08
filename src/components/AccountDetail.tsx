@@ -5,6 +5,7 @@ import { Account, AccountType } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
 type Props = {
+    pathDir: string
     arg1?: string
 }
 
@@ -60,7 +61,7 @@ export default function AccountDetail(props: Props) {
     }
 
     if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/accounts/${redirectId}`} />
+        return <Redirect to={`${props.pathDir}/${redirectId}`} />
     }
     else if (account) {
         return <div>

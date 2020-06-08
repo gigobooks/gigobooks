@@ -95,34 +95,34 @@ const Menu = () => {
 const Main = () => {
     return <Switch>
         <Route path='/bills/:arg1'>
-            <DispatchWithParams element={Bill} />
+            <DispatchWithParams element={Bill} pathDir='/bills' />
         </Route>
         <Route path='/purchases/:arg1'>
-            <DispatchWithParams element={Purchase} />
+            <DispatchWithParams element={Purchase} pathDir='/purchases' />
         </Route>
         <Route path='/invoices/:arg1'>
-            <DispatchWithParams element={Invoice} />
+            <DispatchWithParams element={Invoice} pathDir='/invoices' />
         </Route>
         <Route path='/sales/:arg1'>
-            <DispatchWithParams element={Sale} />
+            <DispatchWithParams element={Sale} pathDir='/sales' />
         </Route>
         <Route path='/contributions/:arg1'>
-            <DispatchWithParams element={ContributeCapital} />
+            <DispatchWithParams element={ContributeCapital} pathDir='/contributions' />
         </Route>
         <Route path='/transactions/:arg1'>
-            <DispatchWithParams element={TransactionDetail} />
+            <DispatchWithParams element={TransactionDetail} pathDir='/transactions' />
         </Route>
         <Route path='/transactions'>
             <TransactionOverview />
         </Route>
         <Route path='/suppliers/:arg1'>
-            <DispatchWithParams element={ActorDetail} supplier />
+            <DispatchWithParams element={ActorDetail} pathDir='/suppliers' supplier />
         </Route>
         <Route path='/customers/:arg1'>
-            <DispatchWithParams element={ActorDetail} customer />
+            <DispatchWithParams element={ActorDetail} pathDir='/customers' customer />
         </Route>
         <Route path='/accounts/:arg1'>
-            <DispatchWithParams element={AccountDetail} />
+            <DispatchWithParams element={AccountDetail} pathDir='/accounts' />
         </Route>
         <Route path='/accounts'>
             <AccountOverview />

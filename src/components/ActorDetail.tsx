@@ -5,6 +5,7 @@ import { Actor } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
 type Props = {
+    pathDir: string
     arg1?: string
     customer?: boolean
     supplier?: boolean
@@ -71,7 +72,7 @@ export default function ActorDetail(props: Props) {
     }
 
     if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/${isCustomer ? 'customer' : 'supplier'}s/${redirectId}`} />
+        return <Redirect to={`${props.pathDir}/${redirectId}`} />
     }
     else if (actor) {
         return <div>

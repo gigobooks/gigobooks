@@ -10,6 +10,7 @@ import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
 
 type Props = {
+    pathDir: string
     arg1?: string
 }
 
@@ -102,7 +103,7 @@ export default function TransactionDetail(props: Props) {
     }
 
     if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/transactions/${redirectId}`} />
+        return <Redirect to={`${props.pathDir}/${redirectId}`} />
     }
     else if (transaction && accountOptions && actorOptions) {
         return <div>
