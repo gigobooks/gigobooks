@@ -107,8 +107,8 @@ export default function TransactionDetail(props: Props) {
     }
     else if (transaction && accountOptions && actorOptions) {
         return <div>
-            <h1>{transaction.id ? `Transaction ${transaction.id}` : 'New transaction'}</h1>
-            <div>Type: {transaction.type ? transaction.type : 'raw'}</div>
+            <h1>{transaction.id ? `Transaction ${transaction.id}` : 'New raw transaction'}</h1>
+            {!!transaction.id && <div>Type: {transaction.type ? transaction.type : 'raw'}</div>}
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Customer or Supplier:</label>
