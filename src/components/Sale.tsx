@@ -110,7 +110,7 @@ export default function Sale(props: Props) {
             return
         }
 
-        Model.transaction(trx => saveFormData(trx, transaction!, data)).then(savedId => {
+        Model.transaction(trx => saveFormData(transaction!, data, trx)).then(savedId => {
             if (savedId) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
@@ -482,7 +482,7 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
 }
 
 // Returns: id of the transaction that was saved/created, 0 otherwise
-export async function saveFormData(trx: TransactionOrKnex, transaction: Transaction, data: FormData): Promise<number> {
+export async function saveFormData(transaction: Transaction, data: FormData, trx?: TransactionOrKnex): Promise<number> {
     if (data.actorId == Actor.NewCustomer) {
         const actor = Actor.construct({title: data.actorTitle!.trim(), type: Actor.Customer})
         await actor.save(trx)

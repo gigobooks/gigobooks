@@ -54,7 +54,7 @@ export default function BillPayment(props: Props) {
             return
         }
 
-        Model.transaction(trx => saveFormData(trx, transaction!, settlements, data)).then(savedId => {
+        Model.transaction(trx => saveFormData(transaction!, settlements, data, trx)).then(savedId => {
             if (savedId) {
                 playSuccess()
                 form.reset(extractFormValues(transaction, settlements))
@@ -227,8 +227,11 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
 }
 
 // Returns: id of the payment/transaction that was saved/created, 0 otherwise
-async function saveFormData(trx: TransactionOrKnex, transaction: Transaction, 
-    settlements: Transaction[], data: FormData): Promise<number> {
+async function saveFormData(
+    transaction: Transaction, 
+    settlements: Transaction[],
+    data: FormData,
+    trx?: TransactionOrKnex): Promise<number> {
 
     const item = data.payments[data.index]
     const amount = parseFormatted(item.amount, item.currency)

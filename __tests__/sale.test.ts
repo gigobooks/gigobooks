@@ -1,4 +1,4 @@
-import { Project, Base, Account, Transaction } from '../src/core'
+import { Project, Account, Transaction } from '../src/core'
 import { extractFormValues, saveFormData, validateFormData } from '../src/components/Sale'
 import { MockForm } from '../src/test/MockForm'
 
@@ -25,7 +25,7 @@ test('sale form', async done => {
 
     // Save a sale using form data
     let t0 = Transaction.construct({})
-    let result = await saveFormData(MockForm.clear(), t0, {actorId: 1, date: now, description: 'foo', elements: [
+    let result = await saveFormData(t0, {actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 400, amount: '10', currency: 'USD', useGross: 0, grossAmount: '11', description: 'one', taxes: [
             {description: 'one a', code: ':zero:0', rate: '0', amount: '0'},
             {description: 'one b', code: '', rate: '10', amount: '1'},
@@ -77,7 +77,7 @@ test('sale form', async done => {
     Object.assign(data.elements[1].taxes![0], {code: '', rate: '0.0', amount: '0.0'})
     Object.assign(data.elements[1].taxes![1], {code: '', rate: '0'})
 
-    result = await saveFormData(MockForm.clear(), t1, data)
+    result = await saveFormData(t1, data)
     expect(result).toBeTruthy()
     expect(t1.elements!.length).toBe(6)
     expect(t1.elements![2]).toMatchObject({accountId: Cash, amount: 12100, currency: 'USD'})
