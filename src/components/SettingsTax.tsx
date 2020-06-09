@@ -5,18 +5,15 @@ import { playSuccess, playAlert } from '../util/sound'
 
 type FormData = {
     taxId: string
-    taxEnable: string[]
+    taxEnable: Record<string, string | false>
     customTaxCodes: string
     submit?: string    // Only for displaying general submit error messages
 }
 
 export default function SettingsTax() {
-    const form = useForm<FormData>()
-
-    // Initialise
-    React.useEffect(() => {
-        form.reset(extractFormValues())
-    }, [])
+    const form = useForm<FormData>({
+        defaultValues: extractFormValues(),
+    })
 
     const onSubmit = async (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -41,13 +38,28 @@ export default function SettingsTax() {
                 <textarea name='taxId' ref={form.register} />
                 {form.errors.taxId && form.errors.taxId.message}
             </div><div>
-                <label htmlFor='taxEnable'>Enable taxes:</label>
-                <select name='taxEnable' multiple ref={form.register}>
-                    <option key='AU' value='AU'>Australia</option>
-                    <option key='CA' value='CA'>Canada</option>
-                    <option key='EU' value='EU'>Europe</option>
-                    <option key='US' value='US'>United States</option>
-                </select>
+                <table><tbody>
+                    <tr><td>
+                        <label htmlFor='taxEnable'>Enable taxes:</label>
+                    </td><td>
+                        <label><input name='taxEnable[AU]' type='checkbox' value='AU' ref={form.register} />Australia</label>
+                    </td></tr>
+                    <tr><td>
+                        &nbsp;
+                    </td><td>
+                        <label><input name='taxEnable[CA]' type='checkbox' value='CA' ref={form.register} />Canada</label>
+                    </td></tr>
+                    <tr><td>
+                        &nbsp;
+                    </td><td>
+                        <label><input name='taxEnable[EU]' type='checkbox' value='EU' ref={form.register} />Europe</label>
+                    </td></tr>
+                    <tr><td>
+                        &nbsp;
+                    </td><td>
+                        <label><input name='taxEnable[US]' type='checkbox' value='US' ref={form.register} />United States</label>
+                    </td></tr>
+                </tbody></table>
             </div><div>
                 <label htmlFor='customTaxCodes'>Custom tax codes:</label>
                 <textarea name='customTaxCodes' ref={form.register}/>
@@ -65,9 +77,15 @@ function extractFormValues(): FormData {
         'taxId',
         'taxEnable',
         'customTaxCodes',
-    ]) as FormData
+    ])
 
-    return values
+    return {
+        ...values,
+        taxEnable: values.taxEnable.reduce((acc: Record<string, string>, val: string) => {
+            acc[val] = val
+            return acc
+        }, {}),
+    } as FormData
 }
 
 // Returns true if validation succeeded, false otherwise
@@ -77,5 +95,8 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
 
 // Returns: positive for success, 0 otherwise
 async function saveFormData(data: FormData) {
-    await Project.variables.setMultiple(data)
+    await Project.variables.setMultiple({
+        ...data,
+        taxEnable: Object.keys(data.taxEnable).filter(key => data.taxEnable[key]).sort(),
+    })
 }
