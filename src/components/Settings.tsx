@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useForm, FormContextValues as FCV } from 'react-hook-form'
+import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Project } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { currencySelectOptionsAll } from './SelectOptions'
@@ -14,13 +14,10 @@ type FormData = {
 }
 
 export default function Settings() {
-    const form = useForm<FormData>()
-    const formValues: any = form.getValues()
-
-    // Initialise
-    React.useEffect(() => {
-        form.reset(extractFormValues())
-    }, [])
+    const form = useForm<FormData>({
+        defaultValues: extractFormValues()
+    })
+    const {fields, append} = useFieldArray({control: form.control, name: 'otherCurrencies'})
 
     const onSubmit = async (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -49,16 +46,37 @@ export default function Settings() {
                 <textarea name='address' ref={form.register}/>
                 {form.errors.address && form.errors.address.message}
             </div><div>
-                <label htmlFor='currency'>Primary currency:</label>
-                <select name='currency' ref={form.register}>
-                    {currencySelectOptionsAll()}
-                </select>
-            </div><div>
-                <label htmlFor='otherCurrencies'>Other currencies:</label>
-                <select name='otherCurrencies' multiple size={10} ref={form.register}>
-                    <option key='none' value='none'>None</option>
-                    {currencySelectOptionsAll(formValues.otherCurrencies)}
-                </select>
+                <table><tbody>
+                    <tr key='currency'><td>
+                        <label htmlFor='currency'>Primary currency:</label>
+                    </td><td>
+                        <select name='currency' ref={form.register}>
+                        {currencySelectOptionsAll()}
+                        </select>
+                    </td><td>
+                        <button type='button' onClick={() => append({name: 'otherCurrencies'})}>
+                            Add currency
+                        </button>
+                    </td></tr>
+                {fields.map((item, index) =>
+                    <tr key={item.id}><td>
+                        {index == 0
+                        ? <label htmlFor='otherCurrencies'>Other currencies:</label>
+                        : <>&nbsp;</>}                        
+                    </td><td>
+                        <select
+                            name={`otherCurrencies[${index}]`}
+                            defaultValue={item.value}
+                            ref={form.register()}
+                        >
+                            <option key='none' value='none'>None</option>
+                            {currencySelectOptionsAll()}
+                        </select>
+                    </td><td>
+                        &nbsp;
+                    </td></tr>
+                )}
+                </tbody></table>
             </div><div>
                 <label htmlFor='fiscalYear'>Fiscal year:</label>
                 <select name='fiscalYear' ref={form.register}>
@@ -85,10 +103,6 @@ function extractFormValues(): FormData {
         'otherCurrencies',
         'fiscalYear',
     ]) as FormData
-
-    if (!values.otherCurrencies || values.otherCurrencies.length == 0) {
-        values.otherCurrencies = ['none']
-    }
     return values
 }
 
@@ -103,9 +117,12 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
 
 // Returns: positive for success, 0 otherwise
 async function saveFormData(data: FormData) {
-    // Filter out $currency and 'none' from otherCurrencies
-    data.otherCurrencies = data.otherCurrencies.filter(c => {
+    // Filter out $currency and 'none' from otherCurrencies.
+    // Then remove duplicates and sort.
+    data.otherCurrencies = data.otherCurrencies || []
+    data.otherCurrencies = [...new Set(data.otherCurrencies.filter(c => {
         return c != data.currency && c != 'none'
-    })
+    }))].sort()
+
     await Project.variables.setMultiple(data)
 }
