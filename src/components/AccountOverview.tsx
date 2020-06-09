@@ -5,11 +5,15 @@ import styled from 'styled-components'
 import { ReactTable, getRowId } from './ReactTable'
 import { Link } from 'react-router-dom'
 
+type Props = {
+    path: string
+}
+
 function LinkToAccount({cell}: any) {
     return <Link to={`/accounts/${cell.row.id}`}>{cell.value}</Link>
 }
 
-export default function AccountOverview() {
+export default function AccountOverview(props: Props) {
     const tableConfig: any = React.useMemo(() => {
         return {
             getRowId: getRowId,
@@ -30,6 +34,7 @@ export default function AccountOverview() {
 
     return <div>
         <h1>List of accounts</h1>
+        <Link to={`${props.path}/new`}>New account</Link>
         <Styles>
             <ReactTable {...useTable({...tableConfig, data})} />
         </Styles>

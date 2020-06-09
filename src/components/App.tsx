@@ -68,18 +68,49 @@ class App extends React.Component<{}, AppState> {
 
 const Menu = () => {
     return <div>
-        <Link to='/'>Home</Link><br />
-        <Link to='/accounts'>Accounts</Link> - <Link to='/accounts/new'>new</Link><br />
-        Customers - <Link to='/customers/new'>new</Link><br />
-        Suppliers - <Link to='/suppliers/new'>new</Link><br />
-        <Link to='/transactions'>Transactions</Link> - <Link to='/transactions/new'>new</Link><br />
-        Contributions - <Link to='/contributions/new'>new</Link><br />
-        Cash sales - <Link to='/sales/new'>new</Link><br />
-        Invoices - <Link to='/invoices/new'>new</Link><br />
-        Cash purchases - <Link to='/purchases/new'>new</Link><br />
-        Bills - <Link to='/bills/new'>new</Link><br />
-        <Link to='/settings'>Settings</Link> - <Link to='/settings/tax'>tax</Link><br />
-        <Link to='/debug'>Debug</Link>
+        <div>
+            Sales
+            <ul style={{marginTop: '0'}}><li>
+                List
+            </li><li>
+                <Link to='/sales/new'>New cash sale</Link>
+            </li><li>
+                <Link to='/invoices/new'>New invoice</Link>
+            </li></ul>
+        </div><div>
+            Purchases
+            <ul style={{marginTop: '0'}}><li>
+                List
+            </li><li>
+            <Link to='/purchases/new'>New cash purchase</Link>
+            </li><li>
+            <Link to='/bills/new'>New bill</Link>
+            </li></ul>
+        </div><div>
+            Customers/Suppliers
+            <ul style={{marginTop: '0'}}><li>
+                List
+            </li><li>
+                <Link to='/customers/new'>New customer</Link>
+            </li><li>
+            <Link to='/suppliers/new'>New supplier</Link>
+            </li></ul>
+        </div><div>
+            Company
+            <ul style={{marginTop: '0'}}><li>
+                <Link to='/accounts'>Accounts</Link>
+            </li><li>
+                <Link to='/contributions/new'>New contribution</Link>
+            </li><li>
+                <Link to='/transactions'>Transactions</Link>
+            </li><li>
+                <Link to='/settings'>Settings</Link>
+            </li><li>
+                <Link to='/settings/tax'>Tax settings</Link>
+            </li></ul>
+        </div><div>
+            <Link to='/debug'>Debug</Link> | <Link to='/'>Root</Link>
+        </div>
 
         <Switch>
             <Route path='/:path'>
@@ -113,7 +144,7 @@ const Main = () => {
             <DispatchWithParams element={TransactionDetail} pathDir='/transactions' />
         </Route>
         <Route path='/transactions'>
-            <TransactionOverview />
+            <TransactionOverview path='/transactions' />
         </Route>
         <Route path='/suppliers/:arg1'>
             <DispatchWithParams element={ActorDetail} pathDir='/suppliers' supplier />
@@ -125,7 +156,7 @@ const Main = () => {
             <DispatchWithParams element={AccountDetail} pathDir='/accounts' />
         </Route>
         <Route path='/accounts'>
-            <AccountOverview />
+            <AccountOverview path='/accounts' />
         </Route>
         <Route path='/debug'>
             <DebugScreen />

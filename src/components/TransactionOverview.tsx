@@ -5,6 +5,10 @@ import styled from 'styled-components'
 import { ReactTable, getRowId } from './ReactTable'
 import { Link } from 'react-router-dom'
 
+type Props = {
+    path: string
+}
+
 function LinkToRawTransaction(data: any) {
     const url = `/transactions/${data.row.values.id}`
     return <Link to={url}>{url}</Link>
@@ -21,7 +25,7 @@ function LinkToTransaction(data: any) {
     }
 }
 
-export default function TransactionOverview() {
+export default function TransactionOverview(props: Props) {
     const tableConfig: any = React.useMemo(() => {
         return {
             getRowId: getRowId,
@@ -46,6 +50,7 @@ export default function TransactionOverview() {
 
     return <div>
         <h1>List of transactions</h1>
+        <Link to={`${props.path}/new`}>New raw transaction</Link>
         <Styles>
             <ReactTable {...useTable({...tableConfig, data})} />
         </Styles>
