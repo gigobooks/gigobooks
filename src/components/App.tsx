@@ -5,6 +5,7 @@ import Settings from './Settings'
 import SettingsTax from './SettingsTax'
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
+import ActorOverview from './ActorOverview'
 import ActorDetail from './ActorDetail'
 import ContributeCapital from './ContributeCapital'
 import DebugScreen from './DebugScreen'
@@ -89,7 +90,7 @@ const Menu = () => {
         </div><div>
             Customers/Suppliers
             <ul style={{marginTop: '0'}}><li>
-                List
+                <Link to='/actors'>List</Link>
             </li><li>
                 <Link to='/customers/new'>New customer</Link>
             </li><li>
@@ -151,6 +152,9 @@ const Main = () => {
         </Route>
         <Route path='/customers/:arg1'>
             <DispatchWithParams element={ActorDetail} pathDir='/customers' customer />
+        </Route>
+        <Route path='/actors'>
+            <ActorOverview path='/actors' />
         </Route>
         <Route path='/accounts/:arg1'>
             <DispatchWithParams element={AccountDetail} pathDir='/accounts' />
