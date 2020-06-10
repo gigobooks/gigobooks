@@ -2,7 +2,7 @@
 
 import { toFormatted, parseFormatted, calculateTaxes } from '../core'
 
-export interface CalculateTaxState {
+export type CalculateTaxState = {
     formatted: string
     setFormatted: (formatted: string) => void
     grossFormatted: string
