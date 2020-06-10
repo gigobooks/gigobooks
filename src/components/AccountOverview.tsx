@@ -22,7 +22,10 @@ export default function AccountOverview(props: Props) {
     const [pageCount, setPageCount] = React.useState<number>(0)
 
     const fetchData = React.useCallback(({pageSize, pageIndex}) => {
-        Account.query().then((data) => {
+        Account.query().resultSize().then((total) => {
+            setPageCount(Math.ceil(total / pageSize))
+        })
+        Account.query().offset(pageSize * pageIndex).limit(pageSize).then((data) => {
             setData(data)
         })
     }, [])
