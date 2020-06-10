@@ -16,16 +16,24 @@ export default function AccountOverview(props: Props) {
     const columns = React.useMemo<Column<Account>[]>(() => [
         { Header: 'ID', accessor: 'id', Cell: LinkToItem },
         { Header: 'Title', accessor: 'title', Cell: LinkToItem },
-        { Header: 'Type', accessor: 'type'},
+        { Header: 'Type', accessor: 'type' },
     ], [])
+    const initialState = React.useMemo(() => ({
+        pageIndex: 0, pageSize: 10, sortBy: [{id: 'id', desc: false}],
+    }), [])
     const [data, setData] = React.useState<Account[]>([])
     const [pageCount, setPageCount] = React.useState<number>(0)
 
-    const fetchData = React.useCallback(({pageSize, pageIndex}) => {
-        Account.query().resultSize().then((total) => {
-            setPageCount(Math.ceil(total / pageSize))
+    const fetchData = React.useCallback(state => {
+        Account.query().resultSize().then(total => {
+            setPageCount(Math.ceil(total / state.pageSize))
         })
-        Account.query().offset(pageSize * pageIndex).limit(pageSize).then((data) => {
+
+        Account.query().orderBy(
+            state.sortBy.map((s: {id: string, desc: boolean}) => ({
+                column: s.id, order: s.desc ? 'desc' : 'asc'
+            }))
+        ).offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
             setData(data)
         })
     }, [])
@@ -34,7 +42,7 @@ export default function AccountOverview(props: Props) {
         <h1>List of accounts</h1>
         <Link to={`${props.path}/new`}>New account</Link>
         <Styles>
-            <ReactTable {...{columns, data, fetchData, pageCount}} />
+            <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>
     </div>
 }

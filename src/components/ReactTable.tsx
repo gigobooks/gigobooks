@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Row, Column, useTable, usePagination } from 'react-table'
+import { Row, Column, useTable, usePagination, useSortBy } from 'react-table'
 export { Column } from 'react-table'
 
 // This is some integration magic
@@ -9,40 +9,51 @@ function getRowId<D extends {id?: any}>(row: D, relativeIndex: number, parent: R
     return parent ? [parent.id, id].join('.') : id
 }
 
+type State = {
+    pageSize: number
+    pageIndex: number
+    sortBy: {id: string, desc: boolean}[]
+}
+
 type Props<D extends object> = {
     columns: Column<D>[],
     data: D[],
-    fetchData: (options: {
-        pageSize: number
-        pageIndex: number
-    }) => void,
+    fetchData: (state: State) => void,
     pageCount: number,
+    initialState?: State
 }
 
 export function ReactTable<D extends object>(props: Props<D>) {
     const table = useTable<D>({
         columns: props.columns,
         data: props.data,
-        initialState: { pageIndex: 0 },
+        initialState: props.initialState,
+        manualSortBy: true,
+        disableSortRemove: true,
         manualPagination: true,
         pageCount: props.pageCount,
         getRowId: getRowId,
-    } as any, usePagination)
+    } as any, useSortBy, usePagination)
     const { canPreviousPage, canNextPage, pageOptions, pageCount, gotoPage,
-        nextPage, previousPage, setPageSize, state: { pageIndex, pageSize },
+        nextPage, previousPage, setPageSize, state: { pageIndex, pageSize, sortBy },
     } = table as any
 
     React.useEffect(() => {
-        props.fetchData({pageSize, pageIndex})
-    }, [props.fetchData, pageSize, pageIndex])
+        props.fetchData(table.state as State)
+    }, [props.fetchData, pageSize, pageIndex, sortBy])
 
     const tablePane = <table {...table.getTableProps()}>
         <thead>
         {table.headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()}>
+                <th {...column.getHeaderProps((column as any).getSortByToggleProps())}>
                 {column.render('Header')}
+                    <span>
+                        {(column as any).isSorted ?
+                            (column as any).isSortedDesc ? ' 🔽' : ' 🔼'
+                        : ''}
+                    </span>
                 </th>
             ))}
             </tr>
