@@ -1,8 +1,7 @@
 import * as React from 'react'
-import { useTable } from 'react-table'
 import { Transaction, TransactionType } from '../core'
 import styled from 'styled-components'
-import { ReactTable, getRowId } from './ReactTable'
+import { Column, ReactTable } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -26,24 +25,18 @@ function LinkToTransaction(data: any) {
 }
 
 export default function TransactionOverview(props: Props) {
-    const tableConfig: any = React.useMemo(() => {
-        return {
-            getRowId: getRowId,
-            columns: [
-                { Header: 'Id', accessor: 'id', Cell: LinkToTransaction },
-                { Header: 'Date', accessor: 'date', Cell: LinkToTransaction},
-                { Header: 'Description', accessor: 'description', Cell: LinkToTransaction},
-                { Header: 'Type', accessor: 'type', Cell: LinkToTransaction},
-                { Header: 'Raw link', id: 'raw-link', Cell: LinkToRawTransaction},
-            ],
-        }
-    }, [])
+    const columns = React.useMemo<Column<Transaction>[]>(() => [
+        { Header: 'Id', accessor: 'id', Cell: LinkToTransaction },
+        { Header: 'Date', accessor: 'date', Cell: LinkToTransaction },
+        { Header: 'Description', accessor: 'description', Cell: LinkToTransaction },
+        { Header: 'Type', accessor: 'type', Cell: LinkToTransaction },
+        { Header: 'Raw link', id: 'raw-link', Cell: LinkToRawTransaction },
+    ], [])
+    const [data, setData] = React.useState<Transaction[]>([])
+    const [pageCount, setPageCount] = React.useState<number>(0)
 
-    const [data, setData] = React.useState([] as object[])
-    React.useEffect(() => {
-        Transaction.query()
-        .orderBy([{column: 'date', order: 'desc'}, {column: 'id', order: 'desc'}])
-        .then((data: object[]) => {
+    const fetchData = React.useCallback((options) => {
+        Transaction.query().then(data => {
             setData(data)
         })
     }, [])
@@ -52,7 +45,7 @@ export default function TransactionOverview(props: Props) {
         <h1>List of transactions</h1>
         <Link to={`${props.path}/new`}>New raw transaction</Link>
         <Styles>
-            <ReactTable {...useTable({...tableConfig, data})} />
+            <ReactTable {...{columns, data, fetchData, pageCount}} />
         </Styles>
     </div>
 }

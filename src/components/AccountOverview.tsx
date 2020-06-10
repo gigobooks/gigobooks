@@ -1,33 +1,28 @@
 import * as React from 'react'
-import { useTable } from 'react-table'
 import { Account } from '../core'
 import styled from 'styled-components'
-import { ReactTable, getRowId } from './ReactTable'
+import { Column, ReactTable } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 type Props = {
     path: string
 }
 
-function LinkToAccount({cell}: any) {
-    return <Link to={`/accounts/${cell.row.id}`}>{cell.value}</Link>
-}
-
 export default function AccountOverview(props: Props) {
-    const tableConfig: any = React.useMemo(() => {
-        return {
-            getRowId: getRowId,
-            columns: [
-                { Header: 'ID', accessor: 'id', Cell: LinkToAccount },
-                { Header: 'Title', accessor: 'title', Cell: LinkToAccount },
-                { Header: 'Type', accessor: 'type'},
-            ],
-        }
-    }, [])
+    function LinkToItem(data: any) {
+        return <Link to={`${props.path}/${data.cell.row.id}`}>{data.cell.value}</Link>
+    }
 
-    const [data, setData] = React.useState([] as object[])
-    React.useEffect(() => {
-        Account.query().then((data: object[]) => {
+    const columns = React.useMemo<Column<Account>[]>(() => [
+        { Header: 'ID', accessor: 'id', Cell: LinkToItem },
+        { Header: 'Title', accessor: 'title', Cell: LinkToItem },
+        { Header: 'Type', accessor: 'type'},
+    ], [])
+    const [data, setData] = React.useState<Account[]>([])
+    const [pageCount, setPageCount] = React.useState<number>(0)
+
+    const fetchData = React.useCallback(({pageSize, pageIndex}) => {
+        Account.query().then((data) => {
             setData(data)
         })
     }, [])
@@ -36,7 +31,7 @@ export default function AccountOverview(props: Props) {
         <h1>List of accounts</h1>
         <Link to={`${props.path}/new`}>New account</Link>
         <Styles>
-            <ReactTable {...useTable({...tableConfig, data})} />
+            <ReactTable {...{columns, data, fetchData, pageCount}} />
         </Styles>
     </div>
 }

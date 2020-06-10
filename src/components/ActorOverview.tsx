@@ -1,8 +1,7 @@
 import * as React from 'react'
-import { useTable } from 'react-table'
 import { Actor } from '../core'
 import styled from 'styled-components'
-import { ReactTable, getRowId } from './ReactTable'
+import { Column, ReactTable } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -14,22 +13,18 @@ function LinkToItem(data: any) {
 }
 
 export default function ActorOverview(props: Props) {
-    const tableConfig: any = React.useMemo(() => {
-        return {
-            getRowId: getRowId,
-            columns: [
-                { Header: 'ID', accessor: 'id', Cell: LinkToItem },
-                { Header: 'Title', accessor: 'title', Cell: LinkToItem },
-                { Header: 'Type', accessor: 'type' },
-                { Header: 'Tax id', accessor: 'taxId', Cell: LinkToItem },
-            ],
-        }
-    }, [])
+    const columns = React.useMemo<Column<Actor>[]>(() => [
+        { Header: 'ID', accessor: 'id', Cell: LinkToItem },
+        { Header: 'Title', accessor: 'title', Cell: LinkToItem },
+        { Header: 'Type', accessor: 'type' },
+        { Header: 'Tax id', accessor: 'taxId', Cell: LinkToItem },
+    ], [])
+    const [data, setData] = React.useState<Actor[]>([])
+    const [pageCount, setPageCount] = React.useState<number>(0)
 
-    const [items, setItems] = React.useState([] as object[])
-    React.useEffect(() => {
-        Actor.query().orderBy(['title', 'id']).then((rows) => {
-            setItems(rows)
+    const fetchData = React.useCallback((options) => {
+        Actor.query().then(data => {
+            setData(data)
         })
     }, [])
 
@@ -37,7 +32,7 @@ export default function ActorOverview(props: Props) {
         <h1>List of customers and suppliers</h1>
         <Link to={`customers/new`}>New customer</Link> - <Link to={`suppliers/new`}>New supplier</Link>
         <Styles>
-            <ReactTable {...useTable({...tableConfig, data: items})} />
+            <ReactTable {...{columns, data, fetchData, pageCount}} />
         </Styles>
     </div>
 }
