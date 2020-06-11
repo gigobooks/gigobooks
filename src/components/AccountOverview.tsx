@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Account } from '../core'
 import styled from 'styled-components'
-import { Column, ReactTable } from './ReactTable'
+import { Column, ReactTable, filterQueries, sortQuery } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -14,8 +14,8 @@ export default function AccountOverview(props: Props) {
     }
 
     const columns = React.useMemo<Column<Account>[]>(() => [
-        { Header: 'ID', accessor: 'id', Cell: LinkToItem },
-        { Header: 'Title', accessor: 'title', Cell: LinkToItem },
+        { Header: 'ID', accessor: 'id', disableFilters: false, Cell: LinkToItem },
+        { Header: 'Title', accessor: 'title', disableFilters: false, Cell: LinkToItem },
         { Header: 'Type', accessor: 'type' },
     ], [])
     const initialState = React.useMemo(() => ({
@@ -25,15 +25,17 @@ export default function AccountOverview(props: Props) {
     const [pageCount, setPageCount] = React.useState<number>(0)
 
     const fetchData = React.useCallback(state => {
-        Account.query().resultSize().then(total => {
+        const c = Account.query()
+        const q = Account.query()
+
+        filterQueries(state, [c, q])
+        sortQuery(state, q)
+
+        c.resultSize().then(total => {
             setPageCount(Math.ceil(total / state.pageSize))
         })
 
-        Account.query().orderBy(
-            state.sortBy.map((s: {id: string, desc: boolean}) => ({
-                column: s.id, order: s.desc ? 'desc' : 'asc'
-            }))
-        ).offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
+        q.offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
             setData(data)
         })
     }, [])

@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { Row, Column, useTable, usePagination, useSortBy } from 'react-table'
+import { Row, Column, useTable, useFilters, useSortBy, usePagination } from 'react-table'
 export { Column } from 'react-table'
+import { QueryBuilder } from 'objection'
 
 // This is some integration magic
 // If a row has .id, use that as the unique id.
@@ -13,6 +14,7 @@ type State = {
     pageSize: number
     pageIndex: number
     sortBy: {id: string, desc: boolean}[]
+    filters?: {id: string, value: string}[],
 }
 
 type Props<D extends object> = {
@@ -24,36 +26,47 @@ type Props<D extends object> = {
 }
 
 export function ReactTable<D extends object>(props: Props<D>) {
+    const defaultColumn = React.useMemo(() => ({
+        Filter: InputFilter,
+        disableFilters: true,
+    }), [])
+
     const table = useTable<D>({
         columns: props.columns,
         data: props.data,
+        defaultColumn,
         initialState: props.initialState,
+        manualFilters: true,
         manualSortBy: true,
         disableSortRemove: true,
         manualPagination: true,
         pageCount: props.pageCount,
         getRowId: getRowId,
-    } as any, useSortBy, usePagination)
+    } as any, useFilters, useSortBy, usePagination)
     const { canPreviousPage, canNextPage, pageOptions, pageCount, gotoPage,
-        nextPage, previousPage, setPageSize, state: { pageIndex, pageSize, sortBy },
+        nextPage, previousPage, setPageSize, 
+        state: { pageIndex, pageSize, sortBy, filters },
     } = table as any
 
     React.useEffect(() => {
         props.fetchData(table.state as State)
-    }, [props.fetchData, pageSize, pageIndex, sortBy])
+    }, [props.fetchData, pageSize, pageIndex, sortBy, filters])
 
     const tablePane = <table {...table.getTableProps()}>
         <thead>
         {table.headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps((column as any).getSortByToggleProps())}>
-                {column.render('Header')}
-                    <span>
-                        {(column as any).isSorted ?
-                            (column as any).isSortedDesc ? ' 🔽' : ' 🔼'
-                        : ''}
-                    </span>
+                <th {...column.getHeaderProps()}>
+                    <div {...(column as any).getSortByToggleProps()}>
+                        {column.render('Header')}
+                        <span>
+                            {(column as any).isSorted ?
+                                (column as any).isSortedDesc ? ' 🔽' : ' 🔼'
+                            : ''}
+                        </span>
+                    </div>
+                    {(column as any).canFilter && <div>{column.render('Filter')}</div>}
                 </th>
             ))}
             </tr>
@@ -116,6 +129,51 @@ export function ReactTable<D extends object>(props: Props<D>) {
         {tablePane}
         {paginationPane}
     </>
+}
+
+export function InputFilter(table: {column: {filterValue: string, setFilter: any}}) {
+    return <input
+        value={table.column.filterValue || ''}
+        onChange={e => {
+            table.column.setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
+        }}
+        placeholder={`Search`}
+    />
+}
+
+// Apply commonly used filters to a list of queries (usually query and count query pair)
+export function filterQueries(state: State, queries: QueryBuilder<any>[]) {
+    if (state.filters) {
+        state.filters.forEach((f: {id: string, value: string}) => {
+            switch (f.id) {
+                case 'id':
+                    const n = Number(f.value)
+                    if (!Number.isNaN(n)) {
+                        queries.forEach(q => q.where('id', n))
+                    }
+                    break
+                case 'type':
+                    if (Array.isArray(f.value)) {
+                        queries.forEach(q => q.whereIn('type', f.value))
+                    }
+                    else {
+                        queries.forEach(q => q.where('type', f.value))
+                    }
+                    break
+                default:
+                    queries.forEach(q => q.where(f.id, 'like', `%${f.value}%`))
+                    break    
+            }
+        })
+    }
+}
+
+// Apply commonly used sorting to a query
+export function sortQuery(state: State, q: any) {
+    q.orderBy(state.sortBy.map((s: {id: string, desc: boolean}) => ({
+        column: s.id, order: s.desc ? 'desc' : 'asc'
+    })))
+    return q
 }
 
 export default ReactTable
