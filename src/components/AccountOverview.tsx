@@ -14,7 +14,7 @@ export default function AccountOverview(props: Props) {
     }
 
     const columns = React.useMemo<Column<Account>[]>(() => [
-        { Header: 'ID', accessor: 'id', disableFilters: false, Cell: LinkToItem },
+        { Header: 'ID', accessor: 'id', Cell: LinkToItem },
         { Header: 'Title', accessor: 'title', disableFilters: false, Cell: LinkToItem },
         { Header: 'Type', accessor: 'type' },
     ], [])

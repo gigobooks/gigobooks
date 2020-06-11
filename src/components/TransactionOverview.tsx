@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Transaction, TransactionType } from '../core'
 import styled from 'styled-components'
-import { Column, ReactTable } from './ReactTable'
+import { Column, ReactTable, filterQueries, sortQuery } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 type Props = {
@@ -26,17 +26,30 @@ function LinkToTransaction(data: any) {
 
 export default function TransactionOverview(props: Props) {
     const columns = React.useMemo<Column<Transaction>[]>(() => [
-        { Header: 'Id', accessor: 'id', Cell: LinkToTransaction },
+        { Header: 'Id', accessor: 'id', disableFilters: false, Cell: LinkToTransaction },
         { Header: 'Date', accessor: 'date', Cell: LinkToTransaction },
-        { Header: 'Description', accessor: 'description', Cell: LinkToTransaction },
+        { Header: 'Description', accessor: 'description', disableFilters: false, Cell: LinkToTransaction },
         { Header: 'Type', accessor: 'type', Cell: LinkToTransaction },
         { Header: 'Raw link', id: 'raw-link', Cell: LinkToRawTransaction },
     ], [])
+    const initialState = React.useMemo(() => ({
+        pageIndex: 0, pageSize: 10, sortBy: [{id: 'date', desc: true}],
+    }), [])
     const [data, setData] = React.useState<Transaction[]>([])
     const [pageCount, setPageCount] = React.useState<number>(0)
 
-    const fetchData = React.useCallback((options) => {
-        Transaction.query().then(data => {
+    const fetchData = React.useCallback(state => {
+        const c = Transaction.query()
+        const q = Transaction.query()
+
+        filterQueries(state, [c, q])
+        sortQuery(state, q)
+
+        c.resultSize().then(total => {
+            setPageCount(Math.ceil(total / state.pageSize))
+        })
+
+        q.offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
             setData(data)
         })
     }, [])
@@ -45,7 +58,7 @@ export default function TransactionOverview(props: Props) {
         <h1>List of transactions</h1>
         <Link to={`${props.path}/new`}>New raw transaction</Link>
         <Styles>
-            <ReactTable {...{columns, data, fetchData, pageCount}} />
+            <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>
     </div>
 }
