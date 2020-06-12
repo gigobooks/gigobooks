@@ -103,7 +103,7 @@ const Menu = () => {
             </li><li>
                 <Link to='/contributions/new'>New contribution</Link>
             </li><li>
-                <Link to='/transactions'>Transactions</Link>
+                <Link to='/transactions'>Journal</Link>
             </li><li>
                 <Link to='/settings'>Settings</Link>
             </li><li>

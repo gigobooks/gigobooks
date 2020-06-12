@@ -113,7 +113,7 @@ export default function TransactionDetail(props: Props) {
     }
     else if (transaction && accountOptions && actorOptions) {
         return <div>
-            <h1>{transaction.id ? `Transaction ${transaction.id}` : 'New raw transaction'}</h1>
+            <h1>{transaction.id ? `Raw journal entry ${transaction.id}` : 'New raw journal entry'}</h1>
             {!!transaction.id && <div>Type: {transaction.type}</div>}
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>

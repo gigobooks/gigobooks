@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 
 function LinkToRawTransaction(data: any) {
     const url = `/transactions/${data.row.values.id}`
-    return <Link to={url}>{url}</Link>
+    return <Link to={url}>view raw</Link>
 }
 
 function LinkToTransaction(data: any) {
@@ -26,7 +26,7 @@ export default function TransactionOverview() {
         { Header: 'Date', accessor: 'date', Cell: LinkToTransaction },
         { Header: 'Description', accessor: 'description', disableFilters: false, Cell: LinkToTransaction },
         { Header: 'Type', accessor: 'type', Cell: LinkToTransaction },
-        { Header: 'Raw link', id: 'raw-link', Cell: LinkToRawTransaction },
+        { Header: 'View raw', id: 'raw-link', Cell: LinkToRawTransaction },
     ], [])
     const initialState = React.useMemo(() => ({
         pageIndex: 0, pageSize: 10, sortBy: [{id: 'date', desc: true}],
@@ -51,8 +51,8 @@ export default function TransactionOverview() {
     }, [])
 
     return <div>
-        <h1>List of transactions</h1>
-        <Link to={`/transactions/new`}>New raw transaction</Link>
+        <h1>Journal of transactions</h1>
+        <Link to={`/transactions/new`}>New raw journal entry</Link>
         <Styles>
             <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>
