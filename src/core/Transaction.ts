@@ -9,6 +9,7 @@ import Account from './Account'
 type TElement = Element & { _parent?: TElement }
 
 export enum TransactionType {
+    Raw = 'raw',
     Contribution = 'contribution',
     Dividend = 'dividend',
     Sale = 'sale',
@@ -23,6 +24,7 @@ export class Transaction extends Base {
     static Credit = Element.Credit
     static Debit = Element.Debit
 
+    static Raw = TransactionType.Raw
     static Contribution = TransactionType.Contribution
     static Dividend = TransactionType.Dividend
     static Sale = TransactionType.Sale

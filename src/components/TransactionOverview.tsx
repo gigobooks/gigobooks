@@ -16,7 +16,7 @@ function LinkToRawTransaction(data: any) {
 function LinkToTransaction(data: any) {
     const type = data.row.values.type
     if (type == '' || type.isEnum(TransactionType)) {
-        const url = `/${type ? type : 'transaction'}s/${data.cell.row.id}`
+        const url = `/${(type && type != Transaction.Raw) ? type : 'transaction'}s/${data.cell.row.id}`
         return <Link to={url}>{data.cell.value}</Link>    
     }
     else {

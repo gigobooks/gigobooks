@@ -114,7 +114,7 @@ export default function TransactionDetail(props: Props) {
     else if (transaction && accountOptions && actorOptions) {
         return <div>
             <h1>{transaction.id ? `Transaction ${transaction.id}` : 'New raw transaction'}</h1>
-            {!!transaction.id && <div>Type: {transaction.type ? transaction.type : 'raw'}</div>}
+            {!!transaction.id && <div>Type: {transaction.type}</div>}
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Customer or Supplier:</label>
@@ -212,7 +212,11 @@ export default function TransactionDetail(props: Props) {
                 </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
-                    <input type='submit' value={argId ? 'Save' : 'Create'} disabled={!!transaction.type} />
+                    <input
+                        type='submit'
+                        value={argId ? 'Save' : 'Create'}
+                        disabled={!!transaction.type && transaction.type != Transaction.Raw}
+                    />
                 </div>
             </form>
         </div>
@@ -293,7 +297,7 @@ async function saveFormData(transaction: Transaction, data: FormData, trx?: Tran
 
     Object.assign(transaction, {
         description: data.description,
-        type: '',
+        type: Transaction.Raw,
         date: toDateOnly(data.date),
         actorId: data.actorId,
     })
