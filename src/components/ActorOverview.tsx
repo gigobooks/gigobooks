@@ -4,15 +4,11 @@ import styled from 'styled-components'
 import { Column, ReactTable, filterQueries, sortQuery, ActorSelectFilter } from './ReactTable'
 import { Link } from 'react-router-dom'
 
-type Props = {
-    path: string
-}
-
 function LinkToItem(data: any) {
     return <Link to={`/${data.row.values.type}s/${data.cell.row.id}`}>{data.cell.value}</Link>
 }
 
-export default function ActorOverview(props: Props) {
+export default function ActorOverview() {
     const columns = React.useMemo<Column<Actor>[]>(() => [
         { Header: 'ID', accessor: 'id', disableFilters: false, Cell: LinkToItem },
         { Header: 'Name', accessor: 'title', disableFilters: false, Cell: LinkToItem },

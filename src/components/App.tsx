@@ -145,7 +145,7 @@ const Main = () => {
             <DispatchWithParams element={TransactionDetail} pathDir='/transactions' />
         </Route>
         <Route path='/transactions'>
-            <TransactionOverview path='/transactions' />
+            <TransactionOverview />
         </Route>
         <Route path='/suppliers/:arg1'>
             <DispatchWithParams element={ActorDetail} pathDir='/suppliers' supplier />
@@ -154,13 +154,13 @@ const Main = () => {
             <DispatchWithParams element={ActorDetail} pathDir='/customers' customer />
         </Route>
         <Route path='/actors'>
-            <ActorOverview path='/actors' />
+            <ActorOverview />
         </Route>
         <Route path='/accounts/:arg1'>
             <DispatchWithParams element={AccountDetail} pathDir='/accounts' />
         </Route>
         <Route path='/accounts'>
-            <AccountOverview path='/accounts' />
+            <AccountOverview />
         </Route>
         <Route path='/debug'>
             <DebugScreen />

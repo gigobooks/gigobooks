@@ -4,10 +4,6 @@ import styled from 'styled-components'
 import { Column, ReactTable, filterQueries, sortQuery } from './ReactTable'
 import { Link } from 'react-router-dom'
 
-type Props = {
-    path: string
-}
-
 function LinkToRawTransaction(data: any) {
     const url = `/transactions/${data.row.values.id}`
     return <Link to={url}>{url}</Link>
@@ -24,7 +20,7 @@ function LinkToTransaction(data: any) {
     }
 }
 
-export default function TransactionOverview(props: Props) {
+export default function TransactionOverview() {
     const columns = React.useMemo<Column<Transaction>[]>(() => [
         { Header: 'Id', accessor: 'id', disableFilters: false, Cell: LinkToTransaction },
         { Header: 'Date', accessor: 'date', Cell: LinkToTransaction },
@@ -56,7 +52,7 @@ export default function TransactionOverview(props: Props) {
 
     return <div>
         <h1>List of transactions</h1>
-        <Link to={`${props.path}/new`}>New raw transaction</Link>
+        <Link to={`/transactions/new`}>New raw transaction</Link>
         <Styles>
             <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>

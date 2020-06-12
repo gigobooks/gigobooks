@@ -4,15 +4,11 @@ import styled from 'styled-components'
 import { Column, ReactTable, filterQueries, sortQuery } from './ReactTable'
 import { Link } from 'react-router-dom'
 
-type Props = {
-    path: string
+function LinkToItem(data: any) {
+    return <Link to={`/accounts/${data.cell.row.id}`}>{data.cell.value}</Link>
 }
 
-export default function AccountOverview(props: Props) {
-    function LinkToItem(data: any) {
-        return <Link to={`${props.path}/${data.cell.row.id}`}>{data.cell.value}</Link>
-    }
-
+export default function AccountOverview() {
     const columns = React.useMemo<Column<Account>[]>(() => [
         { Header: 'ID', accessor: 'id', Cell: LinkToItem },
         { Header: 'Title', accessor: 'title', disableFilters: false, Cell: LinkToItem },
@@ -42,7 +38,7 @@ export default function AccountOverview(props: Props) {
 
     return <div>
         <h1>List of accounts</h1>
-        <Link to={`${props.path}/new`}>New account</Link>
+        <Link to={`/accounts/new`}>New account</Link>
         <Styles>
             <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>
