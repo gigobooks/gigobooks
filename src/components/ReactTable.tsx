@@ -10,11 +10,21 @@ function getRowId<D extends {id?: any}>(row: D, relativeIndex: number, parent: R
     return parent ? [parent.id, id].join('.') : id
 }
 
+export type SortBy = {
+    id: string
+    desc: boolean
+}
+
+export type Filter = {
+    id: string
+    value: string
+}
+
 type State = {
     pageSize: number
     pageIndex: number
-    sortBy: {id: string, desc: boolean}[]
-    filters?: {id: string, value: string}[],
+    sortBy: SortBy[]
+    filters?: Filter[],
 }
 
 type Props<D extends object> = {
@@ -152,36 +162,32 @@ export function SelectFilter(table: {column: {filterValue: string, setFilter: an
     </select>
 }
 
-// Apply commonly used filters to a list of queries (usually query and count query pair)
-export function filterQueries(state: State, queries: QueryBuilder<any>[]) {
-    if (state.filters) {
-        state.filters.forEach((f: {id: string, value: string}) => {
-            switch (f.id) {
-                case 'id':
-                    const n = Number(f.value)
-                    if (!Number.isNaN(n)) {
-                        queries.forEach(q => q.where('id', n))
-                    }
-                    break
-                case 'type':
-                    if (Array.isArray(f.value)) {
-                        queries.forEach(q => q.whereIn('type', f.value))
-                    }
-                    else {
-                        queries.forEach(q => q.where('type', f.value))
-                    }
-                    break
-                default:
-                    queries.forEach(q => q.where(f.id, 'like', `%${f.value}%`))
-                    break    
+export function filterQuery(q: QueryBuilder<any>, f: Filter, table?: string) {
+    const field = table ? `${table}.${f.id}` : f.id
+    switch (f.id) {
+        case 'id':
+            const n = Number(f.value)
+            if (!Number.isNaN(n)) {
+                q.where(field, n)
             }
-        })
+            break
+        case 'type':
+            if (Array.isArray(f.value)) {
+                q.whereIn(field, f.value)
+            }
+            else {
+                q.where(field, f.value)
+            }
+            break
+        default:
+            q.where(field, 'like', `%${f.value}%`)
+            break    
     }
 }
 
 // Apply commonly used sorting to a query
-export function sortQuery(state: State, q: any) {
-    q.orderBy(state.sortBy.map((s: {id: string, desc: boolean}) => ({
+export function sortQuery(q: any, sortBy: SortBy[]) {
+    q.orderBy(sortBy.map((s: {id: string, desc: boolean}) => ({
         column: s.id, order: s.desc ? 'desc' : 'asc'
     })))
     return q

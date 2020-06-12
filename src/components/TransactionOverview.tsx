@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Transaction, TransactionType } from '../core'
 import styled from 'styled-components'
-import { Column, ReactTable, filterQueries, sortQuery, SelectFilter } from './ReactTable'
+import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 const TransactionTypeOptions = <>
@@ -34,9 +34,10 @@ function RenderType(data: any) {
 type Props = {
     types: TransactionType[],
     viewRaw?: boolean,
+    actorHeading?: string
 }
 
-function TransactionTable({types, viewRaw = false}: Props) {
+function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Supplier'}: Props) {
     const columns = React.useMemo<Column<Transaction>[]>(() => {
         const columns: any = [
             { Header: 'Id', accessor: 'id', disableFilters: false, Cell: LinkToTransaction },
@@ -44,12 +45,13 @@ function TransactionTable({types, viewRaw = false}: Props) {
             { Header: 'Description', accessor: 'description', disableFilters: false, Cell: LinkToTransaction },
             { Header: 'Type', accessor: 'type', disableFilters: types.length > 0, 
                 Filter: SelectFilter, FilterOptions: TransactionTypeOptions, Cell: RenderType },
+            { Header: actorHeading, accessor: 'actorTitle', disableFilters: false, Cell: LinkToTransaction },
         ]
         if (viewRaw) {
             columns.push({ Header: 'View raw', id: 'raw-link', Cell: LinkToRawTransaction })
         }
         return columns
-    }, [types, viewRaw])
+    }, [types, viewRaw, actorHeading])
 
     const initialState = React.useMemo(() => ({
         pageIndex: 0, pageSize: 10, sortBy: [{id: 'date', desc: true}],
@@ -58,21 +60,24 @@ function TransactionTable({types, viewRaw = false}: Props) {
     const [pageCount, setPageCount] = React.useState<number>(0)
 
     const fetchData = React.useCallback(state => {
-        const c = Transaction.query()
-        const q = Transaction.query()
+        const q = Transaction.query().leftJoin('actor', 'txn.actorId', 'actor.id')
+            .select('txn.*', 'actor.Title as actorTitle')
 
         if (types.length > 0) {
-            c.whereIn('type', types)
             q.whereIn('type', types)
         }
+        if (state.filters) {
+            state.filters.forEach((f: Filter) => {
+                // Insert `txn` table prefix for most columns
+                filterQuery(q, f, f.id != 'actorTitle' ? 'txn' : undefined)
+            })
+        }
 
-        filterQueries(state, [c, q])
-        sortQuery(state, q)
-
-        c.resultSize().then(total => {
+        q.clone().resultSize().then(total => {
             setPageCount(Math.ceil(total / state.pageSize))
         })
 
+        sortQuery(q, state.sortBy)
         q.offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
             setData(data)
         })
@@ -106,6 +111,10 @@ table {
         padding: 10px;
         border: solid 1px gray;
         background: papayawhip;
+    }
+
+    th:nth-child(1) input {
+        width: 3em;
     }
 }
 `

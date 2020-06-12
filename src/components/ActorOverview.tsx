@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Actor } from '../core'
 import styled from 'styled-components'
-import { Column, ReactTable, filterQueries, sortQuery, SelectFilter } from './ReactTable'
+import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 const ActorTypeOptions = <>
@@ -34,16 +34,16 @@ export default function ActorOverview() {
     const [pageCount, setPageCount] = React.useState<number>(0)
 
     const fetchData = React.useCallback(state => {
-        const c = Actor.query()
         const q = Actor.query()
+        if (state.filters) {
+            state.filters.forEach((f: Filter) => filterQuery(q, f))
+        }
 
-        filterQueries(state, [c, q])
-        sortQuery(state, q)
-
-        c.resultSize().then(total => {
+        q.clone().resultSize().then(total => {
             setPageCount(Math.ceil(total / state.pageSize))
         })
 
+        sortQuery(q, state.sortBy)
         q.offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
             setData(data)
         })
