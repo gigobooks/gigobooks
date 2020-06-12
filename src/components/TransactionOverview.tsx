@@ -64,7 +64,7 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
             .select('txn.*', 'actor.Title as actorTitle')
 
         if (types.length > 0) {
-            q.whereIn('type', types)
+            q.whereIn('txn.type', types)
         }
         if (state.filters) {
             state.filters.forEach((f: Filter) => {
@@ -88,11 +88,34 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
     </Styles>
 }
 
-export default function TransactionOverview() {
+export function TransactionOverview() {
     return <div>
         <h1>Journal of transactions</h1>
         <Link to={`/transactions/new`}>New raw journal entry</Link>
-        <TransactionTable types={[]} viewRaw={true} />
+        <TransactionTable
+            types={[]}
+            viewRaw={true}
+        />
+    </div>
+}
+
+export function SalesOverview() {
+    return <div>
+        <h1>List of sales</h1>
+        <TransactionTable
+            types={[Transaction.Sale, Transaction.Invoice]}
+            actorHeading='Customer'
+        />
+    </div>
+}
+
+export function PurchasesOverview() {
+    return <div>
+        <h1>List of purchases</h1>
+        <TransactionTable
+            types={[Transaction.Purchase, Transaction.Bill]}
+            actorHeading='Supplier'
+        />
     </div>
 }
 

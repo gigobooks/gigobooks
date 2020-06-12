@@ -10,7 +10,7 @@ import ActorDetail from './ActorDetail'
 import ContributeCapital from './ContributeCapital'
 import DebugScreen from './DebugScreen'
 import UrlBar from './UrlBar'
-import TransactionOverview from './TransactionOverview'
+import { TransactionOverview, SalesOverview, PurchasesOverview } from './TransactionOverview'
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
@@ -72,7 +72,7 @@ const Menu = () => {
         <div>
             Sales
             <ul style={{marginTop: '0'}}><li>
-                List
+                <Link to='/sales'>List</Link>
             </li><li>
                 <Link to='/sales/new'>New cash sale</Link>
             </li><li>
@@ -81,7 +81,7 @@ const Menu = () => {
         </div><div>
             Purchases
             <ul style={{marginTop: '0'}}><li>
-                List
+                <Link to='/purchases'>List</Link>
             </li><li>
             <Link to='/purchases/new'>New cash purchase</Link>
             </li><li>
@@ -132,11 +132,17 @@ const Main = () => {
         <Route path='/purchases/:arg1'>
             <DispatchWithParams element={Purchase} pathDir='/purchases' />
         </Route>
+        <Route path='/purchases'>
+            <PurchasesOverview />
+        </Route>
         <Route path='/invoices/:arg1'>
             <DispatchWithParams element={Invoice} pathDir='/invoices' />
         </Route>
         <Route path='/sales/:arg1'>
             <DispatchWithParams element={Sale} pathDir='/sales' />
+        </Route>
+        <Route path='/sales'>
+            <SalesOverview />
         </Route>
         <Route path='/contributions/:arg1'>
             <DispatchWithParams element={ContributeCapital} pathDir='/contributions' />
