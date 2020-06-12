@@ -48,7 +48,7 @@ const AccountTypeGroupInfo: any = {
     },
 }
 
-export const AccountTypeInfo: any = {
+export const AccountTypeInfo: Record<string, any> = {
     [AccountType.Asset]: { label: 'Asset', group: AccountType.Asset },
     [AccountType.LongTermAsset]: { label: 'Long term asset', group: AccountType.Asset,
         description: 'A long term (more than 12 months) asset' },

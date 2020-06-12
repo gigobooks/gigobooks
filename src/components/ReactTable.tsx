@@ -141,16 +141,14 @@ export function InputFilter(table: {column: {filterValue: string, setFilter: any
     />
 }
 
-export function ActorSelectFilter(table: {column: {filterValue: string, setFilter: any}}) {
+export function SelectFilter(table: {column: {filterValue: string, setFilter: any}}) {
     return <select
         value={table.column.filterValue || ''}
         onChange={e => {
             table.column.setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
     >
-        <option key='all' value=''>all</option>
-        <option key='customer' value='customer'>customer</option>
-        <option key='supplier' value='supplier'>supplier</option>
+        {(table.column as any).FilterOptions}
     </select>
 }
 

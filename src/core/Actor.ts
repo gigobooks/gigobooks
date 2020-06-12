@@ -5,7 +5,7 @@ export enum ActorType {
     Supplier = 'supplier',
 }
 
-export const ActorTypeInfo: any = {
+export const ActorTypeInfo: Record<string, any> = {
     [ActorType.Customer]: { label: 'Customer' },
     [ActorType.Supplier]: { label: 'Supplier' },
 }

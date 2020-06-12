@@ -8,11 +8,16 @@ function LinkToItem(data: any) {
     return <Link to={`/accounts/${data.cell.row.id}`}>{data.cell.value}</Link>
 }
 
+function RenderType(data: any) {
+    const info = Account.TypeInfo[data.cell.value]
+    return info ? info.label : data.cell.value
+}
+
 export default function AccountOverview() {
     const columns = React.useMemo<Column<Account>[]>(() => [
         { Header: 'ID', accessor: 'id', Cell: LinkToItem },
         { Header: 'Title', accessor: 'title', disableFilters: false, Cell: LinkToItem },
-        { Header: 'Type', accessor: 'type' },
+        { Header: 'Type', accessor: 'type', Cell: RenderType },
     ], [])
     const initialState = React.useMemo(() => ({
         pageIndex: 0, pageSize: 10, sortBy: [{id: 'id', desc: false}],

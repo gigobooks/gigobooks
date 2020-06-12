@@ -1,8 +1,14 @@
 import * as React from 'react'
 import { Transaction, TransactionType } from '../core'
 import styled from 'styled-components'
-import { Column, ReactTable, filterQueries, sortQuery } from './ReactTable'
+import { Column, ReactTable, filterQueries, sortQuery, SelectFilter } from './ReactTable'
 import { Link } from 'react-router-dom'
+
+const TransactionTypeOptions = <>
+    <option key='all' value=''>All</option>
+    {Object.keys(Transaction.TypeInfo).map(key =>
+        <option key={key} value={key}>{Transaction.TypeInfo[key].label}</option>)}
+</>
 
 function LinkToRawTransaction(data: any) {
     const url = `/transactions/${data.row.values.id}`
@@ -20,14 +26,31 @@ function LinkToTransaction(data: any) {
     }
 }
 
-export default function TransactionOverview() {
-    const columns = React.useMemo<Column<Transaction>[]>(() => [
-        { Header: 'Id', accessor: 'id', disableFilters: false, Cell: LinkToTransaction },
-        { Header: 'Date', accessor: 'date', Cell: LinkToTransaction },
-        { Header: 'Description', accessor: 'description', disableFilters: false, Cell: LinkToTransaction },
-        { Header: 'Type', accessor: 'type', Cell: LinkToTransaction },
-        { Header: 'View raw', id: 'raw-link', Cell: LinkToRawTransaction },
-    ], [])
+function RenderType(data: any) {
+    const info = Transaction.TypeInfo[data.cell.value]
+    return info ? info.label : data.cell.value
+}
+
+type Props = {
+    types: TransactionType[],
+    viewRaw?: boolean,
+}
+
+function TransactionTable({types, viewRaw = false}: Props) {
+    const columns = React.useMemo<Column<Transaction>[]>(() => {
+        const columns: any = [
+            { Header: 'Id', accessor: 'id', disableFilters: false, Cell: LinkToTransaction },
+            { Header: 'Date', accessor: 'date', Cell: LinkToTransaction },
+            { Header: 'Description', accessor: 'description', disableFilters: false, Cell: LinkToTransaction },
+            { Header: 'Type', accessor: 'type', disableFilters: types.length > 0, 
+                Filter: SelectFilter, FilterOptions: TransactionTypeOptions, Cell: RenderType },
+        ]
+        if (viewRaw) {
+            columns.push({ Header: 'View raw', id: 'raw-link', Cell: LinkToRawTransaction })
+        }
+        return columns
+    }, [types, viewRaw])
+
     const initialState = React.useMemo(() => ({
         pageIndex: 0, pageSize: 10, sortBy: [{id: 'date', desc: true}],
     }), [])
@@ -37,6 +60,11 @@ export default function TransactionOverview() {
     const fetchData = React.useCallback(state => {
         const c = Transaction.query()
         const q = Transaction.query()
+
+        if (types.length > 0) {
+            c.whereIn('type', types)
+            q.whereIn('type', types)
+        }
 
         filterQueries(state, [c, q])
         sortQuery(state, q)
@@ -50,12 +78,16 @@ export default function TransactionOverview() {
         })
     }, [])
 
+    return <Styles>
+        <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
+    </Styles>
+}
+
+export default function TransactionOverview() {
     return <div>
         <h1>Journal of transactions</h1>
         <Link to={`/transactions/new`}>New raw journal entry</Link>
-        <Styles>
-            <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
-        </Styles>
+        <TransactionTable types={[]} viewRaw={true} />
     </div>
 }
 

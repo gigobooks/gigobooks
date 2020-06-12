@@ -11,7 +11,7 @@ type TElement = Element & { _parent?: TElement }
 export enum TransactionType {
     Raw = 'raw',
     Contribution = 'contribution',
-    Dividend = 'dividend',
+    // Dividend = 'dividend',
     Sale = 'sale',
     Invoice = 'invoice',
     InvoicePayment = 'invoice-payment',
@@ -20,19 +20,32 @@ export enum TransactionType {
     BillPayment = 'bill-payment',
 }
 
+export const TransactionTypeInfo: Record<string, any> = {
+    [TransactionType.Raw]: { label: 'Raw' },
+    [TransactionType.Contribution]: { label: 'Contribution' },
+    // [TransactionType.Dividend]: { label: 'Dividend' },
+    [TransactionType.Sale]: { label: 'Cash sale' },
+    [TransactionType.Invoice]: { label: 'Invoice' },
+    [TransactionType.InvoicePayment]: { label: 'Invoice payment' },
+    [TransactionType.Purchase]: { label: 'Cash purchase' },
+    [TransactionType.Bill]: { label: 'Bill' },
+    [TransactionType.BillPayment]: { label: 'Bill payment' },
+}
+
 export class Transaction extends Base {
     static Credit = Element.Credit
     static Debit = Element.Debit
 
     static Raw = TransactionType.Raw
     static Contribution = TransactionType.Contribution
-    static Dividend = TransactionType.Dividend
+    // static Dividend = TransactionType.Dividend
     static Sale = TransactionType.Sale
     static Invoice = TransactionType.Invoice
     static InvoicePayment = TransactionType.InvoicePayment
     static Purchase = TransactionType.Purchase
     static Bill = TransactionType.Bill
     static BillPayment = TransactionType.BillPayment
+    static TypeInfo = TransactionTypeInfo
 
     id?: number
     description?: string
