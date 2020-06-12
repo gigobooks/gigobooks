@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { Transaction, TransactionType } from '../core'
+import { Transaction, TransactionType, parseISO, formatDateOnly } from '../core'
 import styled from 'styled-components'
-import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter } from './ReactTable'
+import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter, DateRangeFilter } from './ReactTable'
 import { Link } from 'react-router-dom'
 
 const TransactionTypeOptions = <>
@@ -31,6 +31,10 @@ function RenderType(data: any) {
     return info ? info.label : data.cell.value
 }
 
+function RenderDate(data: any) {
+    return formatDateOnly(data.cell.value)
+}
+
 type Props = {
     types: TransactionType[],
     viewRaw?: boolean,
@@ -41,7 +45,8 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
     const columns = React.useMemo<Column<Transaction>[]>(() => {
         const columns: any = [
             { Header: 'Id', accessor: 'id', disableFilters: false, Cell: LinkToTransaction },
-            { Header: 'Date', accessor: 'date', Cell: LinkToTransaction },
+            { Header: 'Date', accessor: 'date', disableFilters: false,
+                Filter: DateRangeFilter, Cell: RenderDate },
             { Header: 'Description', accessor: 'description', disableFilters: false, Cell: LinkToTransaction },
             { Header: 'Type', accessor: 'type', disableFilters: types.length > 0, 
                 Filter: SelectFilter, FilterOptions: TransactionTypeOptions, Cell: RenderType },

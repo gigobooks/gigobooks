@@ -2,6 +2,8 @@ import * as React from 'react'
 import { Row, Column, useTable, useFilters, useSortBy, usePagination } from 'react-table'
 export { Column } from 'react-table'
 import { QueryBuilder } from 'objection'
+import DatePicker from 'react-datepicker'
+import { dateFormatString as dfs, toDateOnly, parseISO } from '../core'
 
 // This is some integration magic
 // If a row has .id, use that as the unique id.
@@ -162,6 +164,47 @@ export function SelectFilter(table: {column: {filterValue: string, setFilter: an
     </select>
 }
 
+export function DateRangeFilter(table: {column: {filterValue: string, setFilter: any}}) {
+    const [startDate, setStartDate] = React.useState<string>('')
+    const [endDate, setEndDate] = React.useState<string>('')
+    const parsedStartDate = startDate ? parseISO(startDate) : null
+    const parsedEndDate = endDate ? parseISO(endDate) : null
+
+    return <>
+        <div>
+            <DatePicker
+                selected={parsedStartDate}
+                onChange={date => {
+                    const dateOnly = date ? toDateOnly(date) : ''
+                    setStartDate(dateOnly)
+                    table.column.setFilter([dateOnly, endDate])
+                }}
+                selectsStart
+                startDate={parsedStartDate}
+                endDate={parsedEndDate}
+                placeholderText='From'
+                isClearable
+                dateFormat={dfs()}
+            />
+        </div><div>
+            <DatePicker
+                selected={parsedEndDate}
+                onChange={date => {
+                    const dateOnly = date ? toDateOnly(date) : ''
+                    setEndDate(dateOnly)
+                    table.column.setFilter([startDate, dateOnly])
+                }}
+                selectsEnd
+                startDate={parsedStartDate}
+                endDate={parsedEndDate}
+                placeholderText='To'
+                isClearable
+                dateFormat={dfs()}
+            />
+        </div>
+    </>
+}
+
 export function filterQuery(q: QueryBuilder<any>, f: Filter, table?: string) {
     const field = table ? `${table}.${f.id}` : f.id
     switch (f.id) {
@@ -169,6 +212,14 @@ export function filterQuery(q: QueryBuilder<any>, f: Filter, table?: string) {
             const n = Number(f.value)
             if (!Number.isNaN(n)) {
                 q.where(field, n)
+            }
+            break
+        case 'date':
+            if (f.value[0]) {
+                q.where(field, '>=', f.value[0])
+            }
+            if (f.value[1]) {
+                q.where(field, '<=', f.value[1])
             }
             break
         case 'type':

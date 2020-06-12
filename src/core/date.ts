@@ -40,6 +40,12 @@ export function toDateOnly(date: Date): string {
     return `${date.getFullYear()}-${m < 10 ? '0' : ''}${m}-${d < 10 ? '0' : ''}${d}`
 }
 
+export function formatDateOnly(s: string) {
+    return new Intl.DateTimeFormat(undefined, {
+        year: 'numeric', month: 'numeric', day: 'numeric'
+    }).format(parseISO(s))
+}
+
 export type FiscalYearStart = {
     date: number
     month: number
