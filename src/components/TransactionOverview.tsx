@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Transaction, TransactionType, parseISO, formatDateOnly } from '../core'
+import { Transaction, TransactionType, formatDateOnly } from '../core'
 import styled from 'styled-components'
 import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter, DateRangeFilter } from './ReactTable'
 import { Link } from 'react-router-dom'
@@ -10,29 +10,64 @@ const TransactionTypeOptions = <>
         <option key={key} value={key}>{Transaction.TypeInfo[key].label}</option>)}
 </>
 
-function LinkToRawTransaction(data: any) {
-    const url = `/transactions/${data.row.values.id}`
-    return <Link to={url}>view raw</Link>
+function maybeLink(obj: Transaction, text: string) {
+    let url: string | false = false
+    const type = obj.type
+    if (text && obj instanceof Transaction && (!type || type.isEnum(TransactionType))) {
+        if (type != Transaction.InvoicePayment && type != Transaction.BillPayment) {
+            const path = (type && type != Transaction.Raw) ? type : 'transaction'
+            url = `/${path}s/${obj.id}`
+        }
+    }
+
+    return url ? <Link to={url}>{text}</Link> : text
 }
 
-function LinkToTransaction(data: any) {
-    const type = data.row.values.type
-    if (type == '' || type.isEnum(TransactionType)) {
-        const url = `/${(type && type != Transaction.Raw) ? type : 'transaction'}s/${data.cell.row.id}`
-        return <Link to={url}>{data.cell.value}</Link>    
+function renderId(data: any) {
+    return maybeLink(data.row.original, data.cell.value)
+}
+
+function renderDate(data: any) {
+    return maybeLink(data.row.original, formatDateOnly(data.cell.value))
+}
+
+function renderDescription(data: any) {
+    const t = data.row.original
+    const part1 = maybeLink(t, data.cell.value)
+
+    let part2
+    if (t.type == Transaction.InvoicePayment || t.type == Transaction.BillPayment) {
+        const settledType = t.type == Transaction.InvoicePayment ? 'invoice' : 'bill'
+        part2 = <>
+            (payment for <Link to={`/${settledType}s/${t.settleId}`}>{settledType} {t.settleId}</Link>)
+        </>
     }
     else {
-        return data.cell.value
+        part2 = null
     }
+
+    return <>
+        {part1}
+        {part1 && part2 && <hr />}
+        {part2}
+    </>
 }
 
-function RenderType(data: any) {
+function renderType(data: any) {
     const info = Transaction.TypeInfo[data.cell.value]
     return info ? info.label : data.cell.value
 }
 
-function RenderDate(data: any) {
-    return formatDateOnly(data.cell.value)
+function renderActor(data: any) {
+    if (data.cell.value) {
+        const t = data.row.original
+        return <Link to={`/${t.actorType}s/${t.actorId}`}>{data.cell.value}</Link>
+    }
+    return data.cell.value
+}
+
+function renderRaw(data: any) {
+    return <Link to={`/transactions/${data.row.values.id}`}>view raw</Link>
 }
 
 type Props = {
@@ -44,16 +79,16 @@ type Props = {
 function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Supplier'}: Props) {
     const columns = React.useMemo<Column<Transaction>[]>(() => {
         const columns: any = [
-            { Header: 'Id', accessor: 'id', disableFilters: false, Cell: LinkToTransaction },
+            { Header: 'Id', accessor: 'id', disableFilters: false, Cell: renderId },
             { Header: 'Date', accessor: 'date', disableFilters: false,
-                Filter: DateRangeFilter, Cell: RenderDate },
-            { Header: 'Description', accessor: 'description', disableFilters: false, Cell: LinkToTransaction },
+                Filter: DateRangeFilter, Cell: renderDate },
+            { Header: 'Description', accessor: 'description', disableFilters: false, Cell: renderDescription },
             { Header: 'Type', accessor: 'type', disableFilters: types.length > 0, 
-                Filter: SelectFilter, FilterOptions: TransactionTypeOptions, Cell: RenderType },
-            { Header: actorHeading, accessor: 'actorTitle', disableFilters: false, Cell: LinkToTransaction },
+                Filter: SelectFilter, FilterOptions: TransactionTypeOptions, Cell: renderType },
+            { Header: actorHeading, accessor: 'actorTitle', disableFilters: false, Cell: renderActor },
         ]
         if (viewRaw) {
-            columns.push({ Header: 'View raw', id: 'raw-link', Cell: LinkToRawTransaction })
+            columns.push({ Header: 'View raw', id: 'raw-link', Cell: renderRaw })
         }
         return columns
     }, [types, viewRaw, actorHeading])
@@ -66,7 +101,7 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
 
     const fetchData = React.useCallback(state => {
         const q = Transaction.query().leftJoin('actor', 'txn.actorId', 'actor.id')
-            .select('txn.*', 'actor.Title as actorTitle')
+            .select('txn.*', 'actor.type as actorType', 'actor.title as actorTitle')
 
         if (types.length > 0) {
             q.whereIn('txn.type', types)
@@ -83,7 +118,15 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
         })
 
         sortQuery(q, state.sortBy)
+        // Fetch any settlement elements
+        q.withGraphFetched('elements').modifyGraph('elements', builder => {
+            builder.whereNot('settleId', 0)
+        })
         q.offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
+            // Hoist settleId from the first element, if any, to the parent transaction
+            data.forEach(t => {
+                (t as any).settleId = t.elements && t.elements[0] ? t.elements[0].settleId : 0
+            })
             setData(data)
         })
     }, [])
