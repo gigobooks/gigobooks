@@ -1,0 +1,13 @@
+diff --git a/node_modules/rc-menu/package.json b/node_modules/rc-menu/package.json
+index e7c1843..322c788 100644
+--- a/node_modules/rc-menu/package.json
++++ b/node_modules/rc-menu/package.json
+@@ -15,7 +15,7 @@
+     "assets/*.css",
+     "assets/*.less"
+   ],
+-  "main": "./lib/index",
++  "main": "./es/index",
+   "module": "./es/index",
+   "homepage": "http://github.com/react-component/menu",
+   "maintainers": [
