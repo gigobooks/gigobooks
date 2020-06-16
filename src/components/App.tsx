@@ -3,6 +3,8 @@ import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
 import 'rc-menu/assets/index.css'
 import styled from 'styled-components'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
+import { Project } from '../core'
+// import { playSuccess } from '../util/sound'
 import Settings from './Settings'
 import SettingsTax from './SettingsTax'
 import AccountOverview from './AccountOverview'
@@ -20,49 +22,78 @@ import Invoice from './Invoice'
 import Purchase from './Purchase'
 import Bill from './Bill'
 
-const mql = window.matchMedia(`(min-width: 800px)`);
+function App() {
+    const [open, setOpen] = React.useState<boolean>(Project.isOpen())
 
-interface AppState {
-    sidebarDocked: boolean,
-    sidebarOpen: boolean
+    return <HashRouter>
+        <AppMenu open={open} onChange={() => {
+            setOpen(Project.isOpen())
+        }} />
+        <UrlBar />
+        {open && <Main />}
+    </HashRouter>    
 }
 
-// ToDo: Change to functional component
-class App extends React.Component<{}, AppState> {
-    constructor(props: any) {
-        super(props)
-        this.state = {
-            sidebarDocked: mql.matches,
-            sidebarOpen: false
-        };
-    
-        this.mediaQueryChanged = this.mediaQueryChanged.bind(this);
-        this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
-    }
-    
-    componentDidMount() {
-        mql.addListener(this.mediaQueryChanged);
-    }
-    
-    componentWillUnmount() {
-        mql.removeListener(this.mediaQueryChanged);
-    }
-    
-    onSetSidebarOpen(open: boolean) {
-        this.setState({ sidebarOpen: open });
-    }
-    
-    mediaQueryChanged() {
-        this.setState({ sidebarDocked: mql.matches, sidebarOpen: false });
+async function action(action: string): Promise<string | undefined> {
+    let filename = ''
+    let redirect = ''
+
+    switch (action) {
+        case 'new':
+            await Project.create();
+            // playSuccess()
+            redirect = '/settings'
+            break
+        
+        case 'open':
+            try {
+                filename = await dialog.File({type: 'load'})
+            }
+            catch (e) {
+                if (e.toString() != 'Cancelled') {
+                    throw e
+                }
+            }
+
+            if (filename) {
+                await Project.open(filename!)
+                // playSuccess()
+                redirect = '/'
+            }
+            break
+
+        case 'save':
+            await Project.save();
+            // playSuccess()
+            break
+
+        case 'save-as': 
+            try {
+                filename = await dialog.File({type: 'save'})
+            }
+            catch (e) {
+                if (e.toString() != 'Cancelled') {
+                    throw e
+                }
+            }
+
+            if (filename) {
+                await Project.saveAs(filename!)
+                // playSuccess()
+            }
+            break
+
+        case 'close':
+            await Project.close()
+            redirect = '/'
+            break
+
+        case 'quit':
+            native.exit(0);
+            break
     }
 
-    render() {
-        return <HashRouter>
-            <AppMenu />
-            <UrlBar />
-            <Main />
-        </HashRouter>    
-    }    
+    return redirect
 }
 
 interface MenuInfo {
@@ -72,7 +103,7 @@ interface MenuInfo {
     domEvent: React.MouseEvent<HTMLElement>;
 }
 
-function AppMenu() {
+function AppMenu(props: {open: boolean, onChange: () => void}) {
     const [redirect, setRedirect] = React.useState<string>('')
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
 
@@ -84,7 +115,15 @@ function AppMenu() {
 
     function onClick(info: MenuInfo) {
         const key = info.key as string
-        if (key.startsWith('/')) {
+        if (info.keyPath.length > 1 && info.keyPath[1] == 'file') {
+            action(key).then(path => {
+                if (path) {
+                    setRedirect(path)
+                }
+                props.onChange()
+            })
+        }
+        else if (key.startsWith('/')) {
             setRedirect(key)
         }
     }
@@ -98,22 +137,30 @@ function AppMenu() {
         mode='horizontal'
         triggerSubMenuAction={trigger}
         onClick={onClick}>
-        <SubMenu key='1' title="Sales">
+        <SubMenu key='file' title="File">
+            <MenuItem key='new'>New</MenuItem>
+            <MenuItem key='open'>Open</MenuItem>
+            <MenuItem key='save' disabled={!props.open}>Save</MenuItem>
+            <MenuItem key='save-as' disabled={!props.open}>Save as</MenuItem>
+            <MenuItem key='close' disabled={!props.open}>Close</MenuItem>
+            <MenuItem key='quit'>Quit</MenuItem>
+        </SubMenu>
+        {props.open && <SubMenu key='1' title="Sales">
             <MenuItem key='/sales'>List</MenuItem>
             <MenuItem key='/sales/new'>New cash sale</MenuItem>
             <MenuItem key='/invoices/new'>New invoice</MenuItem>
-        </SubMenu>
-        <SubMenu key='2' title="Purchases">
+        </SubMenu>}
+        {props.open && <SubMenu key='2' title="Purchases">
             <MenuItem key='/purchases'>List</MenuItem>
             <MenuItem key='/purchases/new'>New cash purchase</MenuItem>
             <MenuItem key='/bills/new'>New bill</MenuItem>
-        </SubMenu>
-        <SubMenu key='3' title="Customers/Suppliers">
+        </SubMenu>}
+        {props.open && <SubMenu key='3' title="Customers/Suppliers">
             <MenuItem key='/actors'>List</MenuItem>
             <MenuItem key='/customers/new'>New customer</MenuItem>
             <MenuItem key='/suppliers/new'>New supplier</MenuItem>
-        </SubMenu>
-        <SubMenu key='4' title="Company">
+        </SubMenu>}
+        {props.open && <SubMenu key='4' title="Company">
             <MenuItem key='/accounts'>Accounts</MenuItem>
             <MenuItem key='/accounts/new'>New account</MenuItem>
             <Divider />
@@ -124,7 +171,7 @@ function AppMenu() {
             <Divider />
             <MenuItem key='/settings'>Settings</MenuItem>
             <MenuItem key='/settings/tax'>Tax Settings</MenuItem>
-        </SubMenu>
+        </SubMenu>}
         <MenuItem key='/debug'>Debug</MenuItem>
         <MenuItem key='/'>Root</MenuItem>
     </Menu></Styles>
@@ -132,7 +179,7 @@ function AppMenu() {
 
 const Styles = styled.div`ul { margin: 0; }`
 
-const Main = () => {
+function Main() {
     return <Switch>
         <Route path='/bills/:arg1'>
             <DispatchWithParams element={Bill} pathDir='/bills' />
@@ -186,7 +233,6 @@ const Main = () => {
             <Settings />
         </Route>
         <Route path='/'>
-            <h1>Front page</h1>
         </Route>
     </Switch>
 }

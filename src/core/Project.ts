@@ -83,10 +83,19 @@ export class Project {
     }
 
     static async saveAs(filename: string): Promise<boolean> {
-        await Project.database.exec('VACUUM')
-        const destDb = await Project.database.backupTo(filename)
-        destDb.close()
-        return true
+        if (Project.project) {
+            await Project.database.exec('VACUUM')
+            const destDb = await Project.database.backupTo(filename)
+            destDb.close()
+            return true
+        }
+        else {
+            return Promise.reject('No file opened')
+        }
+    }
+
+    static isOpen() {
+        return Project.project != undefined
     }
 
     // Store references so other code can access them globally
