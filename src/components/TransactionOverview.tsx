@@ -139,7 +139,6 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
 export function TransactionOverview() {
     return <div>
         <h1>Journal of transactions</h1>
-        <Link to={`/transactions/new`}>New raw journal entry</Link>
         <TransactionTable
             types={[]}
             viewRaw={true}

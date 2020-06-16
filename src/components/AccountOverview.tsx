@@ -43,7 +43,6 @@ export default function AccountOverview() {
 
     return <div>
         <h1>List of accounts</h1>
-        <Link to={`/accounts/new`}>New account</Link>
         <Styles>
             <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>

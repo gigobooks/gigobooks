@@ -51,7 +51,6 @@ export default function ActorOverview() {
 
     return <div>
         <h1>List of customers and suppliers</h1>
-        <Link to={`customers/new`}>New customer</Link> - <Link to={`suppliers/new`}>New supplier</Link>
         <Styles>
             <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>

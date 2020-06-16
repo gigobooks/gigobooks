@@ -1,6 +1,8 @@
 import * as React from 'react'
-import Sidebar from 'react-sidebar'
-import { HashRouter, Link, Route, Switch, useParams } from 'react-router-dom'
+import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
+import 'rc-menu/assets/index.css'
+import styled from 'styled-components'
+import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
 import Settings from './Settings'
 import SettingsTax from './SettingsTax'
 import AccountOverview from './AccountOverview'
@@ -25,6 +27,7 @@ interface AppState {
     sidebarOpen: boolean
 }
 
+// ToDo: Change to functional component
 class App extends React.Component<{}, AppState> {
     constructor(props: any) {
         super(props)
@@ -55,74 +58,79 @@ class App extends React.Component<{}, AppState> {
 
     render() {
         return <HashRouter>
-            <Sidebar
-                sidebar={<Menu />}
-                open={this.state.sidebarOpen}
-                docked={this.state.sidebarDocked}
-                onSetOpen={this.onSetSidebarOpen}
-            >
-                <Main />
-            </Sidebar>
+            <AppMenu />
+            <UrlBar />
+            <Main />
         </HashRouter>    
     }    
 }
 
-const Menu = () => {
-    return <div>
-        <div>
-            Sales
-            <ul style={{marginTop: '0'}}><li>
-                <Link to='/sales'>List</Link>
-            </li><li>
-                <Link to='/sales/new'>New cash sale</Link>
-            </li><li>
-                <Link to='/invoices/new'>New invoice</Link>
-            </li></ul>
-        </div><div>
-            Purchases
-            <ul style={{marginTop: '0'}}><li>
-                <Link to='/purchases'>List</Link>
-            </li><li>
-            <Link to='/purchases/new'>New cash purchase</Link>
-            </li><li>
-            <Link to='/bills/new'>New bill</Link>
-            </li></ul>
-        </div><div>
-            Customers/Suppliers
-            <ul style={{marginTop: '0'}}><li>
-                <Link to='/actors'>List</Link>
-            </li><li>
-                <Link to='/customers/new'>New customer</Link>
-            </li><li>
-            <Link to='/suppliers/new'>New supplier</Link>
-            </li></ul>
-        </div><div>
-            Company
-            <ul style={{marginTop: '0'}}><li>
-                <Link to='/accounts'>Accounts</Link>
-            </li><li>
-                <Link to='/contributions/new'>New contribution</Link>
-            </li><li>
-                <Link to='/transactions'>Journal</Link>
-            </li><li>
-                <Link to='/settings'>Settings</Link>
-            </li><li>
-                <Link to='/settings/tax'>Tax settings</Link>
-            </li></ul>
-        </div><div>
-            <Link to='/debug'>Debug</Link> | <Link to='/'>Root</Link>
-        </div>
-
-        <Switch>
-            <Route path='/:path'>
-                <UrlBar />
-            </Route>
-            <Route path='/'>
-                <UrlBar />
-            </Route>
-        </Switch>
-    </div>
+interface MenuInfo {
+    key: React.Key;
+    keyPath: React.Key[];
+    item: React.ReactInstance;
+    domEvent: React.MouseEvent<HTMLElement>;
 }
+
+function AppMenu() {
+    const [redirect, setRedirect] = React.useState<string>('')
+    const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
+
+    useParams()     // This is needed to trigger a re-render or something?
+
+    React.useEffect(() => {
+        setRedirect('')
+    }, [window.location.hash])
+
+    function onClick(info: MenuInfo) {
+        const key = info.key as string
+        if (key.startsWith('/')) {
+            setRedirect(key)
+        }
+    }
+
+    const path = window.location.hash.substring(1)
+    if (redirect != '' && redirect != path) {
+        return <Redirect to={`${redirect}`} />
+    }
+
+    return <Styles><Menu
+        mode='horizontal'
+        triggerSubMenuAction={trigger}
+        onClick={onClick}>
+        <SubMenu key='1' title="Sales">
+            <MenuItem key='/sales'>List</MenuItem>
+            <MenuItem key='/sales/new'>New cash sale</MenuItem>
+            <MenuItem key='/invoices/new'>New invoice</MenuItem>
+        </SubMenu>
+        <SubMenu key='2' title="Purchases">
+            <MenuItem key='/purchases'>List</MenuItem>
+            <MenuItem key='/purchases/new'>New cash purchase</MenuItem>
+            <MenuItem key='/bills/new'>New bill</MenuItem>
+        </SubMenu>
+        <SubMenu key='3' title="Customers/Suppliers">
+            <MenuItem key='/actors'>List</MenuItem>
+            <MenuItem key='/customers/new'>New customer</MenuItem>
+            <MenuItem key='/suppliers/new'>New supplier</MenuItem>
+        </SubMenu>
+        <SubMenu key='4' title="Company">
+            <MenuItem key='/accounts'>Accounts</MenuItem>
+            <MenuItem key='/accounts/new'>New account</MenuItem>
+            <Divider />
+            <MenuItem key='/contributions/new'>New contribution</MenuItem>
+            <Divider />
+            <MenuItem key='/transactions'>Journal</MenuItem>
+            <MenuItem key='/transactions/new'>New raw journal entry</MenuItem>
+            <Divider />
+            <MenuItem key='/settings'>Settings</MenuItem>
+            <MenuItem key='/settings/tax'>Tax Settings</MenuItem>
+        </SubMenu>
+        <MenuItem key='/debug'>Debug</MenuItem>
+        <MenuItem key='/'>Root</MenuItem>
+    </Menu></Styles>
+}
+
+const Styles = styled.div`ul { margin: 0; }`
 
 const Main = () => {
     return <Switch>

@@ -24,7 +24,6 @@ export default function UrlBar() {
         <form onSubmit={handleSubmit(onSubmit)}>
             <div>
                 <input name='path' ref={register({required: true})} defaultValue={path} />
-            </div><div>
                 <input type='submit' value='Goto' />
             </div>
         </form>
