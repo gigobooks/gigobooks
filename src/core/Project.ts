@@ -22,11 +22,11 @@ export class Project {
     variables: Variables
 
     static project: Project | undefined
-    static database: sqlite.Database
+    static database: gosqlite.Database
     static knex: Knex
     static variables: Variables
 
-    constructor(public filename: string, public database: sqlite.Database, public knex: Knex) {
+    constructor(public filename: string, public database: gosqlite.Database, public knex: Knex) {
         this.variables = new Variables(this.knex, defaultVariables)
     }
 
@@ -37,7 +37,7 @@ export class Project {
     // The following functions create new database (defaults to in-memory),
     // and load-to/save-from files
     static async create(filename?: string): Promise<void> {
-        const db = new sqlite.Database(filename ? filename : ':memory:')
+        const db = new gosqlite.Database(filename ? filename : ':memory:')
         await db.open()
         try {
             const project = new Project('', db, makeKnex(filename ? filename : ':memory', db))
@@ -52,7 +52,7 @@ export class Project {
     }
 
     static async open(filename: string): Promise<void> {        
-        const srcDb = new sqlite.Database(`file:${filename}?mode=ro`)
+        const srcDb = new gosqlite.Database(`file:${filename}?mode=ro`)
         await srcDb.open()
         try {
             const newDb = await srcDb.backupTo(':memory:')

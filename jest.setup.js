@@ -1,7 +1,7 @@
 var sqlite3 = require('sqlite3')
 
 // Emulate part of sqlite.Database using sqlite3 so the tests can run
-sqlite = (function() {
+gosqlite = (function() {
     const Database = function(filename) {
         this.db = new sqlite3.Database(filename)
     }
