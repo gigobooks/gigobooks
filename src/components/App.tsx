@@ -22,8 +22,6 @@ import Purchase from './Purchase'
 import Bill from './Bill'
 import { refreshWindowTitle } from '../util/util'
 
-export const APP_NAME = 'Sunrise'
-
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
     const [hasFilename, setHasFilename] = React.useState<boolean>(false)

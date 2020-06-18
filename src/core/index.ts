@@ -1,4 +1,5 @@
 export { Model, TransactionOrKnex } from 'objection'
+export * from './settings'
 export { Project } from './Project'
 export { Variables } from './Variables'
 export { Base } from './Base'

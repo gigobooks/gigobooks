@@ -1,5 +1,4 @@
-import { APP_NAME } from '../components/App'
-import { Project } from '../core'
+import { APP_NAME, Project } from '../core'
 import { parseFormatted } from '../core/currency'
 
 // Given a positive integer, returns the smallest integer that is strictly larger
