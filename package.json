@@ -39,6 +39,7 @@
     "@types/styled-components": "^5.1.0",
     "@types/webpack-env": "^1.15.2",
     "css-loader": "^3.5.2",
+    "husky": "^4.2.5",
     "jest": "^25.4.0",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
@@ -52,5 +53,10 @@
     "vatrates": "^2.0.2",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
+  },
+  "husky": {
+    "hooks": {
+      "post-commit": "echo 'Running post-commit hook: yarn test' && yarn test"
+    }
   }
 }
