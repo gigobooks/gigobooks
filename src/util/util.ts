@@ -1,3 +1,5 @@
+import { APP_NAME } from '../components/App'
+import { Project } from '../core'
 import { parseFormatted } from '../core/currency'
 
 // Given a positive integer, returns the smallest integer that is strictly larger
@@ -52,6 +54,27 @@ function prefixPreservingIncrement_test() {
     }
 }
 */
+
+function basename(path: string): string {
+    const parts = path.split('/')
+    return parts[parts.length - 1]
+}
+
+export function refreshWindowTitle() {
+    const parts: string[] = []
+
+    if (Project.project) {
+        const title = Project.variables.get('title')
+        if (title) {
+            parts.push(title)
+        }
+
+        parts.push(Project.project.filename ? basename(Project.project.filename) : '<untitled>')
+    }
+
+    parts.push(APP_NAME)
+    native.setTitle(parts.join(' - '))
+}
 
 type ValidationOptions = {
     listField: string

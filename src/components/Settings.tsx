@@ -3,6 +3,7 @@ import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-for
 import { Project } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { currencySelectOptionsAll } from './SelectOptions'
+import { refreshWindowTitle } from '../util/util'
 
 type FormData = {
     title: string
@@ -27,6 +28,7 @@ export default function Settings() {
 
         saveFormData(data).then(() => {
             playSuccess()
+            refreshWindowTitle()
             form.reset(extractFormValues())
         }).catch(e => {
             playAlert()

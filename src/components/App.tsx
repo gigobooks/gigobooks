@@ -4,7 +4,6 @@ import 'rc-menu/assets/index.css'
 import styled from 'styled-components'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
 import { Project } from '../core'
-// import { playSuccess } from '../util/sound'
 import Settings from './Settings'
 import SettingsTax from './SettingsTax'
 import AccountOverview from './AccountOverview'
@@ -21,14 +20,26 @@ import Sale from './Sale'
 import Invoice from './Invoice'
 import Purchase from './Purchase'
 import Bill from './Bill'
+import { refreshWindowTitle } from '../util/util'
+
+export const APP_NAME = 'Sunrise'
 
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
+    const [hasFilename, setHasFilename] = React.useState<boolean>(false)
+
+    function refresh() {
+        refreshWindowTitle()
+        setOpen(Project.isOpen())
+        setHasFilename(!!Project.project && !!Project.project.filename)
+    }
+
+    React.useEffect(() => {
+        refresh()
+    }, [])
 
     return <HashRouter>
-        <AppMenu open={open} onChange={() => {
-            setOpen(Project.isOpen())
-        }} />
+        <AppMenu open={open} hasFilename={hasFilename} onChange={refresh} />
         <UrlBar />
         {open && <Main />}
     </HashRouter>    
@@ -41,7 +52,6 @@ async function action(action: string): Promise<string | undefined> {
     switch (action) {
         case 'new':
             await Project.create();
-            // playSuccess()
             redirect = '/settings'
             break
         
@@ -56,15 +66,13 @@ async function action(action: string): Promise<string | undefined> {
             }
 
             if (filename) {
-                await Project.open(filename!)
-                // playSuccess()
+                await Project.open(filename)
                 redirect = '/'
             }
             break
 
         case 'save':
             await Project.save();
-            // playSuccess()
             break
 
         case 'save-as': 
@@ -79,7 +87,6 @@ async function action(action: string): Promise<string | undefined> {
 
             if (filename) {
                 await Project.saveAs(filename!)
-                // playSuccess()
             }
             break
 
@@ -103,7 +110,7 @@ interface MenuInfo {
     domEvent: React.MouseEvent<HTMLElement>;
 }
 
-function AppMenu(props: {open: boolean, onChange: () => void}) {
+function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => void}) {
     const [redirect, setRedirect] = React.useState<string>('')
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
 
@@ -140,7 +147,7 @@ function AppMenu(props: {open: boolean, onChange: () => void}) {
         <SubMenu key='file' title="File">
             <MenuItem key='new'>New</MenuItem>
             <MenuItem key='open'>Open</MenuItem>
-            <MenuItem key='save' disabled={!props.open}>Save</MenuItem>
+            <MenuItem key='save' disabled={!props.open || !props.hasFilename}>Save</MenuItem>
             <MenuItem key='save-as' disabled={!props.open}>Save as</MenuItem>
             <MenuItem key='close' disabled={!props.open}>Close</MenuItem>
             <MenuItem key='quit'>Quit</MenuItem>

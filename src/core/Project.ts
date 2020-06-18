@@ -87,6 +87,7 @@ export class Project {
             await Project.database.exec('VACUUM')
             const destDb = await Project.database.backupTo(filename)
             destDb.close()
+            Project.project.filename = filename
             return true
         }
         else {
