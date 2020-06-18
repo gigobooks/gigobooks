@@ -3,7 +3,6 @@ const makeKnex = require('../util/knex-integration')
 import { Model } from 'objection'
 import { prepopulate, maybeMigrate } from './database'
 import { Variables } from './Variables'
-import { refreshWindowTitle } from '../util/util';
 
 const defaultVariables = {
     title: '',
