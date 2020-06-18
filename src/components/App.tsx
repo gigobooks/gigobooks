@@ -51,10 +51,11 @@ async function action(action: string): Promise<string | undefined> {
 
     switch (action) {
         case 'new':
-            await Project.create();
+            await Project.create()
+            Project.project!.changeListener = refreshWindowTitle
             redirect = '/settings'
             break
-        
+
         case 'open':
             try {
                 filename = await dialog.File({type: 'load'})
@@ -67,12 +68,13 @@ async function action(action: string): Promise<string | undefined> {
 
             if (filename) {
                 await Project.open(filename)
+                Project.project!.changeListener = refreshWindowTitle
                 redirect = '/'
             }
             break
 
         case 'save':
-            await Project.save();
+            await Project.save()
             break
 
         case 'save-as': 
@@ -96,7 +98,7 @@ async function action(action: string): Promise<string | undefined> {
             break
 
         case 'quit':
-            native.exit(0);
+            native.exit(0)
             break
     }
 
@@ -104,10 +106,10 @@ async function action(action: string): Promise<string | undefined> {
 }
 
 interface MenuInfo {
-    key: React.Key;
-    keyPath: React.Key[];
-    item: React.ReactInstance;
-    domEvent: React.MouseEvent<HTMLElement>;
+    key: React.Key
+    keyPath: React.Key[]
+    item: React.ReactInstance
+    domEvent: React.MouseEvent<HTMLElement>
 }
 
 function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => void}) {
@@ -251,4 +253,4 @@ function DispatchWithParams(props: any) {
     return React.createElement(element, {...rest, ...useParams()})
 }
 
-export default App;
+export default App

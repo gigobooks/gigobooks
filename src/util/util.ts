@@ -61,9 +61,14 @@ function basename(path: string): string {
 }
 
 export function refreshWindowTitle() {
+    let prefix = ''
     const parts: string[] = []
 
     if (Project.project) {
+        if (Project.project.isModified) {
+            prefix = '* '
+        }
+
         const title = Project.variables.get('title')
         if (title) {
             parts.push(title)
@@ -73,7 +78,7 @@ export function refreshWindowTitle() {
     }
 
     parts.push(APP_NAME)
-    native.setTitle(parts.join(' - '))
+    native.setTitle(prefix + parts.join(' - '))
 }
 
 type ValidationOptions = {

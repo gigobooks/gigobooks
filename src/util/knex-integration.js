@@ -9,7 +9,7 @@ let connectionId = 0
 // * Modify the sqlite3 dialect so it works with our sqlite API
 //   This affects all knex sqlite3 objects, not just this one.
 // * Return a knex object that uses the supplied database/connection
-function makeKnex(filename, preExistingConnection) {
+function makeKnex(filename, preExistingConnection, onChange = undefined) {
     const modifications = {
         modified: true,
         acquireRawConnection: function () {
@@ -85,6 +85,12 @@ function makeKnex(filename, preExistingConnection) {
         },
         processResponse: function (obj, runner) {
             let { response } = obj;
+
+            // Notify upstream if any rows were changed
+            if (response.rowsAffected && this.config.onChange) {
+                this.config.onChange(obj)
+            }
+
             if (obj.output) return obj.output.call(runner, response);
             switch (obj.method) {
                 case 'select':
@@ -115,6 +121,7 @@ function makeKnex(filename, preExistingConnection) {
         useNullAsDefault: true,
         client: Client_SQLite3,
         preExistingConnection,
+        onChange,
         ...migrations,
         ...knexSnakeCaseMappers()
     })

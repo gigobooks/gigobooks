@@ -3,6 +3,7 @@ const makeKnex = require('../util/knex-integration')
 import { Model } from 'objection'
 import { prepopulate, maybeMigrate } from './database'
 import { Variables } from './Variables'
+import { refreshWindowTitle } from '../util/util';
 
 const defaultVariables = {
     title: '',
@@ -15,23 +16,37 @@ const defaultVariables = {
     // lastSavedDate
 }
 
-// ToDo: Validate the database, isModified flag
+// ToDo: Validate the database
 
 export class Project {
-    // isModified: boolean
-    variables: Variables
+    knex?: Knex
+    variables?: Variables
+    isModified: boolean
+    changeListener: any
 
     static project: Project | undefined
     static database: gosqlite.Database
     static knex: Knex
     static variables: Variables
 
-    constructor(public filename: string, public database: gosqlite.Database, public knex: Knex) {
-        this.variables = new Variables(this.knex, defaultVariables)
+    constructor(public filename: string, public database: gosqlite.Database) {
+        this.isModified = false
+        this.onChange = this.onChange.bind(this)
     }
 
     async init() {
+        this.variables = new Variables(this.knex!, defaultVariables)
         await this.variables.init()
+
+        // Clear .isModified again as it was probably set during prepopulation or maybe migration
+        this.isModified = false
+    }
+
+    onChange() {
+        this.isModified = true
+        if (this.changeListener) {
+            this.changeListener(...arguments)
+        }
     }
 
     // The following functions create new database (defaults to in-memory),
@@ -40,8 +55,11 @@ export class Project {
         const db = new gosqlite.Database(filename ? filename : ':memory:')
         await db.open()
         try {
-            const project = new Project('', db, makeKnex(filename ? filename : ':memory', db))
-            await prepopulate(project.knex)
+            const project = new Project('', db)
+            const knex = makeKnex(filename ? filename : ':memory', db, project.onChange)
+            project.knex = knex
+            await prepopulate(knex)
+            // .init() has to take place after prepopulate() as it clears .isModified
             await project.init()
             Project.bind(project)
         }
@@ -56,8 +74,11 @@ export class Project {
         await srcDb.open()
         try {
             const newDb = await srcDb.backupTo(':memory:')
-            const project = new Project(filename, newDb, makeKnex(filename, newDb))
-            await maybeMigrate(project.knex)
+            const project = new Project(filename, newDb)
+            const knex = makeKnex(filename, newDb, project.onChange)
+            project.knex = knex
+            await maybeMigrate(knex)
+            // .init() has to take place after maybeMigrate() as it clears .isModified
             await project.init()
             Project.bind(project)
         }
@@ -88,6 +109,7 @@ export class Project {
             const destDb = await Project.database.backupTo(filename)
             destDb.close()
             Project.project.filename = filename
+            Project.project.isModified = false
             return true
         }
         else {
@@ -103,8 +125,8 @@ export class Project {
     static bind(p: Project): void {
         Project.project = p
         Project.database = p.database
-        Project.knex = p.knex
+        Project.knex = p.knex!
         Model.knex(p.knex)
-        Project.variables = p.variables
+        Project.variables = p.variables!
     }
 }
