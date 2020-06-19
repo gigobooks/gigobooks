@@ -11,7 +11,6 @@ import AccountDetail from './AccountDetail'
 import ActorOverview from './ActorOverview'
 import ActorDetail from './ActorDetail'
 import ContributeCapital from './ContributeCapital'
-import DebugScreen from './DebugScreen'
 import UrlBar from './UrlBar'
 import { TransactionOverview, SalesOverview, PurchasesOverview } from './TransactionOverview'
 import TransactionDetail from './TransactionDetail'
@@ -209,8 +208,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
             <MenuItem key='/settings'>Settings</MenuItem>
             <MenuItem key='/settings/tax'>Tax Settings</MenuItem>
         </SubMenu>}
-        <MenuItem key='/debug'>Debug</MenuItem>
-        <MenuItem key='/'>Root</MenuItem>
+        {__DEV__ && <MenuItem key='/'>Root</MenuItem>}
     </Menu></Styles>
 }
 
@@ -259,9 +257,6 @@ function Main() {
         </Route>
         <Route path='/accounts'>
             <AccountOverview />
-        </Route>
-        <Route path='/debug'>
-            <DebugScreen />
         </Route>
         <Route path='/settings/tax'>
             <SettingsTax />
