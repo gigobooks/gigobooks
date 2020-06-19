@@ -85,6 +85,11 @@ export function ReactTable<D extends object>(props: Props<D>) {
         ))}
         </thead>
         <tbody {...table.getTableBodyProps()}>
+        {table.rows.length == 0 &&
+            <tr>
+                <td colSpan={table.columns.length}>No items</td>
+            </tr>
+        }
         {table.rows.map(row => {
             table.prepareRow(row)
             return (
