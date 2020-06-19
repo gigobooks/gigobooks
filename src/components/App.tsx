@@ -21,15 +21,18 @@ import Invoice from './Invoice'
 import Purchase from './Purchase'
 import Bill from './Bill'
 import { refreshWindowTitle } from '../util/util'
+import { mruList, mruInsert, mruClear } from '../util/mru'
 
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
     const [hasFilename, setHasFilename] = React.useState<boolean>(false)
+    const [mru, setMru] = React.useState<string[]>(mruList())
 
     function refresh() {
         refreshWindowTitle()
         setOpen(Project.isOpen())
         setHasFilename(!!Project.project && !!Project.project.filename)
+        setMru(mruList())
     }
 
     React.useEffect(() => {
@@ -37,17 +40,17 @@ function App() {
     }, [])
 
     return <HashRouter>
-        <AppMenu open={open} hasFilename={hasFilename} onChange={refresh} />
+        <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
         <UrlBar />
         {open && <Main />}
     </HashRouter>    
 }
 
-async function action(action: string): Promise<string | undefined> {
+async function action(op: string, extra?: string): Promise<string | undefined> {
     let filename = ''
     let redirect = ''
 
-    switch (action) {
+    switch (op) {
         case 'new':
             await Project.create()
             Project.project!.changeListener = refreshWindowTitle
@@ -55,18 +58,25 @@ async function action(action: string): Promise<string | undefined> {
             break
 
         case 'open':
-            try {
-                filename = await dialog.File({type: 'load'})
+        case 'recent':
+            if (op == 'recent') {
+                filename = extra!
             }
-            catch (e) {
-                if (e.toString() != 'Cancelled') {
-                    throw e
+            else {
+                try {
+                    filename = await dialog.File({type: 'load'})
+                }
+                catch (e) {
+                    if (e.toString() != 'Cancelled') {
+                        throw e
+                    }
                 }
             }
 
             if (filename) {
                 await Project.open(filename)
                 Project.project!.changeListener = refreshWindowTitle
+                mruInsert(filename)
                 redirect = '/'
             }
             break
@@ -87,6 +97,7 @@ async function action(action: string): Promise<string | undefined> {
 
             if (filename) {
                 await Project.saveAs(filename!)
+                mruInsert(filename)
             }
             break
 
@@ -97,6 +108,10 @@ async function action(action: string): Promise<string | undefined> {
 
         case 'quit':
             native.exit(0)
+            break
+
+        case 'clear-recents':
+            mruClear()
             break
     }
 
@@ -110,7 +125,7 @@ interface MenuInfo {
     domEvent: React.MouseEvent<HTMLElement>
 }
 
-function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => void}) {
+function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onChange: () => void}) {
     const [redirect, setRedirect] = React.useState<string>('')
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
     const [nonce, setNonce] = React.useState<number>(0)
@@ -123,8 +138,11 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => vo
 
     function onClick(info: MenuInfo) {
         const key = info.key as string
-        if (info.keyPath.length > 1 && info.keyPath[1] == 'file') {
-            action(key).then(path => {
+        if (info.keyPath.length > 1 && info.keyPath[info.keyPath.length - 1] == 'file') {
+            const keyParts = key.split(':')
+            const extra = keyParts[0] == 'recent' ? props.mru[Number(keyParts[1])] : undefined
+
+            action(keyParts[0], extra).then(path => {
                 if (path) {
                     setRedirect(path)
                 }
@@ -152,6 +170,13 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => vo
         <SubMenu key='file' title="File">
             <MenuItem key='new'>New</MenuItem>
             <MenuItem key='open'>Open</MenuItem>
+            {props.mru.length > 0 && <SubMenu key='recents' title="Open recent">
+                {props.mru.map((item, index) => <MenuItem key={`recent:${index}`}>
+                    {item}
+                </MenuItem>)}
+                <Divider />
+                <MenuItem key='clear-recents'>Clear</MenuItem>
+            </SubMenu>}
             <MenuItem key='save' disabled={!props.open || !props.hasFilename}>Save</MenuItem>
             <MenuItem key='save-as' disabled={!props.open}>Save as</MenuItem>
             <MenuItem key='close' disabled={!props.open}>Close</MenuItem>
