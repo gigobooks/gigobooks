@@ -113,8 +113,9 @@ interface MenuInfo {
 function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => void}) {
     const [redirect, setRedirect] = React.useState<string>('')
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
+    const [nonce, setNonce] = React.useState<number>(0)
 
-    useParams()     // This is needed to trigger a re-render or something?
+    useParams()     // This is needed somehow. Don't know why.
 
     React.useEffect(() => {
         setRedirect('')
@@ -133,6 +134,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => vo
         else if (key.startsWith('/')) {
             setRedirect(key)
         }
+        setNonce(nonce + 1)
     }
 
     const path = window.location.hash.substring(1)
@@ -140,7 +142,10 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, onChange: () => vo
         return <Redirect to={`${redirect}`} />
     }
 
+    // Setting `key` to a unique value results in a new instance of Menu.
+    // This is a work-around to make the menu 'close' after each click
     return <Styles><Menu
+        key={nonce}
         mode='horizontal'
         triggerSubMenuAction={trigger}
         onClick={onClick}>
