@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "watch": "webpack --watch",
+    "watch": "webpack --mode=development --watch",
     "postinstall": "patch-package"
   },
   "keywords": [],
