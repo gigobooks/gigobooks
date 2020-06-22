@@ -18,7 +18,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
 import Purchase from './Purchase'
 import { refreshWindowTitle } from '../util/util'
-import { mruList, mruInsert, mruClear } from '../util/mru'
+import { mruList, mruInsert, mruClear, mruDir } from '../util/mru'
 
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
@@ -61,7 +61,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
             }
             else {
                 try {
-                    filename = await dialog.File({type: 'load'})
+                    filename = await dialog.File({type: 'load', startDir: mruDir()})
                 }
                 catch (e) {
                     if (e.toString() != 'Cancelled') {
@@ -84,7 +84,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
 
         case 'save-as': 
             try {
-                filename = await dialog.File({type: 'save'})
+                filename = await dialog.File({type: 'save', startDir: mruDir()})
             }
             catch (e) {
                 if (e.toString() != 'Cancelled') {

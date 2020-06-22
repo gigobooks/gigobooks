@@ -1,5 +1,11 @@
 const MRU = 'mru'
+const DIR = 'mruDir'
 const SIZE = 10
+
+function dirname(path: string) {
+    const result = path.match(/(.*)\//)
+    return result && result.length > 1 ? result[1] : ''
+}
 
 export function mruList(): string[] {
     try {
@@ -19,8 +25,13 @@ export function mruInsert(filename: string) {
     })
     list.unshift(filename)
     localStorage.setItem(MRU, JSON.stringify(list.slice(0, SIZE)))
+    localStorage.setItem(DIR, dirname(filename))
 }
 
 export function mruClear() {
     localStorage.removeItem(MRU)
+}
+
+export function mruDir() {
+    return localStorage.getItem(DIR) || undefined
 }
