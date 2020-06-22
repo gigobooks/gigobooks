@@ -51,9 +51,19 @@ export default function Sale(props: Props) {
     const [customerOptions, setCustomerOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
     const [redirectId, setRedirectId] = React.useState<number>(-1)
+    let action = ''
 
     const form = useForm<FormData>()
     const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
+
+    function clearForm() {
+        const currency = Project.variables.get('currency')
+        form.reset({
+            actorId: 0,
+            date: lastSavedDate(),
+            elements: [{currency}, {currency}],
+        })
+    }
 
     // Initialise a lot of stuff
     React.useEffect(() => {
@@ -90,12 +100,7 @@ export default function Sale(props: Props) {
         }
         else {
             setTransaction(Transaction.construct({}))
-            const currency = Project.variables.get('currency')
-            form.reset({
-                actorId: 0,
-                date: lastSavedDate(),
-                elements: [{currency}, {currency}],
-            })
+            clearForm()
         }
     }, [props.arg1, transaction && transaction.id ? transaction.updatedAt : 0])
 
@@ -110,8 +115,15 @@ export default function Sale(props: Props) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
                 setActorTitleEnable(false)
-                if (argId != savedId) {
+
+                if (action == '' && argId != savedId) {
                     setRedirectId(savedId)
+                }
+                else if (action == 'and-new') {
+                    clearForm()
+                    if (argId != 0) {
+                        setRedirectId(0)
+                    }        
                 }
             }
         }).catch(e => {
@@ -212,7 +224,10 @@ export default function Sale(props: Props) {
                 </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
-                    <input type='submit' value={argId ? 'Save' : 'Create'} />
+                    <input type='submit' value='Save' />
+                    <input type='submit' value='Save and new' onClick={() => {
+                        action = 'and-new'
+                    }} />
                 </div>
             </form>
         </div>
