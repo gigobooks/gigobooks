@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
     Project, Transaction, Account, Actor, IElement,
@@ -124,7 +124,13 @@ export default function Invoice(props: Props) {
     }
     else if (transaction && revenueOptions && customerOptions) {
         const invoiceForm = <div>
-            <h1>{transaction.id ? `Invoice ${transaction.id}` : 'New invoice'}</h1>
+            <h1>
+                <span className='breadcrumb'>
+                    <Link to='/sales'>Sales</Link> » </span>
+                <span className='title'>
+                    {transaction.id ? `Invoice ${transaction.id}` : 'New invoice'}
+                </span>
+            </h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Customer:</label>

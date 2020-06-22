@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
     Project, Transaction, Account, Actor, IElement,
@@ -129,7 +129,13 @@ export default function Bill(props: Props) {
     }
     else if (transaction && accountOptions && supplierOptions) {
         const billForm = <div>
-            <h1>{transaction.id ? `Bill ${transaction.id}` : 'New bill'}</h1>
+            <h1>
+                <span className='breadcrumb'>
+                    <Link to='/purchases'>Purchases</Link> » </span>
+                <span className='title'>
+                    {transaction.id ? `Bill ${transaction.id}` : 'New bill'}
+                </span>
+            </h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Supplier:</label>

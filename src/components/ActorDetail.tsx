@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useForm, FormContextValues as FCV } from 'react-hook-form'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { Actor } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
@@ -80,9 +80,15 @@ export default function ActorDetail(props: Props) {
     }
     else if (actor) {
         return <div>
-            <h1>{actor.id ?
-                `${isCustomer ? 'Customer' : 'Supplier'} ${actor.id}` :
-                `New ${isCustomer ? 'customer' : 'supplier'}`}</h1>
+            <h1>
+                <span className='breadcrumb'>
+                    <Link to='/actors'>Customers and Suppliers</Link> » </span>
+                <span className='title'>
+                    {actor.id ? actor.title : `New ${isCustomer ? 'customer' : 'supplier'}`}
+                </span>
+            </h1>
+            {!!actor.id && <div>Type: {actor.type}</div>}
+            {!!actor.id && <div>Id: {actor.id}</div>}
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='title'>Name:</label>

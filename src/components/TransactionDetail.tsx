@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Controller, useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
     Project, Transaction, Account, Actor, IElement,
@@ -112,7 +112,13 @@ export default function TransactionDetail(props: Props) {
     }
     else if (transaction && accountOptions && actorOptions) {
         return <div>
-            <h1>{transaction.id ? `Raw journal entry ${transaction.id}` : 'New raw journal entry'}</h1>
+            <h1>
+                <span className='breadcrumb'>
+                    <Link to='/transactions'>Journal</Link> » </span>
+                <span className='title'>
+                    {transaction.id ? `Raw journal entry ${transaction.id}` : 'New raw journal entry'}
+                </span>
+            </h1>
             {!!transaction.id && <div>Type: {transaction.type}</div>}
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>

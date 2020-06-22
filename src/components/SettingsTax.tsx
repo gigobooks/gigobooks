@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useForm, FormContextValues as FCV } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { Project } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
@@ -31,7 +32,13 @@ export default function SettingsTax() {
     }
 
     return <div>
-        <h1>Tax Settings</h1>
+        <h1>
+            <span className='breadcrumb'>
+                <Link to='/settings'>Settings</Link> » </span>
+            <span className='title'>
+                Tax Settings
+            </span>
+        </h1>
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
                 <label htmlFor='taxId'>Tax registrations (type and id):</label>

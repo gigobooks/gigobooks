@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FCV } from 'react-hook-form'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
     Project, Transaction, Account, Actor, IElement,
@@ -135,7 +135,13 @@ export default function Purchase(props: Props) {
     }
     else if (transaction && accountOptions && sourceOptions && supplierOptions) {
         return <div>
-            <h1>{transaction.id ? `Cash purchase ${transaction.id}` : 'New cash purchase'}</h1>
+            <h1>
+                <span className='breadcrumb'>
+                    <Link to='/purchases'>Purchases</Link> » </span>
+                <span className='title'>
+                    {transaction.id ? `Cash purchase ${transaction.id}` : 'New cash purchase'}
+                </span>
+            </h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='actorId'>Supplier:</label>
