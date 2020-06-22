@@ -14,6 +14,7 @@ const typePath: Record<string, string> = {
     '': 'transaction',
     [Transaction.Raw]: 'transaction',
     [Transaction.Invoice]: 'sale',
+    [Transaction.Bill]: 'purchase',
 }
 
 function maybeLink(obj: Transaction, text: string) {

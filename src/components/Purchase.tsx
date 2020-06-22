@@ -3,19 +3,21 @@ import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FC
 import { Link, Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
-    Project, Transaction, Account, Actor, IElement,
+    Project, Transaction, TransactionType, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, flatSelectOptions, accountSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
+import BillPayment from './BillPayment'
 
 type Props = {
     arg1?: string
 }
 
 export type FormData = {
+    type: TransactionType
     actorId: number
     actorTitle?: string
     date: Date
@@ -37,7 +39,6 @@ export type FormData = {
             amount: string
         }[]
     }[]
-    accountId: number
     submit?: string    // Only for displaying general submit error messages
 }
 
@@ -47,7 +48,6 @@ export default function Purchase(props: Props) {
 
     const [transaction, setTransaction] = React.useState<Transaction>()
     const [accountOptions, setAccountOptions] = React.useState<{}>()
-    const [sourceOptions, setSourceOptions] = React.useState<{}>()
     const [supplierOptions, setSupplierOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
     const [redirectId, setRedirectId] = React.useState<number>(0)
@@ -62,19 +62,15 @@ export default function Purchase(props: Props) {
 
         // Load expense and asset accounts
         Account.query().select()
-        .whereIn('type', [Account.Asset, Account.LongTermAsset,
+        .whereIn('type', [Account.LongTermAsset,
             ...Account.TypeGroupInfo[Account.Expense].types])
-        .whereNotIn('id', [Account.Reserved.AccountsReceivable, Account.Reserved.TaxReceivable])
         .orderBy(['title'])
         .then(rows => {
-            // Split into expenses and assets
-            const accounts = rows.filter(a => a.type == Account.LongTermAsset || a.typeGroup == Account.Expense)
             const groupInfo = {
                 [Account.Expense]: { label: 'Expense' },
                 [Account.Asset]: { label: 'Long term asset' },
             }
-            setAccountOptions(accountSelectOptions(accounts, groupInfo))
-            setSourceOptions(flatSelectOptions(rows.filter(a => a.type == Account.Asset)))
+            setAccountOptions(accountSelectOptions(rows, groupInfo))
         })
 
         // Load suppliers
@@ -88,7 +84,7 @@ export default function Purchase(props: Props) {
         
         // Load transaction (if exists) and initialise form accordingly
         if (argId > 0) {
-            Transaction.query().findById(argId).where('type', Transaction.Purchase)
+            Transaction.query().findById(argId).whereIn('type', [Transaction.Purchase, Transaction.Bill])
             .withGraphFetched('elements')
             .then(t => {
                 setTransaction(t)
@@ -104,7 +100,6 @@ export default function Purchase(props: Props) {
                 actorId: 0,
                 date: lastSavedDate(),
                 elements: [{currency}, {currency}],
-                accountId: Account.Reserved.Cash,
             })
         }
     }, [props.arg1, transaction && transaction.id ? transaction.updatedAt : 0])
@@ -133,17 +128,27 @@ export default function Purchase(props: Props) {
     if (redirectId > 0 && redirectId != argId) {
         return <Redirect to={`/purchases/${redirectId}`} />
     }
-    else if (transaction && accountOptions && sourceOptions && supplierOptions) {
-        return <div>
+    else if (transaction && accountOptions && supplierOptions) {
+        const purchaseForm = <div>
             <h1>
                 <span className='breadcrumb'>
                     <Link to='/purchases'>Purchases</Link> » </span>
                 <span className='title'>
-                    {transaction.id ? `Cash purchase ${transaction.id}` : 'New cash purchase'}
+                    {transaction.id ? `${Transaction.TypeInfo[transaction.type!].label} ${transaction.id}` : 'New purchase'}
                 </span>
             </h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
+                    <label htmlFor='type'>Type:</label>
+                    <select name='type' ref={form.register} disabled={!!transaction.id}>
+                        <option key={Transaction.Purchase} value={Transaction.Purchase}>
+                            {Transaction.TypeInfo[Transaction.Purchase].label}
+                        </option>
+                        <option key={Transaction.Bill} value={Transaction.Bill}>
+                            {Transaction.TypeInfo[Transaction.Bill].label}
+                        </option>
+                    </select>
+                </div><div>
                     <label htmlFor='actorId'>Supplier:</label>
                     <select
                         name='actorId'
@@ -210,16 +215,18 @@ export default function Purchase(props: Props) {
                         More rows
                     </button>
                 </div><div>
-                    <label htmlFor='accountId'>Pay from:</label>
-                    <select name='accountId' ref={form.register}>
-                        {sourceOptions}
-                    </select>
-                </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
                     <input type='submit' value={argId ? 'Save' : 'Create'} />
                 </div>
             </form>
+        </div>
+
+        return <div>
+            {purchaseForm}
+            {!!transaction.id && transaction.type == Transaction.Bill &&
+            transaction.elements && transaction.elements.length > 0 &&
+            <BillPayment transaction={transaction} />}
         </div>
     }
 
@@ -403,14 +410,13 @@ function ElementFamily(props: ElementFamilyProps) {
 }
 
 export function extractFormValues(t: Transaction): FormData {
-    const firstCrElement = t.getFirstCrElement()
     const values: FormData = {
+        type: t.type!,
         date: parseISO(t.date!),
         description: t.description,
         actorId: t.actorId!,
         actorTitle: '',
         elements: [],
-        accountId: firstCrElement ? firstCrElement.accountId! : Account.Reserved.Cash,
     }
 
     if (t.elements) {
@@ -502,7 +508,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
 
     Object.assign(transaction, {
         description: data.description,
-        type: Transaction.Purchase,
+        type: data.type,
         date: toDateOnly(data.date),
         actorId: data.actorId,
     })
@@ -552,7 +558,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
     for (let currency in sums) {
         elements.push({
             id: ids.shift(),
-            accountId: data.accountId,
+            accountId: data.type == Transaction.Purchase ? Account.Reserved.Cash : Account.Reserved.AccountsPayable,
             drcr: Transaction.Credit,
             amount: sums[currency],
             currency: currency,

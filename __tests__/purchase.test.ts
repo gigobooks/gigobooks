@@ -18,14 +18,14 @@ afterAll(() => {
 })
 
 test('purchase form', async done => {
-    expect(validateFormData(MockForm.clear(), {actorId: 0, date: new Date(), elements: [], accountId: Cash}))
+    expect(validateFormData(MockForm.clear(), {type: Transaction.Purchase, actorId: 0, date: new Date(), elements: []}))
         .toBe(false)
     expect(MockForm.errorField).toEqual('actorId')
     expect(MockForm.errorMessage).toEqual('Supplier is required')
 
     // Save a sale using form data
     let t0 = Transaction.construct({})
-    let result = await saveFormData(t0, {actorId: 1, date: now, description: 'foo', elements: [
+    let result = await saveFormData(t0, {type: Transaction.Purchase, actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 506, amount: '10', currency: 'USD', useGross: 0, grossAmount: '11', description: 'one', taxes: [
             {description: 'one a', code: ':zero:0', rate: '0', amount: '0'},
             {description: 'one b', code: '', rate: '10', amount: '1'},
@@ -36,7 +36,7 @@ test('purchase form', async done => {
             {description: 'two a', code: '::10', rate: '10', amount: '10'},
             {description: 'two b', code: '::10', rate: '10', amount: '10'},
         ]},
-    ], accountId: Cash})
+    ]})
     expect(result).toBeTruthy()
     expect(t0.actorId).toBe(1)
     expect(t0.date).toBe(date)

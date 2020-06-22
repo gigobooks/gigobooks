@@ -17,7 +17,6 @@ import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
 import Purchase from './Purchase'
-import Bill from './Bill'
 import { refreshWindowTitle } from '../util/util'
 import { mruList, mruInsert, mruClear } from '../util/mru'
 
@@ -186,8 +185,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
         </SubMenu>}
         {props.open && <SubMenu key='2' title="Purchases">
             <MenuItem key='/purchases'>List</MenuItem>
-            <MenuItem key='/purchases/new'>New cash purchase</MenuItem>
-            <MenuItem key='/bills/new'>New bill</MenuItem>
+            <MenuItem key='/purchases/new'>New purchase</MenuItem>
         </SubMenu>}
         {props.open && <SubMenu key='3' title="Customers/Suppliers">
             <MenuItem key='/actors'>List</MenuItem>
@@ -214,9 +212,6 @@ const Styles = styled.div`ul { margin: 0; }`
 
 function Main() {
     return <Switch>
-        <Route path='/bills/:arg1'>
-            <DispatchWithParams element={Bill} />
-        </Route>
         <Route path='/purchases/:arg1'>
             <DispatchWithParams element={Purchase} />
         </Route>
