@@ -40,7 +40,7 @@ function App() {
 
     return <HashRouter>
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
-        <UrlBar />
+        {__DEV__ && <UrlBar />}
         {open && <Main />}
     </HashRouter>    
 }
