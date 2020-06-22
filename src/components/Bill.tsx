@@ -13,7 +13,6 @@ import { formCalculateTaxes } from './form'
 import BillPayment from './BillPayment'
 
 type Props = {
-    pathDir: string
     arg1?: string
 }
 
@@ -126,7 +125,7 @@ export default function Bill(props: Props) {
     }
 
     if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`${props.pathDir}/${redirectId}`} />
+        return <Redirect to={`/bills/${redirectId}`} />
     }
     else if (transaction && accountOptions && supplierOptions) {
         const billForm = <div>

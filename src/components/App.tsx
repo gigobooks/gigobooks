@@ -217,43 +217,43 @@ const Styles = styled.div`ul { margin: 0; }`
 function Main() {
     return <Switch>
         <Route path='/bills/:arg1'>
-            <DispatchWithParams element={Bill} pathDir='/bills' />
+            <DispatchWithParams element={Bill} />
         </Route>
         <Route path='/purchases/:arg1'>
-            <DispatchWithParams element={Purchase} pathDir='/purchases' />
+            <DispatchWithParams element={Purchase} />
         </Route>
         <Route path='/purchases'>
             <PurchasesOverview />
         </Route>
         <Route path='/invoices/:arg1'>
-            <DispatchWithParams element={Invoice} pathDir='/invoices' />
+            <DispatchWithParams element={Invoice} />
         </Route>
         <Route path='/sales/:arg1'>
-            <DispatchWithParams element={Sale} pathDir='/sales' />
+            <DispatchWithParams element={Sale} />
         </Route>
         <Route path='/sales'>
             <SalesOverview />
         </Route>
         <Route path='/contributions/:arg1'>
-            <DispatchWithParams element={ContributeCapital} pathDir='/contributions' />
+            <DispatchWithParams element={ContributeCapital} />
         </Route>
         <Route path='/transactions/:arg1'>
-            <DispatchWithParams element={TransactionDetail} pathDir='/transactions' />
+            <DispatchWithParams element={TransactionDetail} />
         </Route>
         <Route path='/transactions'>
             <TransactionOverview />
         </Route>
         <Route path='/suppliers/:arg1'>
-            <DispatchWithParams element={ActorDetail} pathDir='/suppliers' supplier />
+            <DispatchWithParams element={ActorDetail} supplier />
         </Route>
         <Route path='/customers/:arg1'>
-            <DispatchWithParams element={ActorDetail} pathDir='/customers' customer />
+            <DispatchWithParams element={ActorDetail} customer />
         </Route>
         <Route path='/actors'>
             <ActorOverview />
         </Route>
         <Route path='/accounts/:arg1'>
-            <DispatchWithParams element={AccountDetail} pathDir='/accounts' />
+            <DispatchWithParams element={AccountDetail} />
         </Route>
         <Route path='/accounts'>
             <AccountOverview />

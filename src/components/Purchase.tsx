@@ -12,7 +12,6 @@ import { MaybeSelect, flatSelectOptions, accountSelectOptions, currencySelectOpt
 import { formCalculateTaxes } from './form'
 
 type Props = {
-    pathDir: string
     arg1?: string
 }
 
@@ -132,7 +131,7 @@ export default function Purchase(props: Props) {
     }
 
     if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`${props.pathDir}/${redirectId}`} />
+        return <Redirect to={`/purchases/${redirectId}`} />
     }
     else if (transaction && accountOptions && sourceOptions && supplierOptions) {
         return <div>

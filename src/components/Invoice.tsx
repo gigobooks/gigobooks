@@ -13,7 +13,6 @@ import { formCalculateTaxes } from './form'
 import InvoicePayment from './InvoicePayment'
 
 type Props = {
-    pathDir: string
     arg1?: string
 }
 
@@ -121,7 +120,7 @@ export default function Invoice(props: Props) {
     }
 
     if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`${props.pathDir}/${redirectId}`} />
+        return <Redirect to={`/invoices/${redirectId}`} />
     }
     else if (transaction && revenueOptions && customerOptions) {
         const invoiceForm = <div>
