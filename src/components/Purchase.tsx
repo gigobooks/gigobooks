@@ -50,7 +50,7 @@ export default function Purchase(props: Props) {
     const [accountOptions, setAccountOptions] = React.useState<{}>()
     const [supplierOptions, setSupplierOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
-    const [redirectId, setRedirectId] = React.useState<number>(0)
+    const [redirectId, setRedirectId] = React.useState<number>(-1)
 
     const form = useForm<FormData>()
     const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
@@ -58,7 +58,7 @@ export default function Purchase(props: Props) {
     // Initialise a lot of stuff
     React.useEffect(() => {
         // Clear redirectId
-        setRedirectId(0)
+        setRedirectId(-1)
 
         // Load expense and asset accounts
         Account.query().select()
@@ -115,7 +115,7 @@ export default function Purchase(props: Props) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
                 setActorTitleEnable(false)
-                if (argId == 0) {
+                if (argId != savedId) {
                     setRedirectId(savedId)
                 }
             }
@@ -125,8 +125,8 @@ export default function Purchase(props: Props) {
         })
     }
 
-    if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/purchases/${redirectId}`} />
+    if (redirectId >= 0 && redirectId != argId) {
+        return <Redirect to={`/purchases/${redirectId ? redirectId : 'new'}`} />
     }
     else if (transaction && accountOptions && supplierOptions) {
         const purchaseForm = <div>

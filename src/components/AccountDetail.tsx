@@ -19,14 +19,14 @@ export default function AccountDetail(props: Props) {
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
     const [account, setAccount] = React.useState<Account>()
-    const [redirectId, setRedirectId] = React.useState<number>(0)
+    const [redirectId, setRedirectId] = React.useState<number>(-1)
 
     const form = useForm<FormData>()
 
     // Initialise a lot of stuff
     React.useEffect(() => {
         // Clear redirectId
-        setRedirectId(0)
+        setRedirectId(-1)
 
         // Load object (if exists) and initialise form accordingly
         if (argId > 0) {
@@ -55,7 +55,7 @@ export default function AccountDetail(props: Props) {
         saveFormData(account!, data).then(savedId => {
             playSuccess()
             form.reset(extractFormValues(account!))
-            if (argId == 0 && savedId) {
+            if (savedId && argId != savedId) {
                 setRedirectId(savedId)
             }
         }).catch(e => {
@@ -64,8 +64,8 @@ export default function AccountDetail(props: Props) {
         })
     }
 
-    if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/accounts/${redirectId}`} />
+    if (redirectId >= 0 && redirectId != argId) {
+        return <Redirect to={`/accounts/${redirectId ? redirectId : 'new'}`} />
     }
     else if (account) {
         return <div>

@@ -39,7 +39,7 @@ export default function TransactionDetail(props: Props) {
     const [actorOptions, setActorOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
     const [accountOptions, setAccountOptions] = React.useState<{}>()
-    const [redirectId, setRedirectId] = React.useState<number>(0)
+    const [redirectId, setRedirectId] = React.useState<number>(-1)
 
     const form = useForm<FormData>()
     const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
@@ -47,7 +47,7 @@ export default function TransactionDetail(props: Props) {
     // Initialise a lot of stuff
     React.useEffect(() => {
         // Clear redirectId
-        setRedirectId(0)
+        setRedirectId(-1)
 
         // Load account select list
         Account.query().select()
@@ -97,7 +97,7 @@ export default function TransactionDetail(props: Props) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
                 setActorTitleEnable(false)
-                if (argId == 0) {
+                if (argId != savedId) {
                     setRedirectId(savedId)
                 }
             }
@@ -107,8 +107,8 @@ export default function TransactionDetail(props: Props) {
         })
     }
 
-    if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/transactions/${redirectId}`} />
+    if (redirectId >= 0 && redirectId != argId) {
+        return <Redirect to={`/transactions/${redirectId ? redirectId : 'new'}`} />
     }
     else if (transaction && accountOptions && actorOptions) {
         return <div>

@@ -34,7 +34,7 @@ export default function ContributeCapital(props: Props) {
 
     const [transaction, setTransaction] = React.useState<Transaction>()
     const [assetOptions, setAssetOptions] = React.useState<{}>()
-    const [redirectId, setRedirectId] = React.useState<number>(0)
+    const [redirectId, setRedirectId] = React.useState<number>(-1)
 
     const form = useForm<FormData>()
     const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
@@ -42,7 +42,7 @@ export default function ContributeCapital(props: Props) {
     // Initialise a lot of stuff
     React.useEffect(() => {
         // Clear redirectId
-        setRedirectId(0)
+        setRedirectId(-1)
 
         // Load asset accounts
         Account.query().select()
@@ -83,7 +83,7 @@ export default function ContributeCapital(props: Props) {
             if (savedId) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
-                if (argId == 0) {
+                if (argId != savedId) {
                     setRedirectId(savedId)
                 }
             }
@@ -93,8 +93,8 @@ export default function ContributeCapital(props: Props) {
         })
     }
 
-    if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/contributions/${redirectId}`} />
+    if (redirectId >= 0 && redirectId != argId) {
+        return <Redirect to={`/contributions/${redirectId ? redirectId : 'new'}`} />
     }
     else if (transaction && assetOptions) {
         return <div>

@@ -50,7 +50,7 @@ export default function Sale(props: Props) {
     const [revenueOptions, setRevenueOptions] = React.useState<{}>()
     const [customerOptions, setCustomerOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
-    const [redirectId, setRedirectId] = React.useState<number>(0)
+    const [redirectId, setRedirectId] = React.useState<number>(-1)
 
     const form = useForm<FormData>()
     const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
@@ -58,7 +58,7 @@ export default function Sale(props: Props) {
     // Initialise a lot of stuff
     React.useEffect(() => {
         // Clear redirectId
-        setRedirectId(0)
+        setRedirectId(-1)
 
         // Load revenue accounts
         Account.query().select()
@@ -110,7 +110,7 @@ export default function Sale(props: Props) {
                 playSuccess()
                 form.reset(extractFormValues(transaction!))
                 setActorTitleEnable(false)
-                if (argId == 0) {
+                if (argId != savedId) {
                     setRedirectId(savedId)
                 }
             }
@@ -120,8 +120,8 @@ export default function Sale(props: Props) {
         })
     }
 
-    if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/sales/${redirectId}`} />
+    if (redirectId >= 0 && redirectId != argId) {
+        return <Redirect to={`/sales/${redirectId ? redirectId : 'new'}`} />
     }
     else if (transaction && revenueOptions && customerOptions) {
         const saleForm = <div>

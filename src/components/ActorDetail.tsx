@@ -29,14 +29,14 @@ export default function ActorDetail(props: Props) {
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
     const [actor, setActor] = React.useState<Actor>()
-    const [redirectId, setRedirectId] = React.useState<number>(0)
+    const [redirectId, setRedirectId] = React.useState<number>(-1)
 
     const form = useForm<FormData>()
 
     // Initialise a lot of stuff
     React.useEffect(() => {
         // Clear redirectId
-        setRedirectId(0)
+        setRedirectId(-1)
 
         // Load object (if exists) and initialise form accordingly
         if (argId > 0) {
@@ -66,7 +66,7 @@ export default function ActorDetail(props: Props) {
         saveFormData(actor!, data).then(savedId => {
             playSuccess()
             form.reset(extractFormValues(actor!))
-            if (argId == 0 && savedId) {
+            if (savedId && argId != savedId) {
                 setRedirectId(savedId)
             }
         }).catch(e => {
@@ -75,8 +75,8 @@ export default function ActorDetail(props: Props) {
         })
     }
 
-    if (redirectId > 0 && redirectId != argId) {
-        return <Redirect to={`/${isCustomer ? 'customer' : 'supplier'}s/${redirectId}`} />
+    if (redirectId >= 0 && redirectId != argId) {
+        return <Redirect to={`/${isCustomer ? 'customer' : 'supplier'}s/${redirectId ? redirectId : 'new'}`} />
     }
     else if (actor) {
         return <div>
