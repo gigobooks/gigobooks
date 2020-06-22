@@ -3,19 +3,21 @@ import { Controller, useForm, useFieldArray, ArrayField, FormContextValues as FC
 import { Link, Redirect } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
-    Project, Transaction, Account, Actor, IElement,
+    Project, Transaction, TransactionType, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
+import InvoicePayment from './InvoicePayment'
 
 type Props = {
     arg1?: string
 }
 
 export type FormData = {
+    type: TransactionType
     actorId: number
     actorTitle?: string
     date: Date
@@ -37,7 +39,6 @@ export type FormData = {
             amount: string
         }[]
     }[]
-    accountId: number
     submit?: string    // Only for displaying general submit error messages
 }
 
@@ -47,7 +48,6 @@ export default function Sale(props: Props) {
 
     const [transaction, setTransaction] = React.useState<Transaction>()
     const [revenueOptions, setRevenueOptions] = React.useState<{}>()
-    const [assetOptions, setAssetOptions] = React.useState<{}>()
     const [customerOptions, setCustomerOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
     const [redirectId, setRedirectId] = React.useState<number>(0)
@@ -60,15 +60,12 @@ export default function Sale(props: Props) {
         // Clear redirectId
         setRedirectId(0)
 
-        // Load revenue and asset accounts
+        // Load revenue accounts
         Account.query().select()
-        .whereIn('type', [Account.Asset, ...Account.TypeGroupInfo[Account.Revenue].types])
-        .whereNotIn('id', [Account.Reserved.AccountsReceivable, Account.Reserved.TaxReceivable])
+        .whereIn('type', Account.TypeGroupInfo[Account.Revenue].types)
         .orderBy(['title'])
         .then((rows) => {
-            // Split into revenues and assets
-            setRevenueOptions(flatSelectOptions(rows.filter(a => a.typeGroup == Account.Revenue)))
-            setAssetOptions(flatSelectOptions(rows.filter(a => a.typeGroup == Account.Asset)))
+            setRevenueOptions(flatSelectOptions(rows))
         })
 
         // Load customers
@@ -82,7 +79,7 @@ export default function Sale(props: Props) {
         
         // Load transaction (if exists) and initialise form accordingly
         if (argId > 0) {
-            Transaction.query().findById(argId).where('type', Transaction.Sale)
+            Transaction.query().findById(argId).whereIn('type', [Transaction.Sale, Transaction.Invoice])
             .withGraphFetched('elements')
             .then(t => {
                 setTransaction(t)
@@ -98,7 +95,6 @@ export default function Sale(props: Props) {
                 actorId: 0,
                 date: lastSavedDate(),
                 elements: [{currency}, {currency}],
-                accountId: Account.Reserved.Cash,
             })
         }
     }, [props.arg1, transaction && transaction.id ? transaction.updatedAt : 0])
@@ -127,17 +123,27 @@ export default function Sale(props: Props) {
     if (redirectId > 0 && redirectId != argId) {
         return <Redirect to={`/sales/${redirectId}`} />
     }
-    else if (transaction && revenueOptions && assetOptions && customerOptions) {
-        return <div>
+    else if (transaction && revenueOptions && customerOptions) {
+        const saleForm = <div>
             <h1>
                 <span className='breadcrumb'>
                     <Link to='/sales'>Sales</Link> » </span>
                 <span className='title'>
-                    {transaction.id ? `Cash sale ${transaction.id}` : 'New cash sale'}
+                    {transaction.id ? `${Transaction.TypeInfo[transaction.type!].label} ${transaction.id}` : 'New sale'}
                 </span>
             </h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
+                    <label htmlFor='type'>Type:</label>
+                    <select name='type' ref={form.register} disabled={!!transaction.id}>
+                        <option key={Transaction.Sale} value={Transaction.Sale}>
+                            {Transaction.TypeInfo[Transaction.Sale].label}
+                        </option>
+                        <option key={Transaction.Invoice} value={Transaction.Invoice}>
+                            {Transaction.TypeInfo[Transaction.Invoice].label}
+                        </option>
+                    </select>
+                </div><div>
                     <label htmlFor='actorId'>Customer:</label>
                     <select
                         name='actorId'
@@ -165,7 +171,7 @@ export default function Sale(props: Props) {
                         name='date'
                         valueName='selected'
                         onChange={([selected]) => selected}
-                        />
+                    />
                     {form.errors.date && form.errors.date.message}
                 </div><div>
                     <label htmlFor='description'>Description:</label>
@@ -204,16 +210,18 @@ export default function Sale(props: Props) {
                         More rows
                     </button>
                 </div><div>
-                    <label htmlFor='accountId'>Deposit to:</label>
-                    <select name='accountId' ref={form.register}>
-                        {assetOptions}
-                    </select>
-                </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
                     <input type='submit' value={argId ? 'Save' : 'Create'} />
                 </div>
             </form>
+        </div>
+
+        return <div>
+            {saleForm}
+            {!!transaction.id && transaction.type == Transaction.Invoice &&
+            transaction.elements && transaction.elements.length > 0 &&
+            <InvoicePayment transaction={transaction} />}
         </div>
     }
 
@@ -397,14 +405,13 @@ function ElementFamily(props: ElementFamilyProps) {
 }
 
 export function extractFormValues(t: Transaction): FormData {
-    const firstDrElement = t.getFirstDrElement()
     const values: FormData = {
+        type: t.type!,
         date: parseISO(t.date!),
         description: t.description,
         actorId: t.actorId!,
         actorTitle: '',
         elements: [],
-        accountId: firstDrElement ? firstDrElement.accountId! : Account.Reserved.Cash,
     }
 
     if (t.elements) {
@@ -496,7 +503,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
 
     Object.assign(transaction, {
         description: data.description,
-        type: Transaction.Sale,
+        type: data.type,
         date: toDateOnly(data.date),
         actorId: data.actorId,
     })
@@ -546,7 +553,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
     for (let currency in sums) {
         elements.push({
             id: ids.shift(),
-            accountId: data.accountId,
+            accountId: data.type == Transaction.Sale ? Account.Reserved.Cash : Account.Reserved.AccountsReceivable,
             drcr: Transaction.Debit,
             amount: sums[currency],
             currency: currency,

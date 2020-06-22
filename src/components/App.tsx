@@ -16,7 +16,6 @@ import { TransactionOverview, SalesOverview, PurchasesOverview } from './Transac
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
-import Invoice from './Invoice'
 import Purchase from './Purchase'
 import Bill from './Bill'
 import { refreshWindowTitle } from '../util/util'
@@ -183,8 +182,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
         </SubMenu>
         {props.open && <SubMenu key='1' title="Sales">
             <MenuItem key='/sales'>List</MenuItem>
-            <MenuItem key='/sales/new'>New cash sale</MenuItem>
-            <MenuItem key='/invoices/new'>New invoice</MenuItem>
+            <MenuItem key='/sales/new'>New sale</MenuItem>
         </SubMenu>}
         {props.open && <SubMenu key='2' title="Purchases">
             <MenuItem key='/purchases'>List</MenuItem>
@@ -224,9 +222,6 @@ function Main() {
         </Route>
         <Route path='/purchases'>
             <PurchasesOverview />
-        </Route>
-        <Route path='/invoices/:arg1'>
-            <DispatchWithParams element={Invoice} />
         </Route>
         <Route path='/sales/:arg1'>
             <DispatchWithParams element={Sale} />

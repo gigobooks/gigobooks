@@ -10,12 +10,18 @@ const TransactionTypeOptions = <>
         <option key={key} value={key}>{Transaction.TypeInfo[key].label}</option>)}
 </>
 
+const typePath: Record<string, string> = {
+    '': 'transaction',
+    [Transaction.Raw]: 'transaction',
+    [Transaction.Invoice]: 'sale',
+}
+
 function maybeLink(obj: Transaction, text: string) {
     let url: string | false = false
-    const type = obj.type
+    const type = obj.type || ''
     if (text && obj instanceof Transaction && (!type || type.isEnum(TransactionType))) {
         if (type != Transaction.InvoicePayment && type != Transaction.BillPayment) {
-            const path = (type && type != Transaction.Raw) ? type : 'transaction'
+            const path = typePath[type] ? typePath[type] : type
             url = `/${path}s/${obj.id}`
         }
     }
