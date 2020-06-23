@@ -145,7 +145,7 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
 
 export function TransactionOverview() {
     return <div>
-        <h1>Journal of transactions</h1>
+        <h1><span className='title'>Journal of transactions</span></h1>
         <TransactionTable
             types={[]}
             viewRaw={true}
@@ -155,7 +155,7 @@ export function TransactionOverview() {
 
 export function SalesOverview() {
     return <div>
-        <h1>List of sales</h1>
+        <h1><span className='title'>List of sales</span></h1>
         <TransactionTable
             types={[Transaction.Sale, Transaction.Invoice]}
             actorHeading='Customer'
@@ -165,7 +165,7 @@ export function SalesOverview() {
 
 export function PurchasesOverview() {
     return <div>
-        <h1>List of purchases</h1>
+        <h1><span className='title'>List of purchases</span></h1>
         <TransactionTable
             types={[Transaction.Purchase, Transaction.Bill]}
             actorHeading='Supplier'

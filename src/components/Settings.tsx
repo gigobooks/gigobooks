@@ -37,7 +37,11 @@ export default function Settings() {
     }
 
     return <div>
-        <h1>Settings</h1>
+        <h1>
+            <span className='title'>
+                Settings
+            </span>
+        </h1>
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
                 <label htmlFor='title'>Title:</label>

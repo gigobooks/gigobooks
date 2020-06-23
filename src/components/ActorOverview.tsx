@@ -50,7 +50,11 @@ export default function ActorOverview() {
     }, [])
 
     return <div>
-        <h1>List of customers and suppliers</h1>
+        <h1>
+            <span className='title'>
+                List of customers and suppliers
+            </span>
+        </h1>
         <Styles>
             <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
         </Styles>

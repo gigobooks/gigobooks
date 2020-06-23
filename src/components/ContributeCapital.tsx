@@ -98,7 +98,11 @@ export default function ContributeCapital(props: Props) {
     }
     else if (transaction && assetOptions) {
         return <div>
-            <h1>{transaction.id ? `Contribution ${transaction.id}` : 'Contribute capital or funds'}</h1>
+            <h1>
+                <span className='title'>
+                    {transaction.id ? `Contribution ${transaction.id}` : 'Contribute capital or funds'}
+                </span>
+            </h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor='date'>Date:</label>
