@@ -53,7 +53,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
             await Project.create()
             Project.project!.changeListener = refreshWindowTitle
             newHistorySegment()
-            redirect = '/settings'
+            redirect = Project.variables.get('mru')
             break
 
         case 'open':
@@ -77,11 +77,12 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
                 Project.project!.changeListener = refreshWindowTitle
                 mruInsert(filename)
                 newHistorySegment()
-                redirect = '/'
+                redirect = Project.variables.get('mru')
             }
             break
 
         case 'save':
+            await Project.variables.set('mru', window.location.hash.substring(1))
             await Project.save()
             break
 
@@ -96,6 +97,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
             }
 
             if (filename) {
+                await Project.variables.set('mru', window.location.hash.substring(1))
                 await Project.saveAs(filename!)
                 mruInsert(filename)
             }

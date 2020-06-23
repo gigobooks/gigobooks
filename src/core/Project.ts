@@ -12,6 +12,7 @@ const defaultVariables = {
     taxEnable: [],
     customTaxCodes: '',
     fiscalYear: '0101',
+    mru: '/settings',
     // lastSavedDate
 }
 
