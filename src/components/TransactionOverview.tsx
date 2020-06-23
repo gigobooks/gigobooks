@@ -129,6 +129,7 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
         q.withGraphFetched('elements').modifyGraph('elements', builder => {
             builder.whereNot('settleId', 0)
         })
+        q.orderBy('id', 'desc')     // Least significant sort order
         q.offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
             // Hoist settleId from the first element, if any, to the parent transaction
             data.forEach(t => {
