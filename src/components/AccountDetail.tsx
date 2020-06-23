@@ -91,7 +91,7 @@ export default function AccountDetail(props: Props) {
                 </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
-                    <input type='submit' value={argId ? 'Save' : 'Create'} disabled={account.isReserved} />
+                    <input type='submit' value='Save' disabled={account.isReserved} />
                 </div>
             </form>
         </div>

@@ -219,7 +219,7 @@ export default function TransactionDetail(props: Props) {
                 </div><div>
                     <input
                         type='submit'
-                        value={argId ? 'Save' : 'Create'}
+                        value='Save'
                         disabled={!!transaction.type && transaction.type != Transaction.Raw}
                     />
                 </div>

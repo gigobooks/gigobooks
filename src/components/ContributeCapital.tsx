@@ -136,7 +136,7 @@ export default function ContributeCapital(props: Props) {
                 </div><div>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div>
-                    <input type='submit' value={argId ? 'Save' : 'Create'} />
+                    <input type='submit' value='Save' />
                 </div>
             </form>
         </div>
