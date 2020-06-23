@@ -215,7 +215,6 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
             <MenuItem key='/settings'>Settings</MenuItem>
             <MenuItem key='/settings/tax'>Tax Settings</MenuItem>
         </SubMenu>}
-        {__DEV__ && <MenuItem key='/'>Root</MenuItem>}
     </Menu></Styles>
 }
 
