@@ -20,13 +20,11 @@ export default function UrlBar() {
         reset()
     }
 
-    return <div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <div>
-                <input name='path' ref={register({required: true})} defaultValue={path} />
-                <input type='submit' value='Goto' />
-            </div>
+    return <>
+        <form onSubmit={handleSubmit(onSubmit)} style={{display: 'inline'}}>
+            <input name='path' ref={register({required: true})} defaultValue={path} />
+            <input type='submit' value='Goto' />
         </form>
         {destPath != '' && path != destPath && <Redirect to={destPath} />}
-    </div>
+    </>
 }

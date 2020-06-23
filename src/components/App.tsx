@@ -4,6 +4,7 @@ import 'rc-menu/assets/index.css'
 import styled from 'styled-components'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
 import { Project } from '../core'
+import { newHistorySegment, NavBar } from './NavBar'
 import Settings from './Settings'
 import SettingsTax from './SettingsTax'
 import AccountOverview from './AccountOverview'
@@ -11,7 +12,6 @@ import AccountDetail from './AccountDetail'
 import ActorOverview from './ActorOverview'
 import ActorDetail from './ActorDetail'
 import ContributeCapital from './ContributeCapital'
-import UrlBar from './UrlBar'
 import { TransactionOverview, SalesOverview, PurchasesOverview } from './TransactionOverview'
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -33,12 +33,13 @@ function App() {
     }
 
     React.useEffect(() => {
+        newHistorySegment()
         refresh()
     }, [])
 
     return <HashRouter>
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
-        {__DEV__ && <UrlBar />}
+        <NavBar />
         {open && <Main />}
     </HashRouter>    
 }
@@ -51,6 +52,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
         case 'new':
             await Project.create()
             Project.project!.changeListener = refreshWindowTitle
+            newHistorySegment()
             redirect = '/settings'
             break
 
@@ -74,6 +76,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
                 await Project.open(filename)
                 Project.project!.changeListener = refreshWindowTitle
                 mruInsert(filename)
+                newHistorySegment()
                 redirect = '/'
             }
             break
@@ -100,6 +103,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
 
         case 'close':
             await Project.close()
+            newHistorySegment()
             redirect = '/'
             break
 
@@ -122,15 +126,20 @@ interface MenuInfo {
     domEvent: React.MouseEvent<HTMLElement>
 }
 
+type RedirectSpec = {
+    path: string
+    push?: boolean
+}
+
 function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onChange: () => void}) {
-    const [redirect, setRedirect] = React.useState<string>('')
+    const [redirect, setRedirect] = React.useState<RedirectSpec>({path: ''})
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
     const [nonce, setNonce] = React.useState<number>(0)
 
     useParams()     // This is needed somehow. Don't know why.
 
     React.useEffect(() => {
-        setRedirect('')
+        setRedirect({path: ''})
     }, [window.location.hash])
 
     function onClick(info: MenuInfo) {
@@ -141,20 +150,20 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
 
             action(keyParts[0], extra).then(path => {
                 if (path) {
-                    setRedirect(path)
+                    setRedirect({path})
                 }
                 props.onChange()
             })
         }
         else if (key.startsWith('/')) {
-            setRedirect(key)
+            setRedirect({path: key, push: true})
         }
         setNonce(nonce + 1)
     }
 
     const path = window.location.hash.substring(1)
-    if (redirect != '' && redirect != path) {
-        return <Redirect to={`${redirect}`} />
+    if (redirect.path != '' && redirect.path != path) {
+        return <Redirect push={redirect.push} to={`${redirect.path}`} />
     }
 
     // Setting `key` to a unique value results in a new instance of Menu.
