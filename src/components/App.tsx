@@ -38,7 +38,7 @@ function App() {
     return <HashRouter>
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
         <div className='page'>
-            <NavBar />
+            {open && <NavBar />}
             {open && <Main />}
         </div>
     </HashRouter>

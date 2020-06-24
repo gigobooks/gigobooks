@@ -21,7 +21,7 @@ export function NavBar() {
     }, [])
 
     return <div>
-        <input type='button' value='Back' disabled={!enabled} onClick={onClick} />
+        <input type='button' value='🠈' disabled={!enabled} onClick={onClick} />
         {__DEV__ && <>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<UrlBar /></>}
     </div>
 }
