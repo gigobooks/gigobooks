@@ -1,7 +1,5 @@
 import * as React from 'react'
 import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
-import 'rc-menu/assets/index.css'
-import styled from 'styled-components'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
 import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
@@ -39,9 +37,11 @@ function App() {
 
     return <HashRouter>
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
-        <NavBar />
-        {open && <Main />}
-    </HashRouter>    
+        <div className='page'>
+            <NavBar />
+            {open && <Main />}
+        </div>
+    </HashRouter>
 }
 
 async function action(op: string, extra?: string): Promise<string | undefined> {
@@ -170,7 +170,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
 
     // Setting `key` to a unique value results in a new instance of Menu.
     // This is a work-around to make the menu 'close' after each click
-    return <Styles><Menu
+    return <Menu
         key={nonce}
         mode='horizontal'
         triggerSubMenuAction={trigger}
@@ -215,10 +215,8 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
             <MenuItem key='/settings'>Settings</MenuItem>
             <MenuItem key='/settings/tax'>Tax Settings</MenuItem>
         </SubMenu>}
-    </Menu></Styles>
+    </Menu>
 }
-
-const Styles = styled.div`ul { margin: 0; }`
 
 function Main() {
     return <Switch>

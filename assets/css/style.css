@@ -1,0 +1,51 @@
+@import './rc-menu/index.css';
+
+/***********************************************************
+* general                                                  *
+************************************************************/
+
+body {
+  background: linear-gradient(to right, whitesmoke, ghostwhite, whitesmoke, ghostwhite);
+  color: #222;
+}
+
+a { text-decoration: none; color: darkblue; }
+a:hover { text-decoration: underline; }
+
+h1, h2 { font-size: 1.5em; color: #222; }
+
+.page { padding: 0.5em 0.5em 0; }
+
+/***********************************************************
+* rc-menu                                                  *
+************************************************************/
+
+.rc-menu { margin: 0; padding: 0; cursor: default; }
+
+
+/***********************************************************
+* data tables                                              *
+************************************************************/
+
+.data-table {
+  background: #eeeeee;
+  margin-bottom: 1em;
+}
+
+.data-table th {
+  background: cornsilk;
+  text-transform: uppercase;
+  font-size: 0.875em;
+  padding: 0.25em;
+}
+
+.data-table td {
+  background: white;
+  padding: 0.25em;
+}
+
+.data-table .column-id input { width: 3em; }
+.data-table .column-date input { width: 8em; }
+.data-table td.column-id, .data-table td.column-date { text-align: right; }
+
+.pagination input { width: 2em; }

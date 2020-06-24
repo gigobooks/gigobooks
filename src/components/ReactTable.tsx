@@ -35,6 +35,8 @@ type Props<D extends object> = {
     fetchData: (state: State) => void,
     pageCount: number,
     initialState?: State
+    className?: string
+    style?: object
 }
 
 export function ReactTable<D extends object>(props: Props<D>) {
@@ -64,12 +66,13 @@ export function ReactTable<D extends object>(props: Props<D>) {
         props.fetchData(table.state as State)
     }, [props.fetchData, pageSize, pageIndex, sortBy, filters])
 
-    const tablePane = <table {...table.getTableProps()}>
+    const { className, style } = props
+    const tablePane = <table className={className} style={style} {...table.getTableProps()}>
         <thead>
         {table.headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()}>
+                <th className={`column-${column.id}`} {...column.getHeaderProps()}>
                     <div {...(column as any).getSortByToggleProps()}>
                         {column.render('Header')}
                         <span>
@@ -96,7 +99,7 @@ export function ReactTable<D extends object>(props: Props<D>) {
             <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
                 return (
-                    <td {...cell.getCellProps()}>
+                    <td className={`column-${cell.column.id}`} {...cell.getCellProps()}>
                     {cell.render('Cell')}
                     </td>
                 )
@@ -121,7 +124,7 @@ export function ReactTable<D extends object>(props: Props<D>) {
             {'>>'}
         </button>&nbsp;
         <span>Page {pageIndex + 1} of {pageOptions.length}</span>
-        &nbsp;|&nbsp;
+        &nbsp;&nbsp;|&nbsp;&nbsp;
         <span>
             <label>Go to page:</label>
             <input

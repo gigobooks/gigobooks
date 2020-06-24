@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Account } from '../core'
-import styled from 'styled-components'
 import { Column, ReactTable, filterQuery, Filter, sortQuery } from './ReactTable'
 import { Link } from 'react-router-dom'
 
@@ -47,27 +46,6 @@ export default function AccountOverview() {
                 List of accounts
             </span>
         </h1>
-        <Styles>
-            <ReactTable {...{columns, data, fetchData, pageCount, initialState}} />
-        </Styles>
+        <ReactTable className='data-table' {...{columns, data, fetchData, pageCount, initialState}} />
     </div>
 }
-
-const Styles = styled.div`
-table {
-    border: solid 1px blue;
-
-    th {
-        border-bottom: solid 3px red;
-        background: aliceblue;
-        color: black;
-        font-weight: bold;
-    }
-
-    td {
-        padding: 10px;
-        border: solid 1px gray;
-        background: papayawhip;
-    }
-}
-`
