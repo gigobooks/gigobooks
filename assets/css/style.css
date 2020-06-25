@@ -5,8 +5,8 @@
 ************************************************************/
 
 body {
-  background: linear-gradient(to right, whitesmoke, ghostwhite, whitesmoke, ghostwhite);
-  color: #222;
+    background: linear-gradient(to right, whitesmoke, ghostwhite, whitesmoke, ghostwhite);
+    color: #222;
 }
 
 a { text-decoration: none; color: darkblue; }
@@ -15,6 +15,8 @@ a:hover { text-decoration: underline; }
 h1, h2 { font-size: 1.5em; color: #222; }
 
 .page { padding: 0.5em 0.5em 0; }
+
+.breadcrumb { font-size: 0.66667em; }
 
 /***********************************************************
 * rc-menu                                                  *
@@ -27,25 +29,91 @@ h1, h2 { font-size: 1.5em; color: #222; }
 * data tables                                              *
 ************************************************************/
 
-.data-table {
-  background: #eeeeee;
-  margin-bottom: 1em;
-}
+.data-table { margin-bottom: 1em; border-spacing: 0; }
 
+.data-table th, .data-table td { padding: 0.25em; border: 1px solid #eee; }
 .data-table th {
-  background: cornsilk;
-  text-transform: uppercase;
-  font-size: 0.875em;
-  padding: 0.25em;
+    background: cornsilk;
+    text-transform: uppercase;
+    font-size: 0.875em;
 }
 
-.data-table td {
-  background: white;
-  padding: 0.25em;
-}
+.data-table tr:nth-child(1) td { border-top-color: #444; }
+
+.data-table td { background: white; }
 
 .data-table .column-id input { width: 3em; }
 .data-table .column-date input { width: 8em; }
 .data-table td.column-id, .data-table td.column-date { text-align: right; }
+.data-table td.column-raw-link { white-space: nowrap; }
 
 .pagination input { width: 2em; }
+
+
+/***********************************************************
+* forms                                                    *
+************************************************************/
+
+.horizontal-table-form { border-spacing: 0; margin-bottom: 1em; width: 100%; }
+.horizontal-table-form th { text-align: left; padding: 0 0.5em 0 0; }
+.horizontal-table-form td span { padding: 0 0 0 0.5em; }
+.horizontal-table-form td { box-sizing: border-box; width: 100%; }
+
+
+/***********************************************************
+* transaction forms                                        *
+************************************************************/
+
+.transaction-form { margin-bottom: 1em; }
+.transaction-form .error { color: red; }
+
+.transaction-fields .row-actor label { font-weight: bold; padding-right: 0.25em; }
+.transaction-fields .row-date td input { width: 8em; }
+.transaction-fields .row-description td input { box-sizing: border-box; width: 100%; }
+
+.transaction-elements { width: 100%; border-spacing: 0; }
+
+.transaction-elements th, .transaction-elements td {
+    padding: 0.25em;
+    border: 1px solid #eee;
+    box-sizing: border-box;
+}
+
+.transaction-elements thead th, .transaction-elements thead td {
+    background: cornsilk;
+    text-transform: uppercase;
+    font-size: 0.875em;
+}
+
+.transaction-elements td { background: white; }
+
+.element-family .parent-0 td { border-top: 1px solid #444; }
+.element-family th {
+    background: cornsilk;
+    text-transform: uppercase;
+    font-size: 0.75em;
+}
+.element-family .child-last td { padding-bottom: 1.25em; }
+
+.element-family .account, .element-family .add-tax { vertical-align: top; }
+.element-family .add-tax { white-space: nowrap; }
+.element-family .account select { max-width: 12em; }
+
+.element-family .description, .element-family .child-description { width: 75%; }
+.element-family .description input, .element-family .child-description input { 
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.element-family .currency { text-align: right; }
+.element-family .child-tax-code select { max-width: 12em; }
+.element-family .child-tax-rate { white-space: nowrap; }
+.element-family .gross-amount input, .element-family .amount input,
+.element-family .child-tax-rate input, .element-family .child-amount input {
+    text-align: right;
+    width: 5em; 
+}
+
+.transaction-form .more { text-align: right; padding-bottom: 1em; }
+
+.transaction-form .errors, .transaction-form .buttons { text-align: right; }
