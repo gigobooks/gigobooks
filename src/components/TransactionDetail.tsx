@@ -119,104 +119,122 @@ export default function TransactionDetail(props: Props) {
                     {transaction.id ? `Raw journal entry ${transaction.id}` : 'New raw journal entry'}
                 </span>
             </h1>
-            {!!transaction.id && <div>Type: {transaction.type}</div>}
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div>
-                    <label htmlFor='actorId'>Customer or Supplier:</label>
-                    <select name='actorId'
-                        onChange={e => {
-                            const value = Number(e.target.value)
-                            setActorTitleEnable(value == Actor.NewCustomer || value == Actor.NewSupplier)
-                        }}
-                        ref={form.register}>
-                        {actorOptions}
-                    </select>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
+                <table className='horizontal-table-form transaction-fields'><tbody>{!!transaction.id && <tr className='row row-type'>
+                    <th scope='row'>
+                        <label htmlFor='type'>Type:</label>
+                    </th><td>
+                        {transaction.type}
+                    </td>
+                </tr>}<tr className='row row-actor'>
+                    <th scope='row'>
+                        <label htmlFor='actorId'>Customer or Supplier:</label>
+                    </th><td>
+                        <select name='actorId'
+                            onChange={e => {
+                                const value = Number(e.target.value)
+                                setActorTitleEnable(value == Actor.NewCustomer || value == Actor.NewSupplier)
+                            }}
+                            ref={form.register}>
+                            {actorOptions}
+                        </select>
 
-                    {actorTitleEnable && <>
-                        <label htmlFor='actorTitle'>Name:</label>
-                        <input name='actorTitle' ref={form.register} />
-                        {form.errors.actorTitle && form.errors.actorTitle.message}
-                    </>}
-                </div><div>
-                    <label htmlFor='date'>Date:</label>
-                    <Controller
-                        // No-op for DatePicker.onChange()
-                        as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
-                        control={form.control}
-                        register={form.register()}
-                        name='date'
-                        valueName='selected'
-                        onChange={([selected]) => selected}
+                        {actorTitleEnable && <span className='actor-title'>
+                            <label htmlFor='actorTitle'>Name:</label>
+                            <input name='actorTitle' ref={form.register} />
+                            {form.errors.actorTitle && <span className='error'>
+                                    {form.errors.actorTitle.message}
+                                </span>}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-date'>
+                    <th scope='row'>
+                        <label htmlFor='date'>Date:</label>
+                    </th><td>
+                        <Controller
+                            // No-op for DatePicker.onChange()
+                            as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
+                            control={form.control}
+                            register={form.register()}
+                            name='date'
+                            valueName='selected'
+                            onChange={([selected]) => selected}
+                            />
+                        {form.errors.date && <span className='error'>
+                            {form.errors.date.message}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-description'>
+                    <th scope='row'>
+                        <label htmlFor='description'>Description:</label>
+                    </th><td>
+                        <input name='description' ref={form.register} />
+                    </td>
+                </tr></tbody></table>
+                <table className='transaction-elements'><thead><tr>
+                    <th>
+                        Account
+                    </th><th>
+                        Description
+                    </th><th>
+                        Currency
+                    </th><th>
+                        Debit
+                    </th><th>
+                        Credit
+                    </th>
+                </tr></thead><tbody>
+                {fields.map((item, index) =>
+                    <tr className={`element element-${index}`} key={item.id}><td className='account'>
+                        {!!item.eId && 
+                        <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
+                        <select
+                            name={`elements[${index}].accountId`}
+                            defaultValue={item.accountId}
+                            ref={form.register()}>
+                            {accountOptions}
+                        </select>
+                    </td><td className='description'>
+                        <input
+                            name={`elements[${index}].description`}
+                            defaultValue={item.description}
+                            ref={form.register()}
                         />
-                    {form.errors.date && form.errors.date.message}
-                </div><div>
-                    <label htmlFor='description'>Description:</label>
-                    <input name='description' ref={form.register} />
-                </div><div>
-                    <table><thead>
-                        <tr><th>
-                            Account
-                        </th><th>
-                            Description
-                        </th><th>
-                            Debit
-                        </th><th>
-                            Credit
-                        </th><th>
-                            Currency
-                        </th></tr>
-                    </thead><tbody>
-                    {fields.map((item, index) =>
-                        <tr key={item.id}><td>
-                            {!!item.eId && 
-                            <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
-                            <select
-                                name={`elements[${index}].accountId`}
-                                defaultValue={item.accountId}
-                                ref={form.register()}>
-                                {accountOptions}
-                            </select>
-                        </td><td>
-                            <input
-                                name={`elements[${index}].description`}
-                                defaultValue={item.description}
-                                ref={form.register()}
-                            />
-                        </td><td>
-                            <input
-                                name={`elements[${index}].dr`}
-                                defaultValue={item.dr}
-                                ref={form.register()}
-                            />
-                            {form.errors.elements && form.errors.elements[index] &&
-                                (form.errors.elements[index] as any).dr &&
-                                <div>{(form.errors.elements[index] as any).dr.message}</div>}
-                        </td><td>
-                            <input
-                                name={`elements[${index}].cr`}
-                                defaultValue={item.cr}
-                                ref={form.register()}
-                            />
-                            {form.errors.elements && form.errors.elements[index] &&
-                                (form.errors.elements[index] as any).cr &&
-                                <div>{(form.errors.elements[index] as any).cr.message}</div>}
-                        </td><td>
-                            <MaybeSelect
-                                name={`elements[${index}].currency`}
-                                defaultValue={item.currency}
-                                forwardRef={form.register()}>
-                                {currencySelectOptions(item.currency)}
-                            </MaybeSelect>
-                        </td></tr>
-                    )}
-                    </tbody></table>
-                </div><div>
+                    </td><td className='currency'>
+                        <MaybeSelect
+                            name={`elements[${index}].currency`}
+                            defaultValue={item.currency}
+                            forwardRef={form.register()}>
+                            {currencySelectOptions(item.currency)}
+                        </MaybeSelect>
+                    </td><td className='debit'>
+                        <input
+                            name={`elements[${index}].dr`}
+                            defaultValue={item.dr}
+                            ref={form.register()}
+                        />
+                        {form.errors.elements && form.errors.elements[index] &&
+                            (form.errors.elements[index] as any).dr &&
+                            <div className='error'>{(form.errors.elements[index] as any).dr.message}</div>}
+                    </td><td className='credit'>
+                        <input
+                            name={`elements[${index}].cr`}
+                            defaultValue={item.cr}
+                            ref={form.register()}
+                        />
+                        {form.errors.elements && form.errors.elements[index] &&
+                            (form.errors.elements[index] as any).cr &&
+                            <div className='error'>{(form.errors.elements[index] as any).cr.message}</div>}
+                    </td></tr>
+                )}
+                </tbody></table>
+                <div className='more'>
                     <button type='button' onClick={() => append({name: 'elements'})}>
                         More rows
                     </button>
-                </div><div>
-                    {form.errors.submit && form.errors.submit.message}
-                </div><div>
+                </div><div className='errors'>
+                    {form.errors.submit && <span className='error'>{form.errors.submit.message}</span>}
+                </div><div className='buttons'>
                     <input
                         type='submit'
                         value='Save'

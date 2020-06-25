@@ -284,7 +284,7 @@ function ElementFamily(props: ElementFamilyProps) {
     const formErrors: any = form.errors
 
     return <tbody className='element-family'>
-    <tr className={`parent parent-${index}`} key={item.id}><td className='account' rowSpan={65534}>
+    <tr className={`element element-${index}`} key={item.id}><td className='account' rowSpan={65534}>
         {!!item.eId && 
         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
         <select

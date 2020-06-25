@@ -149,86 +149,103 @@ export default function Purchase(props: Props) {
                     {transaction.id ? `${Transaction.TypeInfo[transaction.type!].label} ${transaction.id}` : 'New purchase'}
                 </span>
             </h1>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div>
-                    <label htmlFor='type'>Type:</label>
-                    <select name='type' ref={form.register} disabled={!!transaction.id}>
-                        <option key={Transaction.Purchase} value={Transaction.Purchase}>
-                            {Transaction.TypeInfo[Transaction.Purchase].label}
-                        </option>
-                        <option key={Transaction.Bill} value={Transaction.Bill}>
-                            {Transaction.TypeInfo[Transaction.Bill].label}
-                        </option>
-                    </select>
-                </div><div>
-                    <label htmlFor='actorId'>Supplier:</label>
-                    <select
-                        name='actorId'
-                        onChange={e => {
-                            const value = Number(e.target.value)
-                            setActorTitleEnable(value == Actor.NewSupplier)
-                        }}
-                        ref={form.register}>
-                        {supplierOptions}
-                    </select>
-                    {form.errors.actorId && form.errors.actorId.message}
+            <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
+                <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-type'>
+                    <th scope='row'>
+                        <label htmlFor='type'>Type:</label>
+                    </th><td>
+                        <select name='type' ref={form.register} disabled={!!transaction.id}>
+                            <option key={Transaction.Purchase} value={Transaction.Purchase}>
+                                {Transaction.TypeInfo[Transaction.Purchase].label}
+                            </option>
+                            <option key={Transaction.Bill} value={Transaction.Bill}>
+                                {Transaction.TypeInfo[Transaction.Bill].label}
+                            </option>
+                        </select>
+                    </td>
+                </tr><tr className='row row-actor'>
+                    <th scope='row'>
+                        <label htmlFor='actorId'>Supplier:</label>
+                    </th><td>
+                        <select
+                            name='actorId'
+                            onChange={e => {
+                                const value = Number(e.target.value)
+                                setActorTitleEnable(value == Actor.NewSupplier)
+                            }}
+                            ref={form.register}>
+                            {supplierOptions}
+                        </select>
+                        {form.errors.actorId && <span className='error'>
+                            {form.errors.actorId.message}
+                        </span>}
 
-                    {actorTitleEnable && <>
-                        <label htmlFor='actorTitle'>Name:</label>
-                        <input name='actorTitle' ref={form.register} />
-                        {form.errors.actorTitle && form.errors.actorTitle.message}
-                    </>}
-                </div><div>
-                    <label htmlFor='date'>Date:</label>
-                    <Controller
-                        // No-op for DatePicker.onChange()
-                        as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
-                        control={form.control}
-                        register={form.register()}
-                        name='date'
-                        valueName='selected'
-                        onChange={([selected]) => selected}
-                    />
-                    {form.errors.date && form.errors.date.message}
-                </div><div>
-                    <label htmlFor='description'>Description:</label>
-                    <input name='description' ref={form.register} />
-                </div><div>
-                    <table><thead>
-                        <tr><th>
-                            Account
-                        </th><th>
-                            Description
-                        </th><th colSpan={3}>
-                            Amount
-                        </th><th>
-                            &nbsp;
-                        </th></tr>
-                        <tr><th colSpan={3}>
-                            &nbsp;
-                        </th><th>
-                            Gross
-                        </th><th>
-                            Net
-                        </th><th>
-                            &nbsp;
-                        </th></tr>
-                    </thead><tbody>
-                    {fields.map((item, index) =>
-                        <ElementFamily
-                            key={item.id}
-                            currency={fields[0].currency}
-                            {...{form, item, index, accountOptions}}
+                        {actorTitleEnable && <span className='actor-title'>
+                            <label htmlFor='actorTitle'>Name:</label>
+                            <input name='actorTitle' ref={form.register} />
+                            {form.errors.actorTitle && <span className='error'>
+                                {form.errors.actorTitle.message}
+                            </span>}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-date'>
+                    <th scope='row'>
+                        <label htmlFor='date'>Date:</label>
+                    </th><td>
+                        <Controller
+                            // No-op for DatePicker.onChange()
+                            as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
+                            control={form.control}
+                            register={form.register()}
+                            name='date'
+                            valueName='selected'
+                            onChange={([selected]) => selected}
                         />
-                    )}
-                    </tbody></table>
-                </div><div>
+                        {form.errors.date && <span className='error'>
+                            {form.errors.date.message}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-description'>
+                    <th scope='row'>
+                        <label htmlFor='description'>Description:</label>
+                    </th><td>
+                        <input name='description' ref={form.register} />
+                    </td>
+                </tr></tbody></table>
+                <table className='transaction-elements'><thead><tr>
+                    <th rowSpan={2}>
+                        Account
+                    </th><th rowSpan={2}>
+                        Description
+                    </th><th scope='colgroup' colSpan={3}>
+                        Amount
+                    </th><td rowSpan={2}>
+                        &nbsp;
+                    </td>
+                </tr><tr>
+                    <th>
+                        Currency
+                    </th><th>
+                        Gross
+                    </th><th>
+                        Net
+                    </th>
+                </tr></thead>
+                {fields.map((item, index) =>
+                    <ElementFamily
+                        key={item.id}
+                        currency={fields[0].currency}
+                        {...{form, item, index, accountOptions}}
+                    />
+                )}
+                </table>
+                <div className='more'>
                     <button type='button' onClick={() => append({name: 'elements'})}>
                         More rows
                     </button>
-                </div><div>
-                    {form.errors.submit && form.errors.submit.message}
-                </div><div>
+                </div><div className='errors'>
+                    {form.errors.submit && <span className='error'>{form.errors.submit.message}</span>}
+                </div><div className='buttons'>
                     <input type='submit' value='Save' />
                     <input type='submit' value='Save and new' onClick={() => {
                         action = 'and-new'
@@ -271,8 +288,8 @@ function ElementFamily(props: ElementFamilyProps) {
     const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => taxCodeInfo(subItem.code).variable))
     const formErrors: any = form.errors
 
-    return <>
-        <tr key={item.id}><td>
+    return <tbody className='element-family'>
+    <tr className={`element element-${index}`} key={item.id}><td className='account' rowSpan={65534}>
         {!!item.eId && 
         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
         <select
@@ -281,13 +298,13 @@ function ElementFamily(props: ElementFamilyProps) {
             ref={form.register()}>
             {accountOptions}
         </select>
-    </td><td>
+    </td><td className='description'>
         <input
             name={`elements[${index}].description`}
             defaultValue={item.description}
             ref={form.register()}
         />
-    </td><td>
+    </td><td className='currency'>
         {index == 0 ?
         <MaybeSelect
             name={`elements[${index}].currency`}
@@ -311,7 +328,7 @@ function ElementFamily(props: ElementFamilyProps) {
             value={state.useGross}
             ref={form.register()}
         />
-    </td><td>
+    </td><td className='gross-amount'>
         <input
             name={`elements[${index}].grossAmount`}
             defaultValue={item.grossAmount}
@@ -326,8 +343,8 @@ function ElementFamily(props: ElementFamilyProps) {
         />
         {form.errors.elements && form.errors.elements[index] &&
             form.errors.elements[index].grossAmount &&
-            <div>{form.errors.elements[index].grossAmount!.message}</div>}
-    </td><td>
+            <div className='error'>{form.errors.elements[index].grossAmount!.message}</div>}
+    </td><td className='amount'>
         <input
             name={`elements[${index}].amount`}
             defaultValue={item.amount}
@@ -341,29 +358,25 @@ function ElementFamily(props: ElementFamilyProps) {
         />
         {form.errors.elements && form.errors.elements[index] &&
             form.errors.elements[index].amount &&
-            <div>{form.errors.elements[index].amount!.message}</div>}
-    </td><td>
+            <div className='error'>{form.errors.elements[index].amount!.message}</div>}
+    </td><td className='add-tax' rowSpan={65534}>
         <button type='button' onClick={() => append({name: `elements[${index}].taxes`})}>
             Add tax
         </button>
     </td></tr>
 
-    {fields.length > 0 && <tr key={`${item.id}-taxes`}><th>
-        &nbsp;
-    </th><th>
+    {fields.length > 0 && <tr className='child-header' key={`${item.id}-taxes`}><th className='header-description'>
         description
-    </th><th>
+    </th><th className='header-tax-code'>
         tax
-    </th><th>
+    </th><th className='header-tax-rate'>
         tax rate
-    </th><th>
+    </th><th className='header-amount'>
         amount
-    </th><th>
-        &nbsp;
     </th></tr>}
 
     {fields.map((subItem, subIndex) => 
-    <tr key={subItem.id}><td>
+    <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}><td className='child-description'>
         {!!subItem.eId && 
         <input
             type='hidden'
@@ -371,13 +384,12 @@ function ElementFamily(props: ElementFamilyProps) {
             value={subItem.eId}
             ref={form.register()}
         />}
-    </td><td>
         <input
             name={`elements[${index}].taxes[${subIndex}].description`}
             defaultValue={subItem.description}
             ref={form.register()}
         />
-    </td><td>
+    </td><td className='child-tax-code'>
         <select
             name={`elements[${index}].taxes[${subIndex}].code`}
             defaultValue={subItem.code}
@@ -391,10 +403,10 @@ function ElementFamily(props: ElementFamilyProps) {
                 setRatesEnabled([...ratesEnabled])
             }}
             ref={form.register()}
-            style={{width: '100px'}}>
+        >
             {taxSelectOptions(subItem.code)}
         </select>
-    </td><td>
+    </td><td className='child-tax-rate'>
         <input
             name={`elements[${index}].taxes[${subIndex}].rate`}
             defaultValue={subItem.rate}
@@ -406,7 +418,7 @@ function ElementFamily(props: ElementFamilyProps) {
             ref={form.register()}
         />
         <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>%</label>
-    </td><td>
+    </td><td className='child-amount'>
         <input
             name={`elements[${index}].taxes[${subIndex}].amount`}
             defaultValue={subItem.amount}
@@ -417,11 +429,9 @@ function ElementFamily(props: ElementFamilyProps) {
             formErrors.elements[index].taxes && formErrors.elements[index].taxes[subIndex] &&
             formErrors.elements[index].taxes[subIndex].amount &&
             <div>{formErrors.elements[index].taxes[subIndex].amount.message}</div>}
-    </td><td>
-        &nbsp;
     </td></tr>
     )}
-    </>
+    </tbody>
 }
 
 export function extractFormValues(t: Transaction): FormData {

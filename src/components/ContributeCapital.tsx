@@ -103,43 +103,53 @@ export default function ContributeCapital(props: Props) {
                     {transaction.id ? `Contribution ${transaction.id}` : 'Contribute capital or funds'}
                 </span>
             </h1>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div>
-                    <label htmlFor='date'>Date:</label>
-                    <Controller
-                        // No-op for DatePicker.onChange()
-                        as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
-                        control={form.control}
-                        register={form.register()}
-                        name='date'
-                        valueName='selected'
-                        onChange={([selected]) => selected}
-                    />
-                    {form.errors.date && form.errors.date.message}
-                </div><div>
-                    <label htmlFor='description'>Description:</label>
-                    <input name='description' ref={form.register} />
-                </div><div>
-                    <table><thead>
-                        <tr><th>
-                            Contribute to
-                        </th><th>
-                            Description
-                        </th><th>
-                            Amount
-                        </th></tr>
-                    </thead><tbody>
-                    {fields.map((item, index) =>
-                        <ElementFamily key={item.id} {...{form, item, index, assetOptions}} />
-                    )}
-                    </tbody></table>
-                </div><div>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
+                <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-date'>
+                    <th scope='row'>
+                        <label htmlFor='date'>Date:</label>
+                    </th><td>
+                        <Controller
+                            // No-op for DatePicker.onChange()
+                            as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
+                            control={form.control}
+                            register={form.register()}
+                            name='date'
+                            valueName='selected'
+                            onChange={([selected]) => selected}
+                        />
+                        {form.errors.date && <span className='error'>
+                            {form.errors.date.message}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-description'>
+                    <th scope='row'>
+                        <label htmlFor='description'>Description:</label>
+                    </th><td>
+                        <input name='description' ref={form.register} />
+                    </td>
+                </tr></tbody></table>
+                <table className='transaction-elements'><thead><tr>
+                    <th>
+                        Contribute to
+                    </th><th>
+                        Description
+                    </th><th>
+                        Currency
+                    </th><th>
+                        Amount
+                    </th>
+                </tr></thead><tbody>
+                {fields.map((item, index) =>
+                    <ElementFamily key={item.id} {...{form, item, index, assetOptions}} />
+                )}
+                </tbody></table>
+                <div className='more'>
                     <button type='button' onClick={() => append({name: 'elements'})}>
                         More rows
                     </button>
-                </div><div>
-                    {form.errors.submit && form.errors.submit.message}
-                </div><div>
+                </div><div className='errors'>
+                    {form.errors.submit && <span className='error'>{form.errors.submit.message}</span>}
+                </div><div className='buttons'>
                     <input type='submit' value='Save' />
                 </div>
             </form>
@@ -158,7 +168,7 @@ type ElementFamilyProps = {
 
 function ElementFamily(props: ElementFamilyProps) {
     const {form, item, index, assetOptions} = props
-    return <tr key={item.id}><td>
+    return <tr className={`element element-${index}`} key={item.id}><td className='account'>
         {!!item.eId && 
         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
         <select
@@ -167,13 +177,13 @@ function ElementFamily(props: ElementFamilyProps) {
             ref={form.register()}>
             {assetOptions}
         </select>
-    </td><td>
+    </td><td className='description'>
         <input
             name={`elements[${index}].description`}
             defaultValue={item.description}
             ref={form.register()}
         />
-    </td><td>
+    </td><td className='currency'>
         {index == 0 ?
         <MaybeSelect
             name={`elements[${index}].currency`}
@@ -187,6 +197,7 @@ function ElementFamily(props: ElementFamilyProps) {
             value={item.currency}
             ref={form.register()}
         />}
+    </td><td className='amount'>
         <input
             name={`elements[${index}].amount`}
             defaultValue={item.amount}
@@ -194,9 +205,8 @@ function ElementFamily(props: ElementFamilyProps) {
         />
         {form.errors.elements && form.errors.elements[index] &&
             form.errors.elements[index].amount &&
-            <div>{form.errors.elements[index].amount!.message}</div>}
+            <div className='error'>{form.errors.elements[index].amount!.message}</div>}
     </td></tr>
-
 }
 
 function extractFormValues(t: Transaction): FormData {

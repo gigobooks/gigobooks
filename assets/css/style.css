@@ -40,7 +40,7 @@ h1, h2 { font-size: 1.5em; color: #222; }
 
 .data-table tr:nth-child(1) td { border-top-color: #444; }
 
-.data-table td { background: white; }
+.data-table td { background: white; vertical-align: top; }
 
 .data-table .column-id input { width: 3em; }
 .data-table .column-date input { width: 8em; }
@@ -55,7 +55,7 @@ h1, h2 { font-size: 1.5em; color: #222; }
 ************************************************************/
 
 .horizontal-table-form { border-spacing: 0; margin-bottom: 1em; width: 100%; }
-.horizontal-table-form th { text-align: left; padding: 0 0.5em 0 0; }
+.horizontal-table-form th { text-align: left; padding: 0 0.5em 0 0; white-space: nowrap; }
 .horizontal-table-form td span { padding: 0 0 0 0.5em; }
 .horizontal-table-form td { box-sizing: border-box; width: 100%; }
 
@@ -85,31 +85,27 @@ h1, h2 { font-size: 1.5em; color: #222; }
     font-size: 0.875em;
 }
 
-.transaction-elements td { background: white; }
+.transaction-elements td { background: white; vertical-align: top; }
+.transaction-elements .element-0 td { border-top: 1px solid #444; padding-top: 0.5em; }
 
-.element-family .parent-0 td { border-top: 1px solid #444; }
-.element-family th {
-    background: cornsilk;
-    text-transform: uppercase;
-    font-size: 0.75em;
-}
+.element-family th { background: cornsilk; text-transform: uppercase; font-size: 0.75em; }
 .element-family .child-last td { padding-bottom: 1.25em; }
 
-.element-family .account, .element-family .add-tax { vertical-align: top; }
-.element-family .add-tax { white-space: nowrap; }
-.element-family .account select { max-width: 12em; }
+.transaction-elements .add-tax { white-space: nowrap; }
+.transaction-elements .account select { max-width: 12em; }
 
-.element-family .description, .element-family .child-description { width: 75%; }
-.element-family .description input, .element-family .child-description input { 
+.transaction-elements .description, .transaction-elements .child-description { width: 75%; }
+.transaction-elements .description input, .transaction-elements .child-description input { 
     box-sizing: border-box;
     width: 100%;
 }
 
-.element-family .currency { text-align: right; }
-.element-family .child-tax-code select { max-width: 12em; }
-.element-family .child-tax-rate { white-space: nowrap; }
-.element-family .gross-amount input, .element-family .amount input,
-.element-family .child-tax-rate input, .element-family .child-amount input {
+.transaction-elements .currency { text-align: right; }
+.transaction-elements .child-tax-code select { max-width: 12em; }
+.transaction-elements .child-tax-rate { white-space: nowrap; }
+.transaction-elements .gross-amount input, .transaction-elements .amount input,
+.transaction-elements .child-tax-rate input, .transaction-elements .child-amount input,
+.transaction-elements .debit input, .transaction-elements .credit input {
     text-align: right;
     width: 5em; 
 }
