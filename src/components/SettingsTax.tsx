@@ -40,39 +40,36 @@ export default function SettingsTax() {
             </span>
         </h1>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div>
-                <label htmlFor='taxId'>Tax registrations (type and id):</label>
-                <textarea name='taxId' ref={form.register} />
-                {form.errors.taxId && form.errors.taxId.message}
-            </div><div>
-                <table><tbody>
-                    <tr><td>
-                        <label htmlFor='taxEnable'>Enable taxes:</label>
-                    </td><td>
-                        <label><input name='taxEnable[AU]' type='checkbox' value='AU' ref={form.register} />Australia</label>
-                    </td></tr>
-                    <tr><td>
-                        &nbsp;
-                    </td><td>
-                        <label><input name='taxEnable[CA]' type='checkbox' value='CA' ref={form.register} />Canada</label>
-                    </td></tr>
-                    <tr><td>
-                        &nbsp;
-                    </td><td>
-                        <label><input name='taxEnable[EU]' type='checkbox' value='EU' ref={form.register} />Europe</label>
-                    </td></tr>
-                    <tr><td>
-                        &nbsp;
-                    </td><td>
-                        <label><input name='taxEnable[US]' type='checkbox' value='US' ref={form.register} />United States</label>
-                    </td></tr>
-                </tbody></table>
-            </div><div>
-                <label htmlFor='customTaxCodes'>Custom tax codes:</label>
-                <textarea name='customTaxCodes' ref={form.register}/>
-            </div><div>
+            <table className='horizontal-table-form'><tbody><tr className='row row-textarea row-tax-id'>
+                <th scope='row'>
+                    <label htmlFor='taxId'>Tax registrations:</label>
+                    <br />
+                    (include type and id, one per line)
+                </th><td>
+                    <textarea name='taxId' ref={form.register} />
+                    {form.errors.taxId && <span className='error'>
+                        {form.errors.taxId.message}
+                    </span>}
+                </td>
+            </tr><tr className='row row-tax-enable'>
+                <th scope='row'>
+                    <label htmlFor='taxEnable'>Enable taxes:</label>
+                </th><td>
+                    <label><input name='taxEnable[AU]' type='checkbox' value='AU' ref={form.register} />Australia</label>
+                    <label><input name='taxEnable[CA]' type='checkbox' value='CA' ref={form.register} />Canada</label>
+                    <label><input name='taxEnable[EU]' type='checkbox' value='EU' ref={form.register} />Europe</label>
+                    <label><input name='taxEnable[US]' type='checkbox' value='US' ref={form.register} />United States</label>
+                </td>
+            </tr><tr className='row row-textarea row-custom-tax-codes'>
+                <th scope='row'>
+                    <label htmlFor='customTaxCodes'>Custom tax codes:</label>
+                </th><td>
+                    <textarea name='customTaxCodes' ref={form.register}/>
+                </td>
+            </tr></tbody></table>
+            <div className='errors'>
                 {form.errors.submit && form.errors.submit.message}
-            </div><div>
+            </div><div className='buttons'>
                 <input type='submit' value='Save' />
             </div>
         </form>

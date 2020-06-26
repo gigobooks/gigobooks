@@ -54,10 +54,18 @@ h1, h2 { font-size: 1.5em; color: #222; }
 * forms                                                    *
 ************************************************************/
 
+form .error { color: red; }
+form textarea { width: 20em; height: 5em; }
+
 .horizontal-table-form { border-spacing: 0; margin-bottom: 1em; width: 100%; }
-.horizontal-table-form th { text-align: left; padding: 0 0.5em 0 0; white-space: nowrap; }
+.horizontal-table-form th { text-align: left; padding: 0 0.5em 0 0; font-weight: normal; }
+.horizontal-table-form th label { white-space: nowrap; font-weight: bold; }
 .horizontal-table-form td span { padding: 0 0 0 0.5em; }
 .horizontal-table-form td { box-sizing: border-box; width: 100%; }
+
+/* various forms */
+.horizontal-table-form .row-textarea th { vertical-align: top; padding-top: 5px; }
+.horizontal-table-form .row-tax-enable td label { display: block; }
 
 
 /***********************************************************
@@ -65,7 +73,6 @@ h1, h2 { font-size: 1.5em; color: #222; }
 ************************************************************/
 
 .transaction-form { margin-bottom: 1em; }
-.transaction-form .error { color: red; }
 
 .transaction-fields .row-actor label { font-weight: bold; padding-right: 0.25em; }
 .transaction-fields .row-date td input { width: 8em; }

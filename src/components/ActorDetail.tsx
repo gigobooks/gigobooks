@@ -87,24 +87,48 @@ export default function ActorDetail(props: Props) {
                     {actor.id ? actor.title : `New ${isCustomer ? 'customer' : 'supplier'}`}
                 </span>
             </h1>
-            {!!actor.id && <div>Type: {actor.type}</div>}
-            {!!actor.id && <div>Id: {actor.id}</div>}
             <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div>
-                    <label htmlFor='title'>Name:</label>
-                    <input name='title' ref={form.register} />
-                    {form.errors.title && form.errors.title.message}
-                </div><div>
-                    <label htmlFor='taxId'>Tax registration (type and id):</label>
-                    <input name='taxId' ref={form.register} />
-                    {form.errors.taxId && form.errors.taxId.message}
-                </div><div>
-                    <label htmlFor='address'>Address:</label>
-                    <textarea name='address' ref={form.register}/>
-                </div><div>
-                    <input name='type' type='hidden' value={actorType} ref={form.register} />
+                <table className='horizontal-table-form'><tbody><tr className='row row-title'>
+                    <th scope='row'>
+                        <label htmlFor='title'>Name:</label>
+                    </th><td>
+                        <input name='title' ref={form.register} />
+                        {form.errors.title && <span className='error'>
+                            {form.errors.title.message}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-tax-id'>
+                    <th scope='row'>
+                        <label htmlFor='taxId'>Tax registration:</label>
+                    </th><td>
+                        <input name='taxId' ref={form.register} />
+                        {form.errors.taxId && <span className='error'>
+                            {form.errors.taxId.message}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-textarea row-address'>
+                    <th scope='row'>
+                        <label htmlFor='address'>Address:</label>
+                    </th><td>
+                        <textarea name='address' ref={form.register}/>
+                    </td>
+                </tr>{!!actor.id && <tr className='row row-type'>
+                    <th scope='row'>
+                        <label htmlFor='type'>Type:</label>
+                    </th><td>
+                        {actor.type}
+                    </td>
+                </tr>}{!!actor.id &&<tr className='row row-id'>
+                    <th scope='row'>
+                        <label htmlFor='id'>Id:</label>
+                    </th><td>
+                        {actor.id}
+                    </td>
+                </tr>}</tbody></table>
+                <input name='type' type='hidden' value={actorType} ref={form.register} />
+                <div className='errors'>
                     {form.errors.submit && form.errors.submit.message}
-                </div><div>
+                </div><div className='buttons'>
                     <input type='submit' value='Save' />
                 </div>
             </form>

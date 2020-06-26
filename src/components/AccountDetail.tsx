@@ -77,20 +77,29 @@ export default function AccountDetail(props: Props) {
                 </span>
             </h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div>
-                    <label htmlFor='title'>Title:</label>
-                    <input name='title' ref={form.register} />
-                    {form.errors.title && form.errors.title.message}
-                </div><div>
-                    <label htmlFor='type'>Type:</label>
-                    <select name='type' ref={form.register} disabled={!!account.id}>
-                    {Object.keys(Account.TypeInfo).map(type =>
-                        <option key={type} value={type}>{Account.TypeInfo[type].label}</option>
-                    )}
-                    </select>
-                </div><div>
+                <table className='horizontal-table-form'><tbody><tr className='row row-title'>
+                    <th scope='row'>
+                        <label htmlFor='title'>Title:</label>
+                    </th><td>
+                        <input name='title' ref={form.register} />
+                        {form.errors.title && <span className='error'>
+                            {form.errors.title.message}
+                        </span>}
+                    </td>
+                </tr><tr className='row row-type'>
+                    <th scope='row'>
+                        <label htmlFor='type'>Type:</label>
+                    </th><td>
+                        <select name='type' ref={form.register} disabled={!!account.id}>
+                        {Object.keys(Account.TypeInfo).map(type =>
+                            <option key={type} value={type}>{Account.TypeInfo[type].label}</option>
+                        )}
+                        </select>
+                    </td>
+                </tr></tbody></table>
+                <div className='errors'>
                     {form.errors.submit && form.errors.submit.message}
-                </div><div>
+                </div><div className='buttons'>
                     <input type='submit' value='Save' disabled={account.isReserved} />
                 </div>
             </form>
