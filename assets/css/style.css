@@ -104,7 +104,9 @@ form textarea { width: 20em; height: 5em; }
 }
 
 .transaction-elements .currency { text-align: right; }
-.transaction-elements .child-tax-code select { max-width: 12em; }
+
+.transaction-elements .header-space-start { width: 100%; }
+
 .transaction-elements .child-tax-rate { white-space: nowrap; }
 .transaction-elements .gross-amount input, .transaction-elements .amount input,
 .transaction-elements .child-tax-rate input, .transaction-elements .child-amount input,

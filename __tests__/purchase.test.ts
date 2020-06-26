@@ -27,14 +27,14 @@ test('purchase form', async done => {
     let t0 = Transaction.construct({})
     let result = await saveFormData(t0, {type: Transaction.Purchase, actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 506, amount: '10', currency: 'USD', useGross: 0, grossAmount: '11', description: 'one', taxes: [
-            {description: 'one a', code: ':zero:0', rate: '0', amount: '0'},
-            {description: 'one b', code: '', rate: '10', amount: '1'},
-            {description: 'one empty', code: '', rate: '', amount: '0'},
+            {code: ':zero:0', rate: '0', amount: '0'},
+            {code: '', rate: '10', amount: '1'},
+            {code: '', rate: '', amount: '0'},
         ]},
         {accountId: 506, amount: '', currency: '', useGross: 0, grossAmount: '', description: 'empty'},
         {accountId: 507, amount: '100', currency: '', useGross: 1, grossAmount: '120', description: 'two', taxes: [
-            {description: 'two a', code: '::10', rate: '10', amount: '10'},
-            {description: 'two b', code: '::10', rate: '10', amount: '10'},
+            {code: '::10', rate: '10', amount: '10'},
+            {code: '::10', rate: '10', amount: '10'},
         ]},
     ]})
     expect(result).toBeTruthy()
@@ -45,10 +45,10 @@ test('purchase form', async done => {
     expect(t0.elements![0]).toMatchObject({accountId: 506, amount: 1000, currency: 'USD', useGross: 0, grossAmount: 1100, description: 'one'})
     expect(t0.elements![1]).toMatchObject({accountId: 507, amount: 10000, currency: 'USD', useGross: 1, grossAmount: 12000, description: 'two'})
     expect(t0.elements![2]).toMatchObject({accountId: Cash, amount: 13100, currency: 'USD'})
-    expect(t0.elements![3]).toMatchObject({accountId: TaxReceivable, amount: 0, currency: 'USD', taxCode: ':zero:0', parentId: t0.elements![0].id, description: 'one a'})
-    expect(t0.elements![4]).toMatchObject({accountId: TaxReceivable, amount: 100, currency: 'USD', taxCode: '::10', parentId: t0.elements![0].id, description: 'one b'})
-    expect(t0.elements![5]).toMatchObject({accountId: TaxReceivable, amount: 1000, currency: 'USD', taxCode: '::10', parentId: t0.elements![1].id, description: 'two a'})
-    expect(t0.elements![6]).toMatchObject({accountId: TaxReceivable, amount: 1000, currency: 'USD', taxCode: '::10', parentId: t0.elements![1].id, description: 'two b'})
+    expect(t0.elements![3]).toMatchObject({accountId: TaxReceivable, amount: 0, currency: 'USD', taxCode: ':zero:0', parentId: t0.elements![0].id})
+    expect(t0.elements![4]).toMatchObject({accountId: TaxReceivable, amount: 100, currency: 'USD', taxCode: '::10', parentId: t0.elements![0].id})
+    expect(t0.elements![5]).toMatchObject({accountId: TaxReceivable, amount: 1000, currency: 'USD', taxCode: '::10', parentId: t0.elements![1].id})
+    expect(t0.elements![6]).toMatchObject({accountId: TaxReceivable, amount: 1000, currency: 'USD', taxCode: '::10', parentId: t0.elements![1].id})
 
     // Retrieve it and check
     const t1 = await Transaction.query().findById(result).withGraphFetched('elements')
@@ -63,12 +63,12 @@ test('purchase form', async done => {
     expect(data.elements[1].taxes!.length).toBe(2)
     expect(data.elements).toMatchObject([
         {eId: t1.elements![0].id, accountId: 506, amount: '10.00', currency: 'USD', useGross: 0, grossAmount: '11.00', description: 'one', taxes: [
-            {eId: t1.elements![3].id, description: 'one a', code: ':zero:0', rate: '0', amount: '0.00'},
-            {eId: t1.elements![4].id, description: 'one b', code: '::10', rate: '10', amount: '1.00'},
+            {eId: t1.elements![3].id, code: ':zero:0', rate: '0', amount: '0.00'},
+            {eId: t1.elements![4].id, code: '::10', rate: '10', amount: '1.00'},
         ]},
         {eId: t1.elements![1].id, accountId: 507, amount: '100.00', currency: 'USD', useGross: 1, grossAmount: '120.00', description: 'two', taxes: [
-            {eId: t1.elements![5].id, description: 'two a', code: '::10', rate: '10', amount: '10.00'},
-            {eId: t1.elements![6].id, description: 'two b', code: '::10', rate: '10', amount: '10.00'},
+            {eId: t1.elements![5].id, code: '::10', rate: '10', amount: '10.00'},
+            {eId: t1.elements![6].id, code: '::10', rate: '10', amount: '10.00'},
         ]},
     ])
 
@@ -81,7 +81,7 @@ test('purchase form', async done => {
     expect(result).toBeTruthy()
     expect(t1.elements!.length).toBe(6)
     expect(t1.elements![2]).toMatchObject({accountId: Cash, amount: 12100, currency: 'USD'})
-    expect(t1.elements![5]).toMatchObject({accountId: TaxReceivable, amount: 1000, currency: 'USD', taxCode: '', parentId: t0.elements![1].id, description: 'two b'})
+    expect(t1.elements![5]).toMatchObject({accountId: TaxReceivable, amount: 1000, currency: 'USD', taxCode: '', parentId: t0.elements![1].id})
 
     // Retrieve and check
     const t2 = await Transaction.query().findById(result).withGraphFetched('elements')

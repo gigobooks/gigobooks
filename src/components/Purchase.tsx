@@ -33,7 +33,6 @@ export type FormData = {
         description?: string
         taxes?: {
             eId?: number
-            description?: string
             code: string
             rate: string
             amount: string
@@ -215,7 +214,7 @@ export default function Purchase(props: Props) {
                 <table className='transaction-elements'><thead><tr>
                     <th rowSpan={2}>
                         Account
-                    </th><th rowSpan={2}>
+                    </th><th rowSpan={2} colSpan={3}>
                         Description
                     </th><th scope='colgroup' colSpan={3}>
                         Amount
@@ -298,7 +297,7 @@ function ElementFamily(props: ElementFamilyProps) {
             ref={form.register()}>
             {accountOptions}
         </select>
-    </td><td className='description'>
+    </td><td className='description' colSpan={3}>
         <input
             name={`elements[${index}].description`}
             defaultValue={item.description}
@@ -365,18 +364,20 @@ function ElementFamily(props: ElementFamilyProps) {
         </button>
     </td></tr>
 
-    {fields.length > 0 && <tr className='child-header' key={`${item.id}-taxes`}><th className='header-description'>
-        description
-    </th><th className='header-tax-code'>
+    {fields.length > 0 && <tr className='child-header' key={`${item.id}-taxes`}><td className='header-space-start' rowSpan={65534}>
+        &nbsp;
+    </td><th className='header-tax-code'>
         tax
     </th><th className='header-tax-rate'>
         tax rate
+    </th><th className='header-space-middle' colSpan={2}>
+        &nbsp;
     </th><th className='header-amount'>
         amount
     </th></tr>}
 
     {fields.map((subItem, subIndex) => 
-    <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}><td className='child-description'>
+    <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}><td className='child-tax-code'>
         {!!subItem.eId && 
         <input
             type='hidden'
@@ -384,12 +385,6 @@ function ElementFamily(props: ElementFamilyProps) {
             value={subItem.eId}
             ref={form.register()}
         />}
-        <input
-            name={`elements[${index}].taxes[${subIndex}].description`}
-            defaultValue={subItem.description}
-            ref={form.register()}
-        />
-    </td><td className='child-tax-code'>
         <select
             name={`elements[${index}].taxes[${subIndex}].code`}
             defaultValue={subItem.code}
@@ -418,6 +413,8 @@ function ElementFamily(props: ElementFamilyProps) {
             ref={form.register()}
         />
         <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>%</label>
+    </td><td className='child-space-middle' colSpan={2}>
+        &nbsp;
     </td><td className='child-amount'>
         <input
             name={`elements[${index}].taxes[${subIndex}].amount`}
@@ -474,7 +471,6 @@ export function extractFormValues(t: Transaction): FormData {
                 if (e.parentId == p.eId) {
                     p.taxes!.push({
                         eId: e.id,
-                        description: e.description,
                         code: e.taxCode!,
                         rate: taxRate(e.taxCode!),
                         amount: toFormatted(e.amount!, e.currency!),
@@ -566,7 +562,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                     currency: data.elements[0].currency,
                     useGross: 0,
                     grossAmount: 0,
-                    description: sub.description,
+                    description: '',
                     settleId: 0,
                     taxCode: (sub.code != '' || Number(sub.rate)) ?
                         taxCodeWithRate(sub.code, sub.rate) : '',
