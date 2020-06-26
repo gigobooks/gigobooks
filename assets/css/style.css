@@ -14,7 +14,7 @@ a:hover { text-decoration: underline; }
 
 h1, h2 { font-size: 1.5em; color: #222; }
 
-.page { padding: 0.5em 0.5em 0; }
+.page { padding: 0.5em 0.5em 2em; }
 
 .breadcrumb { font-size: 0.66667em; }
 
@@ -81,15 +81,11 @@ form textarea { width: 20em; height: 5em; }
 .transaction-elements { width: 100%; border-spacing: 0; }
 
 .transaction-elements th, .transaction-elements td {
-    padding: 0.25em;
-    border: 1px solid #eee;
-    box-sizing: border-box;
+    padding: 0.25em; border: 1px solid #eee; box-sizing: border-box;
 }
 
 .transaction-elements thead th, .transaction-elements thead td {
-    background: cornsilk;
-    text-transform: uppercase;
-    font-size: 0.875em;
+    background: cornsilk; text-transform: uppercase; font-size: 0.875em;
 }
 
 .transaction-elements td { background: white; vertical-align: top; }
@@ -120,3 +116,40 @@ form textarea { width: 20em; height: 5em; }
 .transaction-form .more { text-align: right; padding-bottom: 1em; }
 
 .transaction-form .errors, .transaction-form .buttons { text-align: right; }
+
+
+/***********************************************************
+* payments table/form                                       *
+************************************************************/
+
+.transaction-payments { width: 100%; border-spacing: 0; }
+
+.transaction-payments th, .transaction-payments td {
+    padding: 0.25em; border: 1px solid #eee; box-sizing: border-box;
+}
+.transaction-payments thead th {
+    background: cornsilk; text-transform: uppercase; font-size: 0.875em;
+}
+
+.transaction-payments td { background: white; vertical-align: top; }
+.transaction-payments .payment-0 td { border-top: 1px solid #444; padding-top: 0.5em; }
+
+.transaction-payments .description { width: 75%; }
+.transaction-payments .description input { box-sizing: border-box; width: 100%; }
+.transaction-payments .date input { width: 8em; }
+.transaction-payments .amount { white-space: nowrap; }
+.transaction-payments .amount input { text-align: right; width: 5em; }
+
+/* balances */
+.transaction-balances { border-spacing: 0; }
+.transaction-balances th, .transaction-balances td {
+    padding: 0.25em; border: 1px solid #eee; box-sizing: border-box;
+}
+.transaction-balances thead th {
+    background: cornsilk; text-transform: uppercase; font-size: 0.875em;
+}
+.transaction-balances td { background: white; }
+.transaction-balances .row-0 td { border-top: 1px solid #444; padding-top: 0.5em; }
+
+.transaction-balances .balance { text-align: right; }
+

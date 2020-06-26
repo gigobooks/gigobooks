@@ -69,8 +69,8 @@ export default function InvoicePayment(props: Props) {
         const paymentsForm = <div>
             <h2>Payments</h2>
             <form>
-                <table><thead>
-                    <tr><th>
+                <table className='transaction-payments'><thead><tr>
+                    <th>
                         Id
                     </th><th>
                         Date
@@ -80,8 +80,8 @@ export default function InvoicePayment(props: Props) {
                         Amount
                     </th><th>
                         &nbsp;
-                    </th></tr>
-                </thead><tbody>
+                    </th>
+                </tr></thead><tbody>
                 {fields.map((item, index) => {
                     function keyboardSubmit(e: React.KeyboardEvent) {
                         if (e.key == 'Enter') {
@@ -90,10 +90,10 @@ export default function InvoicePayment(props: Props) {
                         }
                     }
 
-                    return <tr key={item.id}><td>
+                    return <tr key={item.id} className={`payment payment-${index}`}><td className='id'>
                         {item.tId}
                         <input type='hidden' name={`payments[${index}].tId`} value={item.tId} ref={form.register()} />
-                    </td><td>
+                    </td><td className='date'>
                         <Controller
                             // No-op for DatePicker.onChange()
                             as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
@@ -106,14 +106,14 @@ export default function InvoicePayment(props: Props) {
                         {form.errors.payments && form.errors.payments[index] && 
                             form.errors.payments[index].date &&
                             <div>{form.errors.payments[index].date!.message}</div>}
-                    </td><td>
+                    </td><td className='description'>
                         <input
                             name={`payments[${index}].description`}
                             defaultValue={item.description}
                             ref={form.register()}
                             onKeyPress={keyboardSubmit}
                         />
-                    </td><td>
+                    </td><td className='amount'>
                         <MaybeSelect
                             name={`payments[${index}].currency`}
                             defaultValue={item.currency}
@@ -129,7 +129,7 @@ export default function InvoicePayment(props: Props) {
                         {form.errors.payments && form.errors.payments[index] && 
                             form.errors.payments[index].amount &&
                             <div>{form.errors.payments[index].amount!.message}</div>}
-                    </td><td>
+                    </td><td className='button'>
                         <input
                             type='button'
                             name={`payments[${index}].submit`}
@@ -159,11 +159,16 @@ export default function InvoicePayment(props: Props) {
 
         const balancesPane = <div>
             <h2>Balance</h2>
-            <table><tbody>
-            {Object.keys(balances).map(currency =>
-                <tr key={currency}><td>
-                    Balance ({currency}):
-                </td><td>
+            <table className='transaction-balances'><thead><tr><th>
+                    Currency
+                </th><th>
+                    Balance
+            </th></tr></thead>
+            <tbody>
+            {Object.keys(balances).map((currency, index) =>
+                <tr key={currency} className={`row row-${index}`}><td className='currency'>
+                    {currency}
+                </td><td className='balance'>
                     {toFormatted(balances[currency], currency)}
                 </td></tr>
                 )}
