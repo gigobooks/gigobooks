@@ -1,1 +1,1 @@
-export const APP_NAME = 'Sunrise'
+export const APP_NAME = 'NanoBooks'
