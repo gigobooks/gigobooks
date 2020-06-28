@@ -1,4 +1,8 @@
 /**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
+/**
 Breakdown of tax codes
 
 A tax code comprises a tuple (colon delimited) of 3 or 4 parts:

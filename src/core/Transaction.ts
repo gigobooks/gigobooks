@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import { QueryBuilder } from 'objection'
 import { Base, Model, TransactionOrKnex } from './Base'
 import { Element, IElement } from './Element'

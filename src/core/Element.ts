@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import { Base, Model } from './Base'
 import { Transaction } from './Transaction'
 

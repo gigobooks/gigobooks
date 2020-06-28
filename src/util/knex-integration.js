@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 const Knex = require('knex')
 const Client_SQLite3 = require('knex/lib/dialects/sqlite3')
 const knexSnakeCaseMappers = require('objection').knexSnakeCaseMappers

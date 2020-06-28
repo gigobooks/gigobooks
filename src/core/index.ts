@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 export { Model, TransactionOrKnex } from 'objection'
 export * from './settings'
 export { Project } from './Project'

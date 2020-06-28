@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 export enum Sound {
     FormAlert = 'alert',
     FormSuccess = 'success',

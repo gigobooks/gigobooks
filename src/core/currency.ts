@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import * as CurrencyCodes from 'currency-codes'
 
 type Info = {

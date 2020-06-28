@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 // A mock of react-hook-form's setValue and setError
 class _MockForm {
     values: Record<string, any>

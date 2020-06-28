@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import { Base, TransactionOrKnex } from './Base'
 import { prefixPreservingIncrement } from '../util/util'
 

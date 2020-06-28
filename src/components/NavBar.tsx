@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import * as React from 'react'
 import UrlBar from './UrlBar'
 

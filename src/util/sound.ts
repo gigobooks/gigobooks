@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 var antimony = require('../../assets/sounds/Antimony.mp3')
 var mira = require('../../assets/sounds/Mira.mp3')
 

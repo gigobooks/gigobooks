@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import { Model, TransactionOrKnex, QueryBuilder } from 'objection'
 export { Model, TransactionOrKnex } from 'objection'
 

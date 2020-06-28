@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import * as React from 'react'
 import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Project } from '../core'

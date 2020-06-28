@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import { parseISO } from 'date-fns'
 import { Project } from './Project'
 

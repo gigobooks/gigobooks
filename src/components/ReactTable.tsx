@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import * as React from 'react'
 import { Row, Column, useTable, useFilters, useSortBy, usePagination } from 'react-table'
 export { Column } from 'react-table'

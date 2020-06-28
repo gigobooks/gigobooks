@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import * as React from 'react'
 import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'

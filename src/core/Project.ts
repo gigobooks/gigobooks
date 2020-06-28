@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import Knex = require('knex');
 const makeKnex = require('../util/knex-integration')
 import { Model } from 'objection'

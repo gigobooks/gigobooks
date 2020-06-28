@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import Knex = require('knex');
 import { PrepopulatedAccounts } from './Account'
 

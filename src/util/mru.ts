@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 const MRU = 'mru'
 const DIR = 'mruDir'
 const SIZE = 10

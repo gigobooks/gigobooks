@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 class WebpackMigrationSource {
     constructor(migrationContext) {
         this.migrationContext = migrationContext;

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 // Some common functions that relate to forms.
 
 import { toFormatted, parseFormatted, calculateTaxes } from '../core'

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
 import * as Knex from 'knex'
 
 export async function up(knex: Knex): Promise<any> {

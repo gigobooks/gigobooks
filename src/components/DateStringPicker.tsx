@@ -1,4 +1,8 @@
 /**
+ * Copyright (c) 2020-present Beng Tan
+ */
+
+/**
  * This is a shim/wrapper around react-datepicker to return date as a string
  * instead of a Date() object
  * 
