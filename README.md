@@ -60,7 +60,7 @@ The data file is a regular sqlite database. You can use any third-party sqlite c
 
 ## Contributing
 
-See [Contributing](Contributing.md).
+See [Contributing](CONTRIBUTING.md).
 
 ## Commentary on business model, licensing, monetisation and related topics
 
