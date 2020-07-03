@@ -21,11 +21,40 @@ NOTE: This is alpha/preview quality software and **IS NOT READY TO BE USED IN PR
 
 ## Building
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas non risus. Etiam consectetuer ipsum ac lorem. Suspendisse diam neque, dapibus non, placerat eu, feugiat sit amet, erat. Nulla facilisi. Donec vehicula. Nam sit amet metus.
+(Only tested on Ubuntu Linux so far. It might work on Windows and MacOS, or it might not.)
+
+Install dependencies:
+
+* Install [Go](https://golang.org), [nodejs](https://nodejs.org) and [yarn](https://yarnpkg.com) on your system.
+* Install and build `websqlview` from https://github.com/bengtan/websqlview.
+
+Then, in the top level directory, run:
+
+```
+# This will install a bunch of components
+yarn
+
+# This will 'compile' into the `dist` subdirectory.
+yarn webpack --mode=development
+```
 
 ## Usage
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas non risus. Etiam consectetuer ipsum ac lorem. Suspendisse diam neque, dapibus non, placerat eu, feugiat sit amet, erat. Nulla facilisi. Donec vehicula. Nam sit amet metus.
+(These instructions are for running in development mode.)
+
+Run `websqlview` and point it to `index.html` of the top level directory as a file:/// URL. For example:
+
+```
+websqlview file:///<path-to-top-level-directory>/index.html
+```
+
+If you are making frequent changes to the source code, you probably want to do:
+
+```
+yarn watch
+```
+
+and leave it running. This tells webpack to monitor changes and re-'compile' automatically.
 
 The data file is a regular sqlite database. You can use any third-party sqlite client to open/read/write it. However, this is an advanced technique and you may corrupt the data. Only do this if you know what you are doing.
 
@@ -56,7 +85,6 @@ For now, here are the planned monetisation tiers (names are temporary and unoffi
 Note that this is only a plan and comes with some caveats.
 
 * This plan could change as new insights come to light. It will probably change. The question is not 'whether' but 'by how much'.
-* NanoBooks CE is source code only. No binary will be provided. It's target audience are people who know how to build from source.
 * NanoBooks CE hasn't been completed yet. It's just alpna/beta software at the moment.
 * Hence, level 1 does not yet exist.
 * Level 2 also does not exist yet. For now, it's no more than just some speculative thoughts.
