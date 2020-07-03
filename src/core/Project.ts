@@ -60,7 +60,7 @@ export class Project {
         await db.open()
         try {
             const project = new Project('', db)
-            const knex = makeKnex(filename ? filename : ':memory', db, project.onChange)
+            const knex = makeKnex(filename ? filename : ':memory:', db, project.onChange)
             project.knex = knex
             await prepopulate(knex)
             // .init() has to take place after prepopulate() as it clears .isModified
