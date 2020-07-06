@@ -45,6 +45,17 @@ export class Base extends Model {
         return (this.constructor as any).query(trx).deleteById(id)
     }
 
+    // When loading from the database, datetime/timestamp fields are ISO strings.
+    // Convert them into Date objects
+    $afterFind() {
+        if (!(this.createdAt instanceof Date)) {
+            this.createdAt = new Date(this.createdAt!)
+        }
+        if (!(this.updatedAt instanceof Date)) {
+            this.updatedAt = new Date(this.updatedAt!)
+        }
+    }
+
     static get modifiers() {
         return {
             sortById(builder: QueryBuilder<any, any>) {
