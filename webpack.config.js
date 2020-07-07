@@ -1,4 +1,5 @@
-var webpack = require('webpack')
+const webpack = require('webpack')
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = (env, argv) => {
   return {
@@ -57,6 +58,8 @@ module.exports = (env, argv) => {
       // No-op these as they also reference fs
       new webpack.NormalModuleReplacementPlugin(/MigrationGenerator/, 'knex/lib/util/noop'),
       new webpack.NormalModuleReplacementPlugin(/fs-migrations/, 'knex/lib/util/noop'),
+
+      new CopyPlugin({patterns: [{from: 'assets/css'}]}),
     ],
 
     performance: {
@@ -69,8 +72,6 @@ module.exports = (env, argv) => {
     // This is important because it allows us to avoid bundling all of our
     // dependencies, which allows browsers to cache those libraries between builds.
     externals: {
-      react: "React",
-      "react-dom": "ReactDOM"
     }
   }
 }
