@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "watch": "webpack --mode=development --watch",
     "demo:webpack": "webpack --config webpack.demo.config.js",
     "demo:watch": "webpack --config webpack.demo.config.js --mode=development --watch",

@@ -26,7 +26,16 @@ let SQL: any = false
 async function initSQL() {
     if (!SQL) {
         const initSqlJs = require('sql.js')
-        SQL = await initSqlJs()
+        if (typeof window === 'undefined') {
+            SQL = await initSqlJs()
+        }
+        else {
+            SQL = await initSqlJs({
+                locateFile: (path: string, prefix: string) => {
+                    return `dist/${path}`
+                }
+            })
+        }
     }
 }
 
@@ -35,11 +44,6 @@ export class Project {
     variables?: Variables
     isModified: boolean
     changeListener: any
-
-    static project: Project | undefined
-    static database: gosqlite.Database
-    static knex: Knex
-    static variables: Variables
 
     constructor(public filename: string, public database: gosqlite.Database) {
         this.isModified = false
@@ -60,6 +64,12 @@ export class Project {
             this.changeListener(...arguments)
         }
     }
+
+    static driver: string = 'sql.js'
+    static project: Project | undefined
+    static database: gosqlite.Database
+    static knex: Knex
+    static variables: Variables
 
     // The following functions create new database (defaults to in-memory),
     // and load-to/save-from files
