@@ -60,7 +60,7 @@ module.exports = (env, argv) => {
       new webpack.NormalModuleReplacementPlugin(/fs-migrations/, 'knex/lib/util/noop'),
 
       // Also no-op fs
-      new webpack.NormalModuleReplacementPlugin(/fs/, 'knex/lib/util/noop'),
+      new webpack.NormalModuleReplacementPlugin(/^fs$/, 'knex/lib/util/noop'),
 
       new CopyPlugin({patterns: [{from: 'assets/css'}]}),
     ],
