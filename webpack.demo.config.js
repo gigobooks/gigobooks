@@ -11,6 +11,7 @@ module.exports = (env, argv) => {
   }
 
   config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/Project$/, '../demo/Project-sqljs.ts'))
+  config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/mru$/, '../demo/mru-demo.ts'))
   config.plugins.push(new CopyPlugin({patterns: [
     {from: 'index.html', to: '..'},
     {from: 'node_modules/sql.js/dist/sql-wasm-debug.wasm'}
