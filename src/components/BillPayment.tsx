@@ -50,7 +50,7 @@ export default function BillPayment(props: Props) {
         })
 
         return () => {mounted=false}
-    }, [transaction.updatedAt])
+    }, [transaction.updatedAt ? transaction.updatedAt.toString() : 0])
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {

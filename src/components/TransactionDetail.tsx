@@ -88,7 +88,7 @@ export default function TransactionDetail(props: Props) {
                 elements: [{currency}, {currency}],
             })
         }
-    }, [props.arg1, transaction && transaction.id ? transaction.updatedAt : 0])
+    }, [props.arg1, transaction && transaction.updatedAt ? transaction.updatedAt.toString() : 0])
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
