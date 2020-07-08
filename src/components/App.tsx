@@ -141,6 +141,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
     const [redirect, setRedirect] = React.useState<RedirectSpec>({path: ''})
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
     const [nonce, setNonce] = React.useState<number>(0)
+    const gosqlite = Project.driver === 'gosqlite'
 
     useParams()     // This is needed somehow. Don't know why.
 
@@ -181,18 +182,18 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
         onClick={onClick}>
         <SubMenu key='file' title="File">
             <MenuItem key='new'>New</MenuItem>
-            <MenuItem key='open'>Open</MenuItem>
+            {gosqlite && <MenuItem key='open'>Open</MenuItem>}
             {props.mru.length > 0 && <SubMenu key='recents' title="Open recent">
                 {props.mru.map((item, index) => <MenuItem key={`recent:${index}`}>
                     {item}
                 </MenuItem>)}
                 <Divider />
-                <MenuItem key='clear-recents'>Clear</MenuItem>
+                {gosqlite && <MenuItem key='clear-recents'>Clear</MenuItem>}
             </SubMenu>}
-            <MenuItem key='save' disabled={!props.open || !props.hasFilename}>Save</MenuItem>
-            <MenuItem key='save-as' disabled={!props.open}>Save as</MenuItem>
+            {gosqlite && <MenuItem key='save' disabled={!props.open || !props.hasFilename}>Save</MenuItem>}
+            {gosqlite && <MenuItem key='save-as' disabled={!props.open}>Save as</MenuItem>}
             <MenuItem key='close' disabled={!props.open}>Close</MenuItem>
-            <MenuItem key='quit'>Quit</MenuItem>
+            {gosqlite && <MenuItem key='quit'>Quit</MenuItem>}
         </SubMenu>
         {props.open && <SubMenu key='1' title="Sales">
             <MenuItem key='/sales'>List</MenuItem>

@@ -3,8 +3,7 @@
  */
 
 export function mruList(): string[] {
-    return [
-    ]
+    return ['samplecompany.db']
 }
 
 export function mruInsert(filename: string) {

@@ -92,8 +92,23 @@ export class Project {
         }
     }
 
-    static async open(filename: string): Promise<void> {        
-        return Promise.reject('Not implemented')
+    static async open(filename: string): Promise<void> {
+        await initSQL()
+        const newDb = new SQL.Database(new Uint8Array(await (await fetch(filename)).arrayBuffer()))
+
+        try {
+            const project = new Project(filename, newDb)
+            const knex = makeKnex(filename, newDb, project.onChange)
+            project.knex = knex
+            await maybeMigrate(knex)
+            // .init() has to take place after maybeMigrate() as it clears .isModified
+            await project.init()
+            Project.bind(project)
+        }
+        catch (e) {
+            newDb.close()
+            throw e
+        }
     }
 
     static async close(): Promise<void> {
