@@ -10,6 +10,7 @@ module.exports = (env, argv) => {
     path: path.join(process.cwd(), 'demo', 'dist')
   }
 
+  config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/settings$/, '../demo/settings-demo.ts'))
   config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/Project$/, '../demo/Project-sqljs.ts'))
   config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/mru$/, '../demo/mru-demo.ts'))
   config.plugins.push(new CopyPlugin({patterns: [
