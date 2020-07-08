@@ -12,14 +12,3 @@ Object.defineProperty(String.prototype, 'isEnum', {
         return false
     }
 })
-
-if (window.native === undefined) {
-    window.native = {
-        setTitle: function (title) {
-            document.title = title
-        },
-        exit: function(exitCode) {
-            // No-op
-        }
-    }
-}

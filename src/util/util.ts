@@ -81,7 +81,12 @@ export function refreshWindowTitle() {
     }
 
     parts.push(APP_NAME)
-    native.setTitle(prefix + parts.join(' - '))
+
+    const title = prefix + parts.join(' - ')
+    document.title = title
+    if (typeof native === 'object') {
+        native.setTitle(title)
+    }
 }
 
 type ValidationOptions = {
