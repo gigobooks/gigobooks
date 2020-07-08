@@ -67,7 +67,7 @@ gosqlite = (function() {
 })()
 
 // Uncomment the following line to use Project-sqljs / sql.js
-jest.mock('./src/core/Project', () => require('./src/sql.js/Project-sqljs'))
+jest.mock('./src/core/Project', () => require('./src/demo/Project-sqljs'))
 
 jest.mock('./src/util/knex-migrations', () => require('./src/test/__mocks__/knex-migrations'))
 jest.mock('./src/util/sound', () => require('./src/test/__mocks__/sound'))
