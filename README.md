@@ -19,6 +19,14 @@ NanoBooks is a client-side ReactJS webapp which runs in a system-provided webvie
 
 NOTE: This is alpha/preview quality software and **IS NOT READY TO BE USED IN PRODUCTION**. You have been warned.
 
+## Blog
+
+https://nanobooks.github.io/
+
+## DEMO
+
+https://nanobooks.github.io/demo
+
 ## Building
 
 (Only tested on Ubuntu Linux so far. It might work on Windows and MacOS, or it might not.)
