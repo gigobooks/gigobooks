@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react'
-import { Transaction, TransactionType, formatDateOnly } from '../core'
+import { Transaction, TransactionType, formatDateOnly, toFormatted } from '../core'
 import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter, DateRangeFilter } from './ReactTable'
 import { Link } from 'react-router-dom'
 
@@ -76,6 +76,19 @@ function renderActor(data: any) {
     return data.cell.value
 }
 
+function renderDebitSum(data: any) {
+    const t: Transaction = data.row.original
+    const sums = Transaction.getSums(t.elements!.filter(e => e.drcr == Transaction.Debit))
+
+    return <>
+        {Object.keys(sums).map(currency =>
+        <div key={currency}>
+            {currency} {toFormatted(sums[currency], currency)}
+        </div>
+        )}
+    </>
+}
+
 function renderRaw(data: any) {
     return <Link to={`/transactions/${data.row.values.id}`}>view raw</Link>
 }
@@ -96,6 +109,7 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
             { Header: 'Type', accessor: 'type', disableFilters: types.length > 0, 
                 Filter: SelectFilter, FilterOptions: TransactionTypeOptions, Cell: renderType },
             { Header: actorHeading, accessor: 'actorTitle', disableFilters: false, Cell: renderActor },
+            { Header: 'Amount', id: 'debit-sum', Cell: renderDebitSum },
         ]
         if (viewRaw) {
             columns.push({ Header: 'View raw', id: 'raw-link', Cell: renderRaw })
@@ -128,15 +142,17 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
         })
 
         sortQuery(q, state.sortBy)
-        // Fetch any settlement elements
-        q.withGraphFetched('elements').modifyGraph('elements', builder => {
-            builder.whereNot('settleId', 0)
-        })
+        q.withGraphFetched('elements')
         q.orderBy('id', 'desc')     // Least significant sort order
         q.offset(state.pageSize * state.pageIndex).limit(state.pageSize).then(data => {
-            // Hoist settleId from the first element, if any, to the parent transaction
             data.forEach(t => {
-                (t as any).settleId = t.elements && t.elements[0] ? t.elements[0].settleId : 0
+                // Hoist settleId from any elements, if any, to the parent transaction
+                for (let e of t.elements!) {
+                    if (e.settleId) {
+                        (t as any).settleId = e.settleId
+                        break
+                    }
+                }
             })
             setData(data)
         })

@@ -45,7 +45,7 @@ h1, h2 { font-size: 1.5em; color: #222; }
 .data-table .column-id input { width: 3em; }
 .data-table .column-date input { width: 8em; }
 .data-table td.column-id, .data-table td.column-date { text-align: right; }
-.data-table td.column-raw-link { white-space: nowrap; }
+.data-table td.column-raw-link, .data-table td.column-debit-sum { white-space: nowrap; }
 
 .pagination input { width: 2em; }
 
