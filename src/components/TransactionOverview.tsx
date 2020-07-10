@@ -48,8 +48,9 @@ function renderDescription(data: any) {
     let part2
     if (t.type == Transaction.InvoicePayment || t.type == Transaction.BillPayment) {
         const settledType = t.type == Transaction.InvoicePayment ? 'invoice' : 'bill'
+        const urlPart = t.type == Transaction.InvoicePayment ? 'sale' : 'purchase'
         part2 = <>
-            (payment for <Link to={`/${settledType}s/${t.settleId}`}>{settledType} {t.settleId}</Link>)
+            (payment for <Link to={`/${urlPart}s/${t.settleId}`}>{settledType} {t.settleId}</Link>)
         </>
     }
     else {
