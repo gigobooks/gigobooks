@@ -7,6 +7,7 @@ import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
 import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
+import Preamble from './Preamble'
 import About from './About'
 import Settings from './Settings'
 import SettingsTax from './SettingsTax'
@@ -43,6 +44,7 @@ function App() {
     return <HashRouter>
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
         <div className='page'>
+            {<Preamble />}
             {open && <NavBar />}
             {open ? <Main /> : <About />}
         </div>

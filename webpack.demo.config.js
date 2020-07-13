@@ -12,6 +12,7 @@ module.exports = (env, argv) => {
 
   config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/settings$/, '../demo/settings-demo.ts'))
   config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/Project$/, '../demo/Project-sqljs.ts'))
+  config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/Preamble$/, '../demo/Preamble-demo.tsx'))
   config.plugins.push(new webpack.NormalModuleReplacementPlugin(/\/mru$/, '../demo/mru-demo.ts'))
   config.plugins.push(new CopyPlugin({patterns: [
     {from: 'index.html', to: '..'},
