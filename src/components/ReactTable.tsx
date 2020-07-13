@@ -78,14 +78,16 @@ export function ReactTable<D extends object>(props: Props<D>) {
             {headerGroup.headers.map(column => (
                 <th className={`column-${column.id}`} {...column.getHeaderProps()}>
                     <div {...(column as any).getSortByToggleProps()}>
-                        {column.render('Header')}
-                        <span>
+                        <span className="heading">
+                            {column.render('Header')}
+                        </span>
+                        <span className="sortBy">
                             {(column as any).isSorted ?
                                 (column as any).isSortedDesc ? ' 🔽' : ' 🔼'
                             : ''}
                         </span>
                     </div>
-                    {(column as any).canFilter && <div>{column.render('Filter')}</div>}
+                    {(column as any).canFilter && <div className="filter">{column.render('Filter')}</div>}
                 </th>
             ))}
             </tr>

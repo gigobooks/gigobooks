@@ -32,11 +32,9 @@ h1, h2 { font-size: 1.5em; color: #222; }
 .data-table { margin-bottom: 1em; border-spacing: 0; }
 
 .data-table th, .data-table td { padding: 0.25em; border: 1px solid #eee; }
-.data-table th {
-    background: cornsilk;
-    text-transform: uppercase;
-    font-size: 0.875em;
-}
+.data-table th { background: cornsilk; }
+.data-table th .heading { text-transform: uppercase; font-size: 0.875em; }
+.data-table th .filter { font-weight: normal; }
 
 .data-table tr:nth-child(1) td { border-top-color: #444; }
 
