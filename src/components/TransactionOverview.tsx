@@ -5,6 +5,7 @@
 import * as React from 'react'
 import { Transaction, TransactionType, formatDateOnly, toFormatted } from '../core'
 import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter, DateRangeFilter } from './ReactTable'
+import { QueryBuilder } from 'objection'
 import { Link } from 'react-router-dom'
 
 const TransactionTypeOptions = <>
@@ -96,19 +97,24 @@ function renderRaw(data: any) {
 
 type Props = {
     types: TransactionType[],
+    typesFilter?: {
+        filter?: any,
+        options?: any,
+        process?: (q: QueryBuilder<any>, f:Filter) => void,
+    },
     viewRaw?: boolean,
     actorHeading?: string
 }
 
-function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Supplier'}: Props) {
+function TransactionTable({types, typesFilter, viewRaw = false, actorHeading = 'Customer / Supplier'}: Props) {
     const columns = React.useMemo<Column<Transaction>[]>(() => {
         const columns: any = [
             { Header: 'Id', accessor: 'id', disableFilters: false, Cell: renderId },
             { Header: 'Date', accessor: 'date', disableFilters: false,
                 Filter: DateRangeFilter, Cell: renderDate },
             { Header: 'Description', accessor: 'description', disableFilters: false, Cell: renderDescription },
-            { Header: 'Type', accessor: 'type', disableFilters: types.length > 0, 
-                Filter: SelectFilter, FilterOptions: TransactionTypeOptions, Cell: renderType },
+            { Header: 'Type', accessor: 'type', disableFilters: !typesFilter, 
+                Filter: typesFilter && typesFilter.filter, FilterOptions: typesFilter && typesFilter.options, Cell: renderType },
             { Header: actorHeading, accessor: 'actorTitle', disableFilters: false, Cell: renderActor },
             { Header: 'Amount', id: 'debit-sum', Cell: renderDebitSum },
         ]
@@ -133,8 +139,13 @@ function TransactionTable({types, viewRaw = false, actorHeading = 'Customer / Su
         }
         if (state.filters) {
             state.filters.forEach((f: Filter) => {
-                // Insert `txn` table prefix for most columns
-                filterQuery(q, f, f.id != 'actorTitle' ? 'txn' : undefined)
+                if (f.id == 'type' && typesFilter && typesFilter.process) {
+                    typesFilter.process(q, f)
+                }
+                else {
+                    // Insert `txn` table prefix for most columns
+                    filterQuery(q, f, f.id != 'actorTitle' ? 'txn' : undefined)
+                }
             })
         }
 
@@ -168,8 +179,27 @@ export function TransactionOverview() {
         <TransactionTable
             types={[]}
             viewRaw={true}
+            typesFilter={{
+                filter: SelectFilter,
+                options: TransactionTypeOptions,
+            }}
         />
     </div>
+}
+
+function PaymentsFilter(table: {column: {filterValue: string, setFilter: any}}) {
+    return <label>
+        <input type='checkbox'
+            onChange={e => {
+                table.column.setFilter(e.target.checked ? (table.column as any).FilterOptions : undefined) // Set undefined to remove the filter entirely
+            }}
+        />
+        payments
+    </label>
+}
+
+function paymentsFilterProcess(q: QueryBuilder<any>, f:Filter) {
+    q.orWhereIn('txn.type', Array.isArray(f.value) ? f.value : [f.value])
 }
 
 export function SalesOverview() {
@@ -178,6 +208,11 @@ export function SalesOverview() {
         <TransactionTable
             types={[Transaction.Sale, Transaction.Invoice]}
             actorHeading='Customer'
+            typesFilter={{
+                filter: PaymentsFilter,
+                options: [Transaction.InvoicePayment],
+                process: paymentsFilterProcess,
+            }}
         />
     </div>
 }
@@ -188,6 +223,11 @@ export function PurchasesOverview() {
         <TransactionTable
             types={[Transaction.Purchase, Transaction.Bill]}
             actorHeading='Supplier'
+            typesFilter={{
+                filter: PaymentsFilter,
+                options: [Transaction.BillPayment],
+                process: paymentsFilterProcess,
+            }}
         />
     </div>
 }
