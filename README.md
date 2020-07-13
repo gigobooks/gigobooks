@@ -6,6 +6,7 @@
 * Source code that you can extend/hack/customise yourself. Write your own custom scripts.
 * Double entry bookkeeping
 * Multi currency
+* [**Try out the DEMO**](https://nanobooks.github.io/demo)
 
 Technical stuff:
 
