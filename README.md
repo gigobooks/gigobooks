@@ -6,7 +6,7 @@
 * Source code that you can extend/hack/customise yourself. Write your own custom scripts.
 * Double entry bookkeeping
 * Multi currency
-* [**Try out the DEMO**](https://gigobooks.github.io/demo)
+* [**Try out the DEMO**](https://www.gigobooks.com/demo)
 
 Technical stuff:
 
@@ -22,11 +22,11 @@ NOTE: This is alpha/preview quality software and **IS NOT READY TO BE USED IN PR
 
 ## Blog
 
-https://gigobooks.github.io/
+https://www.gigobooks.com/
 
 ## DEMO
 
-https://gigobooks.github.io/demo
+https://www.gigobooks.com/demo
 
 ## Building
 
