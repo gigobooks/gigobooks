@@ -7,6 +7,7 @@ import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
 import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
+import About from './About'
 import Settings from './Settings'
 import SettingsTax from './SettingsTax'
 import AccountOverview from './AccountOverview'
@@ -43,7 +44,7 @@ function App() {
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
         <div className='page'>
             {open && <NavBar />}
-            {open && <Main />}
+            {open ? <Main /> : <About />}
         </div>
     </HashRouter>
 }
@@ -219,6 +220,9 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
             <MenuItem key='/settings'>Settings</MenuItem>
             <MenuItem key='/settings/tax'>Tax Settings</MenuItem>
         </SubMenu>}
+        <SubMenu key='help' title="Help">
+            <MenuItem key='/'>About</MenuItem>
+        </SubMenu>
     </Menu>
 }
 
@@ -267,6 +271,7 @@ function Main() {
             <Settings />
         </Route>
         <Route path='/'>
+            <About />
         </Route>
     </Switch>
 }
