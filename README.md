@@ -1,4 +1,4 @@
-# NanoBooks
+# GigoBooks
 
 * Clean and simple accounting software for solopreneurs, consultants, freelancers and other micro-businesses.
 * Privacy focused desktop software. Not cloud-based SaaS. Retain control over your data.
@@ -6,26 +6,27 @@
 * Source code that you can extend/hack/customise yourself. Write your own custom scripts.
 * Double entry bookkeeping
 * Multi currency
+* [**Try out the DEMO**](https://gigobooks.github.io/demo)
 
 Technical stuff:
 
-NanoBooks is a client-side ReactJS webapp which runs in a system-provided webview. The [webview](https://github.com/bengtan/websqlview) is written in Go. It provides access to sqlite and other native facilities. Hence, NanoBooks acts like native desktop software.
+GigoBooks is a client-side ReactJS webapp which runs in a system-provided webview. The [webview](https://github.com/bengtan/websqlview) is written in Go. It provides access to sqlite and other native facilities. Hence, GigoBooks acts like native desktop software.
 
 * Your data is stored in an sqlite file on your local filesystem.
-* NanoBooks runs entirely offline and does not access the Internet.
+* GigoBooks runs entirely offline and does not access the Internet.
 * Data is stored in an sqlite database file. The schema and code are open so you can interact with your data yourself (if you so wish).
-* The community edition (NanoBooks CE) is free and open source.
+* The community edition (GigoBooks CE) is free and open source.
 * It is intended to be cross-platform desktop (Windows/MacOS/Linux) although it has only been developed and tested on Ubuntu/libgtk so far. Other platforms may or may not yet work.
 
 NOTE: This is alpha/preview quality software and **IS NOT READY TO BE USED IN PRODUCTION**. You have been warned.
 
 ## Blog
 
-https://nanobooks.github.io/
+https://gigobooks.github.io/
 
 ## DEMO
 
-https://nanobooks.github.io/demo
+https://gigobooks.github.io/demo
 
 ## Building
 
@@ -80,24 +81,24 @@ So, currently, this is a side project ... that's trying to be a real commercial 
 
 With that historical background, here's the plan:
 
-The business model is going to be 'open core'. The entry-level/core edition of NanoBooks will be free and open source. Advanced features or add-ons will be in a premium edition and be paid-for. Note that **THE PREMIUM EDITION IS NOT OPEN SOURCE**.
+The business model is going to be 'open core'. The entry-level/core edition of GigoBooks will be free and open source. Advanced features or add-ons will be in a premium edition and be paid-for. Note that **THE PREMIUM EDITION IS NOT OPEN SOURCE**.
 
-The entry-level and premium editions are called NanoBooks CE (community edition) and NanoBooks PE (premium edition) respectively.
+The entry-level and premium editions are called GigoBooks CE (community edition) and GigoBooks PE (premium edition) respectively.
 
 For now, here are the planned monetisation tiers (names are temporary and unofficial):
 
-* Level 0 - Free - Access to NanoBooks CE repository and source code. Compile it yourself. Community supported.
-* Level 1 - Purchase the NanoBooks PE binary through an app store for $N (unsure what N is yet).
-* Level 2 - (Subscription?) Access to NanoBooks PE repository, source code, issues queue etc. Access to NanoBooks PE binary. Vendor support.
+* Level 0 - Free - Access to GigoBooks CE repository and source code. Compile it yourself. Community supported.
+* Level 1 - Purchase the GigoBooks PE binary through an app store for $N (unsure what N is yet).
+* Level 2 - (Subscription?) Access to GigoBooks PE repository, source code, issues queue etc. Access to GigoBooks PE binary. Vendor support.
 
 Note that this is only a plan and comes with some caveats.
 
 * This plan could change as new insights come to light. It will probably change. The question is not 'whether' but 'by how much'.
-* NanoBooks CE hasn't been completed yet. It's just alpna/beta software at the moment.
+* GigoBooks CE hasn't been completed yet. It's just alpna/beta software at the moment.
 * Hence, level 1 does not yet exist.
 * Level 2 also does not exist yet. For now, it's no more than just some speculative thoughts.
 
-(However, some more thoughts about level 2 ... I'm thinking of implementing level 2 via github sponsors which would be a subscription/recurring thing. Although NanoBooks PE does not yet exist, a repository could be created and sponsors can submit (ie. via the NanoBooks PE issue queue) feedback and feature requests. Github sponsors would be an experiment and I have no idea how it will turn out. Some more thinking and pondering needed here.)
+(However, some more thoughts about level 2 ... I'm thinking of implementing level 2 via github sponsors which would be a subscription/recurring thing. Although GigoBooks PE does not yet exist, a repository could be created and sponsors can submit (ie. via the GigoBooks PE issue queue) feedback and feature requests. Github sponsors would be an experiment and I have no idea how it will turn out. Some more thinking and pondering needed here.)
 
 How will I decide what features go into CE and what features are restricted to PE? I don't know yet. There's too many unknowns to be able to say but I will try to strike a balance. 
 
@@ -105,5 +106,5 @@ In general, as more and more features go into PE, simpler or older features will
 
 ## License
 
-* NanoBooks CE (community edition) - [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
-* NanoBooks PE (premium edition) - [PolyForm Internal Use License 1.0.0](https://polyformproject.org/licenses/internal-use/1.0.0/)
+* GigoBooks CE (community edition) - [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
+* GigoBooks PE (premium edition) - [PolyForm Internal Use License 1.0.0](https://polyformproject.org/licenses/internal-use/1.0.0/)
