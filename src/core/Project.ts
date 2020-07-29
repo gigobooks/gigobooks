@@ -28,11 +28,6 @@ export class Project {
     isModified: boolean
     changeListener: any
 
-    static project: Project | undefined
-    static database: gosqlite.Database
-    static knex: Knex
-    static variables: Variables
-
     constructor(public filename: string, public database: gosqlite.Database) {
         this.isModified = false
         this.onChange = this.onChange.bind(this)
@@ -52,6 +47,12 @@ export class Project {
             this.changeListener(...arguments)
         }
     }
+
+    static driver: string = 'gosqlite'
+    static project: Project | undefined
+    static database: gosqlite.Database
+    static knex: Knex
+    static variables: Variables
 
     // The following functions create new database (defaults to in-memory),
     // and load-to/save-from files
