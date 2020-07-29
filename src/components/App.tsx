@@ -7,6 +7,7 @@ import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
 import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
+import fileMenu from './FileMenu'
 import Preamble from './Preamble'
 import About from './About'
 import Settings from './Settings'
@@ -182,21 +183,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
         mode='horizontal'
         triggerSubMenuAction={trigger}
         onClick={onClick}>
-        <SubMenu key='file' title="File">
-            <MenuItem key='new'>New</MenuItem>
-            <MenuItem key='open'>Open</MenuItem>
-            {props.mru.length > 0 && <SubMenu key='recents' title="Open recent">
-                {props.mru.map((item, index) => <MenuItem key={`recent:${index}`}>
-                    {item}
-                </MenuItem>)}
-                <Divider />
-                <MenuItem key='clear-recents'>Clear</MenuItem>
-            </SubMenu>}
-            <MenuItem key='save' disabled={!props.open || !props.hasFilename}>Save</MenuItem>
-            <MenuItem key='save-as' disabled={!props.open}>Save as</MenuItem>
-            <MenuItem key='close' disabled={!props.open}>Close</MenuItem>
-            <MenuItem key='quit'>Quit</MenuItem>
-        </SubMenu>
+        {fileMenu(props)}
         {props.open && <SubMenu key='1' title="Sales">
             <MenuItem key='/sales'>List</MenuItem>
             <MenuItem key='/sales/new'>New sale</MenuItem>
