@@ -24,7 +24,8 @@
     "react-hook-form": "^5.5.1",
     "react-router-dom": "^5.1.2",
     "react-sidebar": "^3.0.2",
-    "react-table": "^7.0.4"
+    "react-table": "^7.0.4",
+    "sql.js": "^1.3.0"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",

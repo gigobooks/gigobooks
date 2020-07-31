@@ -1,0 +1,27 @@
+diff --git a/node_modules/sql.js/dist/sql-wasm-debug.js b/node_modules/sql.js/dist/sql-wasm-debug.js
+index ee1533c..cc7de13 100644
+--- a/node_modules/sql.js/dist/sql-wasm-debug.js
++++ b/node_modules/sql.js/dist/sql-wasm-debug.js
+@@ -633,6 +633,9 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
+                 if (val.length != null) {
+                     return this.bindBlob(val, pos);
+                 }
++                if (val instanceof Date) {
++                  return this.bindString(val.toISOString(), pos);
++                }
+                 break;
+             default:
+                 break;
+diff --git a/node_modules/sql.js/package.json b/node_modules/sql.js/package.json
+index c072702..289e33b 100644
+--- a/node_modules/sql.js/package.json
++++ b/node_modules/sql.js/package.json
+@@ -17,7 +17,7 @@
+ 		"asm.js"
+ 	],
+ 	"license": "MIT",
+-	"main": "./dist/sql-wasm.js",
++	"main": "./dist/sql-wasm-debug.js",
+ 	"scripts": {
+ 		"build": "make",
+ 		"rebuild": "make clean && make",
