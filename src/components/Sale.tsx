@@ -575,13 +575,13 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
     const sums = Transaction.getSums(elements)
     const ids = transaction.getDrElementIds()
 
-    for (let currency in sums) {
+    for (let money of sums) {
         elements.push({
             id: ids.shift(),
             accountId: data.type == Transaction.Sale ? Account.Reserved.Cash : Account.Reserved.AccountsReceivable,
             drcr: Transaction.Debit,
-            amount: sums[currency],
-            currency: currency,
+            amount: money.amount,
+            currency: money.currency,
             useGross: 0,
             grossAmount: 0,
             description: '',

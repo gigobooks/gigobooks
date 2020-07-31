@@ -6,6 +6,7 @@ import { QueryBuilder } from 'objection'
 import { Base, Model, TransactionOrKnex } from './Base'
 import { Element, IElement } from './Element'
 import { isDateOnly } from './date'
+import { Money } from './currency'
 import { Project } from './Project'
 import Account from './Account'
 
@@ -357,7 +358,7 @@ export class Transaction extends Base {
 
     // Calculates balances for each currency and returns them as an array
     // If `sum` is true, then calculate totals instead (ie. ignore `drcr`)
-    static _getBalances(elements: IElement[], sum = false) {
+    static _getBalances(elements: IElement[], sum = false): Money[] {
         const balances: Record<string, number> = {}
 
         elements.forEach(e => {
@@ -368,7 +369,8 @@ export class Transaction extends Base {
             balances[currency] += sum ? e.amount! : e.drcr! * e.amount!
         })
 
-        return balances
+        return Object.keys(balances).map(currency => ({amount: balances[currency], currency}))
+            .sort((a, b) => { return a.currency < b.currency ? -1 : 1 })
     }
 
     static getDebitBalances(elements: IElement[]) {
@@ -378,16 +380,14 @@ export class Transaction extends Base {
     static getCreditBalances(elements: IElement[]) {
         const balances = Transaction._getBalances(elements)
         // Credit balances are negative so negate them to be positive
-        Object.keys(balances).forEach(key => {
-            balances[key] = -balances[key]
-        })
-        return balances
+        return balances.map(balance => ({
+            amount: -balance.amount, currency: balance.currency
+        }))
     }
 
     static isBalanced(elements: IElement[]) {
-        const balances = Transaction._getBalances(elements)
-        return Object.keys(balances).every(currency => {
-            return balances[currency] == 0
+        return Transaction._getBalances(elements).every(balance => {
+            return balance.amount == 0
         })
     }
 }

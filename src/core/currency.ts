@@ -4,6 +4,11 @@
 
 import * as CurrencyCodes from 'currency-codes'
 
+export type Money = {
+    amount: number
+    currency: string
+}
+
 type Info = {
     code: string        // ISO 4217 code
     scale: number       // number of subunits in main unit

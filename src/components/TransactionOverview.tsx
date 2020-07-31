@@ -83,9 +83,9 @@ function renderDebitSum(data: any) {
     const sums = Transaction.getSums(t.elements!.filter(e => e.drcr == Transaction.Debit))
 
     return <>
-        {Object.keys(sums).map(currency =>
-        <div key={currency}>
-            {currency} {toFormatted(sums[currency], currency)}
+        {sums.map(money =>
+        <div key={money.currency}>
+            {money.currency} {toFormatted(money.amount, money.currency)}
         </div>
         )}
     </>

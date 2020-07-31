@@ -169,11 +169,11 @@ export default function InvoicePayment(props: Props) {
                     Balance
             </th></tr></thead>
             <tbody>
-            {Object.keys(balances).map((currency, index) =>
-                <tr key={currency} className={`row row-${index}`}><td className='currency'>
-                    {currency}
+            {balances.map((money, index) =>
+                <tr key={money.currency} className={`row row-${index}`}><td className='currency'>
+                    {money.currency}
                 </td><td className='balance'>
-                    {toFormatted(balances[currency], currency)}
+                    {toFormatted(money.amount, money.currency)}
                 </td></tr>
                 )}
             </tbody></table>
