@@ -29,8 +29,12 @@ module.exports = (env, argv) => {
           use: ['style-loader', 'css-loader'],
         },
         {
-          test: /\.(ogg|wav|mp3)$/i,
+          test: /\.(gif|png|ogg|wav|mp3)$/i,
           use: ['url-loader'],
+        },
+        {
+          test: /\.worker\.(.*)js$/,
+          use: { loader: "worker-loader", options: { inline: true } },
         },
         // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
         {
