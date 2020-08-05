@@ -4,11 +4,6 @@
 
 import * as CurrencyCodes from 'currency-codes'
 
-export type Money = {
-    amount: number
-    currency: string
-}
-
 type Info = {
     code: string        // ISO 4217 code
     scale: number       // number of subunits in main unit
@@ -86,6 +81,11 @@ export function toFormatted(amount: number, currency: string, loc = locale): str
     */
 }
 
+// Like toFormatted(), but display negative values with a bracket instead of negative sign
+export function toFormattedAbs(amount: number, currency: string, loc = locale): string {
+    return amount >= 0 ? toFormatted(amount, currency, loc) : `(${toFormatted(-amount, currency, loc)})`
+}
+
 // Parses a formatted string into a number which is the amount in currency subunits
 // Spaces are allowed (as alternative group separators)
 export function parseFormatted(formatted: string | undefined, currency: string, loc = locale): number {
@@ -114,4 +114,33 @@ export function parseFormatted(formatted: string | undefined, currency: string, 
         s1.replace(info.separator, '.') : s1
 
     return s2 ? Math.round(parseFloat(s2) * info.scale) : 0
+}
+
+export type Money = {
+    amount: number
+    currency: string
+}
+
+// Performs addition/subtraction of (vector) money values
+export function addSubtractMoney(add: Money[], subtract: Money[] = []): Money[] {
+    const hash: Record<string, number> = {}
+
+    add.forEach(money => {
+        if (!hash[money.currency]) {
+            hash[money.currency] = 0
+        }
+
+        hash[money.currency] += money.amount
+    })
+
+    subtract.forEach(money => {
+        if (!hash[money.currency]) {
+            hash[money.currency] = 0
+        }
+
+        hash[money.currency] -= money.amount
+    })
+
+    return Object.keys(hash).map(currency => ({amount: hash[currency], currency}))
+    .sort((a, b) => { return a.currency < b.currency ? -1 : 1 })
 }

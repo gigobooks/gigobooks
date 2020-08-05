@@ -1,4 +1,4 @@
-import { getCurrencyInfo, toFormatted, parseFormatted } from '../src/core/currency'
+import { getCurrencyInfo, toFormatted, parseFormatted, addSubtractMoney } from '../src/core/currency'
 
 // Apparently, node.js, by defaults, only includes locale data for english.
 // So any attempts to test non-english locales may fail.
@@ -86,4 +86,24 @@ test('parseFormatted', () => {
     expect(() => parseFormatted('a', 'USD')).toThrow()
     expect(() => parseFormatted('abc', 'USD')).toThrow()
     expect(() => parseFormatted('1a', 'USD')).toThrow()
+})
+
+test('add/subtract money', () => {
+    const a = [
+        {currency: 'usd', amount: 50},
+        {currency: 'aud', amount: 10},
+        {currency: 'aud', amount: 20},
+    ]
+    const b = [
+        {currency: 'usd', amount: 5},
+        {currency: 'aud', amount: 1},
+        {currency: 'aud', amount: 2},
+        {currency: 'eur', amount: 4},
+    ]
+
+    expect(addSubtractMoney(a, b)).toEqual([
+        {currency: 'aud', amount: 27},
+        {currency: 'eur', amount: -4},
+        {currency: 'usd', amount: 45},
+    ])
 })
