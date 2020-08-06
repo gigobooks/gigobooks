@@ -64,6 +64,7 @@ type ProfitAndLoss = {
 
 export { Item, Money, Account, Normality, ProfitAndLoss }
 
+// ToDo: accural vs cash accounting
 export async function profitAndLoss(startDate: string, endDate: string, accrual?: boolean) : Promise<ProfitAndLoss> {
     const elements = await Element.query()
         .leftJoin('txn', 'txnElement.transactionId', 'txn.id')
@@ -78,7 +79,8 @@ export async function profitAndLoss(startDate: string, endDate: string, accrual?
             ...Account.TypeGroupInfo[Account.Revenue].types, 
             ...Account.TypeGroupInfo[Account.Expense].types
         ])
-        // sort order ??
+        .where('txn.date', '>=', startDate).where('txn.date', '<=', endDate)
+        .orderBy([{column: 'txn.date', order: 'asc'}, {column: 'txn.id', order: 'asc'}])
 
     const rMap: Record<number, Group> = {}
     const eMap: Record<number, Group> = {}
