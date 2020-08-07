@@ -3,8 +3,11 @@
  */
 
 import * as React from 'react'
+import { isFirstDayOfMonth, isLastDayOfMonth, isSameMonth, isSameYear } from 'date-fns'
 import DatePicker from 'react-datepicker'
-import { parseISO, toDateOnly, dateFormatString as dfs } from '../core'
+import { Project, parseISO, toDateOnly, dateFormatString as dfs } from '../core'
+import { View } from '@react-pdf/renderer'
+import { B, T } from './PDFView'
 
 type DateRangeSelectProps = {
     startDate: string
@@ -52,4 +55,65 @@ export function DateRange(props: DateRangeSelectProps) {
             />
         </span>
     </>
+}
+
+type ReportHeaderProps = {
+    title: string
+    startDate?: string
+    endDate: string
+}
+
+export function ReportHeader(props: ReportHeaderProps) {
+    const endDate = parseISO(props.endDate)
+    let endOptions: any = {day: 'numeric', month: 'long', year: 'numeric'}
+    let interval: string
+
+    if (!props.startDate) {
+        interval = `${endDate.toLocaleDateString(undefined, {day: 'numeric', month: 'long', year: 'numeric'})}`
+    }
+    else {
+        const startDate = parseISO(props.startDate)
+        let startOptions: any = {day: 'numeric', month: 'long', year: 'numeric'}
+
+        if (isSameMonth(startDate, endDate)) {
+            if (isFirstDayOfMonth(startDate) && isLastDayOfMonth(endDate)) {
+                interval = `${startDate.toLocaleDateString(undefined, {month: 'long', year: 'numeric'})}`
+            }
+            else {
+                startOptions = {day: 'numeric'}
+                endOptions = {day: 'numeric', month: 'long', year: 'numeric'}
+                interval = `${startDate.toLocaleDateString(undefined, startOptions)} to ${endDate.toLocaleDateString(undefined, endOptions)}`
+            }
+        }
+        else {
+            startOptions = {day: 'numeric', month: 'long', year: 'numeric'}
+            endOptions = {day: 'numeric', month: 'long', year: 'numeric'}
+
+            if (isSameYear(startDate, endDate)) {
+                delete startOptions.year
+            }
+            if (isFirstDayOfMonth(startDate)) {
+                delete startOptions.day
+            }
+            if (isLastDayOfMonth(endDate)) {
+                delete endOptions.day
+            }
+            interval = `${startDate.toLocaleDateString(undefined, startOptions)} to ${endDate.toLocaleDateString(undefined, endOptions)}`
+        }
+    }
+
+    const now = new Intl.DateTimeFormat(undefined, {
+        year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'
+    }).format(new Date())
+
+    return <View>
+        <View style={{position: 'absolute', top: 0, textAlign: 'right'}}>
+            <T>{now}</T>
+        </View>
+        <View style={{textAlign: 'center', marginBottom: 12}}>
+            <B style={{fontSize: 12}}>{Project.variables.get('title')}</B>
+            <B style={{fontSize: 18}}>{props.title}</B>
+            <T style={{fontSize: 12}}>{interval}</T>
+        </View>
+    </View>
 }

@@ -7,7 +7,7 @@ import { Document, Page, View } from '@react-pdf/renderer'
 import { PDFView, Styles, Table, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
 import { Transaction, TransactionType, formatDateOnly, toFormattedAbs,
     ProfitAndLoss, profitAndLoss, datePresetDates } from '../core'
-import { DateRange } from './Reports'
+import { DateRange, ReportHeader } from './Reports'
 
 function transactionTypeLabel(type: TransactionType) {
     // Abbreviate some long labels
@@ -65,7 +65,8 @@ export function ProfitAndLossDetail() {
             {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
         </div>
 
-        {info && <PDFView><Document><Page size="A4" style={[Styles.page, {fontSize: 10}]}>
+        {info && <PDFView><Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
+            <ReportHeader startDate={startDate} endDate={endDate} title='Profit and Loss: Detail' />
             <Table>
                 <Tr key='header' style={{marginBottom: 6}}>
                     <ThLeft width={15} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>

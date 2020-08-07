@@ -69,7 +69,7 @@ export function Viewer(props: {url: string}) {
 export const Styles = StyleSheet.create({
     page: {
         fontFamily: 'Helvetica',
-        padding: 10,
+        padding: 56,        // approx 2cm
     },
 })
 
