@@ -6,8 +6,11 @@ import * as React from 'react'
 import { Document, Page, View } from '@react-pdf/renderer'
 import { PDFView, Styles, Table, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
 import { Transaction, TransactionType, formatDateOnly, toFormattedAbs,
-    ProfitAndLoss, profitAndLoss, datePresetDates } from '../core'
+    Money, ProfitAndLoss, profitAndLoss, datePresetDates } from '../core'
 import { DateRange, ReportHeader } from './Reports'
+
+// Keep lists of currencies together (ie. no wrapping) unless there are a lot of them
+const CURRENCY_TOTALS_WRAP = 5
 
 function transactionTypeLabel(type: TransactionType) {
     // Abbreviate some long labels
@@ -66,151 +69,192 @@ export function ProfitAndLossDetail() {
         </div>
 
         {info && <PDFView><Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
-            <ReportHeader startDate={startDate} endDate={endDate} title='Profit and Loss: Detail' />
-            <Table>
-                <Tr key='header' style={{marginBottom: 6}}>
-                    <ThLeft width={15} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
-                    <ThLeft width={10} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
-                    <ThLeft width={20} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
-                    <Th width={40} innerStyle={{borderBottomWidth: 1}}>Description</Th>
-                    <ThRight width={15} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
-                </Tr>
+            <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Detail' />
 
-                <View key='revenue' style={{marginBottom: 12}}>
-                    <Tr>
-                        <Th>Revenue</Th>
-                    </Tr>
+            <Tr key='header' style={{marginBottom: 6}}>
+                <ThLeft width={18} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
+                <ThLeft width={11} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
+                <ThLeft width={20} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
+                <Th width={34} innerStyle={{borderBottomWidth: 1}}>Description</Th>
+                <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
+            </Tr>
 
-                    {info.divisions[0].revenues.groups.map(group => <View key={`group-${group.accountId}`}>
-                    <Tr>
-                        <Th key='group-header' indent={2}>{group.accountTitle}</Th>
-                    </Tr>
-                    {group.items.map((item, index) => {
-                        return <Tr key={item.id}>
-                            <TdLeft width={13} indent={2}>{transactionTypeLabel(item.txnType)} {item.txnId}</TdLeft>
-                            <Td width={10} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
-                            <TdLeft width={20}>{item.actorTitle}</TdLeft>
-                            <Td width={40}>{
-                                !item.txnDescription ? item.description :
-                                !item.description ? item.txnDescription :
-                                `${item.txnDescription}: ${item.description}`
-                            }</Td>
-                            <TdRight width={15} style={index == group.items.length - 1 ? {
-                                marginBottom: 3,
-                                paddingBottom: 3,
-                                borderBottomWidth: 1,
-                            } : {}}>{toFormattedAbs(item.amount, item.currency)} {item.currency}</TdRight>
-                        </Tr>    
-                    })}
+            {info.hasDepreciation ? <Division
+                label='Ordinary revenue / expense'
+                netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
+                division={info.operations} 
+            /> : <>
+                <Tr key='label'><Th>Ordinary revenue / expense</Th></Tr>
+                <Tr key='none'><Td indent={2}>No items</Td></Tr>
+            </>}
 
-                    {group.totals.map((money, index) => {
-                        return <Tr key={money.currency} style={index == group.totals.length - 1 ? {
-                                marginBottom: 12,
-                            } : {}}>
-                            <TdLeft width={83} indent={2}>
-                                {index == 0 ? `Total ${group.accountTitle}` : ''}
-                            </TdLeft>
-                            <TdRight width={15}>
-                                {toFormattedAbs(money.amount, money.currency)} {money.currency}
-                            </TdRight>
-                        </Tr>    
-                    })}
-                    </View>)}
+            {info.hasDepreciation && <Division
+                label='Depreciation and amortisation'
+                netLabel='Net depreciation and amortisation'
+                division={info.depreciation} 
+            />}
+            <Totals totals={info.ebit} label='Earnings before interest and tax (EBIT)' />
 
-                    {info.divisions[0].revenues.totals.map((money, index) => {
-                        return <Tr key={money.currency}>
-                            <ThLeft width={85} style={index == 0 ? {
-                                paddingTop: 3,
-                                borderTopWidth: 1,
-                                borderColor: '#fff', // transparent
-                            } : {}}>{index == 0 ? 'Total Revenue' : ''}</ThLeft>
-                            <ThRight width={15} style={index == 0 ? {
-                                paddingTop: 3,
-                                borderTopWidth: 1,
-                            } : {}}>
-                                {toFormattedAbs(money.amount, money.currency)} {money.currency}
-                            </ThRight>
-                        </Tr>
-                    })}
-                </View>
-
-                <View key='expenses' style={{marginBottom: 12}}>
-                    <Tr>
-                        <Th>Expenses</Th>
-                    </Tr>
-
-                    {info.divisions[0].expenses.groups.map(group => <View key={`group-${group.accountId}`}>
-                    <Tr>
-                        <Th key='group-header' indent={2}>{group.accountTitle}</Th>
-                    </Tr>
-                    {group.items.map((item, index) => {
-                        return <Tr key={item.id}>
-                            <TdLeft width={13} indent={2}>{transactionTypeLabel(item.txnType)} {item.txnId}</TdLeft>
-                            <Td width={10} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
-                            <TdLeft width={20}>{item.actorTitle}</TdLeft>
-                            <Td width={40}>{
-                                !item.txnDescription ? item.description :
-                                !item.description ? item.txnDescription :
-                                `${item.txnDescription}: ${item.description}`
-                            }</Td>
-                            <TdRight width={15} style={index == group.items.length - 1 ? {
-                                marginBottom: 3,
-                                paddingBottom: 3,
-                                borderBottomWidth: 1,
-                            } : {}}>{toFormattedAbs(item.amount, item.currency)} {item.currency}</TdRight>
-                        </Tr>    
-                    })}
-
-                    {group.totals.map((money, index) => {
-                        return <Tr key={money.currency} style={index == group.totals.length - 1 ? {
-                                marginBottom: 12,
-                            } : {}}>
-                            <TdLeft width={83} indent={2}>
-                                {index == 0 ? `Total ${group.accountTitle}` : ''}
-                            </TdLeft>
-                            <TdRight width={15}>
-                                {toFormattedAbs(money.amount, money.currency)} {money.currency}
-                            </TdRight>
-                        </Tr>    
-                    })}
-                    </View>)}
-
-                    {info.divisions[0].expenses.totals.map((money, index) => {
-                        return <Tr key={money.currency}>
-                            <ThLeft width={85} style={index == 0 ? {
-                                paddingTop: 3,
-                                borderTopWidth: 1,
-                                borderColor: '#fff', // transparent
-                            } : {}}>{index == 0 ? 'Total Expenses' : ''}</ThLeft>
-                            <ThRight width={15} style={index == 0 ? {
-                                paddingTop: 3,
-                                borderTopWidth: 1,
-                            } : {}}>
-                                {toFormattedAbs(money.amount, money.currency)} {money.currency}
-                            </ThRight>
-                        </Tr>
-                    })}
-                </View>
-
-                <View>
-                    {info.divisions[0].netTotals.map((money, index) => {
-                        return <Tr key={`${money.currency}`}>
-                            <ThLeft width={85} style={index == 0 ? {
-                                paddingTop: 3,
-                                borderTopWidth: 2,
-                                borderColor: '#fff', // transparent
-                            } : {}}>{index == 0 ? `Net Revenue` : ''}</ThLeft>
-                            <ThRight width={15} style={{
-                                borderTopWidth: index == 0 ? 2 : 0,
-                                paddingTop: index == 0 ? 3 : 0,
-                                borderBottomWidth: index == info.divisions[0].netTotals.length-1 ? 2 : 0,
-                                paddingBottom: index == info.divisions[0].netTotals.length-1 ? 3 : 0,
-                            }}>
-                                {toFormattedAbs(money.amount, money.currency)} {money.currency}
-                            </ThRight>
-                        </Tr>})}
-                </View>
-            </Table>
+            {info.hasInterestTax && <Division
+                label='Interest and tax'
+                netLabel='Net interest and tax'
+                division={info.interestTax} 
+            />}
+            <Totals totals={info.netProfit} label='Net profit' />
         </Page></Document></PDFView>}
     </div>
+}
+
+type DivisionProps = {
+    label: string
+    netLabel: string
+    division: ProfitAndLoss['operations']
+}
+
+function Division({label, netLabel, division}: DivisionProps) {
+    return <>
+        <Tr key='label'><Th>{label}</Th></Tr>
+ 
+        {division.revenues.groups.length > 0 && <Tr key='revenue'><Th indent={2}>Revenue</Th></Tr>}
+        {division.revenues.groups.map(group => <React.Fragment key={`group-${group.accountId}`}>
+            <Tr key='group-title'><Th indent={4}>{group.accountTitle}</Th></Tr>
+            {group.items.map((item, index) => {
+                return <Tr key={item.id}>
+                    <TdLeft width={14} indent={4}>{transactionTypeLabel(item.txnType)} {item.txnId}</TdLeft>
+                    <Td width={11} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
+                    <TdLeft width={20}>{item.actorTitle}</TdLeft>
+                    <Td width={34}>{
+                        !item.txnDescription ? item.description :
+                        !item.description ? item.txnDescription :
+                        `${item.txnDescription}: ${item.description}`
+                    }</Td>
+                    <TdRight width={17} innerStyle={index == group.items.length - 1 ? {
+                        marginBottom: 3,
+                        paddingBottom: 3,
+                        borderBottomWidth: 1,
+                    } : {}}>{toFormattedAbs(item.amount, item.currency)} {item.currency}</TdRight>
+                </Tr>
+            })}
+
+            {group.totals.map((money, index) => {
+                return <Tr key={money.currency} style={index == group.totals.length - 1 ? {
+                        marginBottom: 12,
+                    } : {}}>
+                    <TdLeft width={79} indent={4}>
+                        {index == 0 ? `Total ${group.accountTitle}` : ''}
+                    </TdLeft>
+                    <TdRight width={17}>
+                        {toFormattedAbs(money.amount, money.currency)} {money.currency}
+                    </TdRight>
+                </Tr>
+            })}
+        </React.Fragment>)}
+
+        <View wrap={division.revenues.totals.length > CURRENCY_TOTALS_WRAP}>
+        {division.revenues.totals.map((money, index) => {
+            return <Tr key={money.currency} style={index == division.revenues.totals.length-1 ? {
+                marginBottom: 12,
+            } : {}}>
+                <ThLeft width={81} indent={2} innerStyle={index == 0 ? {
+                    paddingTop: 3,
+                    borderTopWidth: 1,
+                    borderColor: '#fff', // transparent
+                } : {}}>{index == 0 ? 'Total Revenue' : ''}</ThLeft>
+                <ThRight width={17} innerStyle={index == 0 ? {
+                    paddingTop: 3,
+                    borderTopWidth: 1,
+                } : {}}>
+                    {toFormattedAbs(money.amount, money.currency)} {money.currency}
+                </ThRight>
+            </Tr>
+        })}
+        </View>
+
+        {division.expenses.groups.length > 0 && <Tr key='expenses'><Th indent={2}>Expenses</Th></Tr>}
+        {division.expenses.groups.map(group => <React.Fragment key={`group-${group.accountId}`}>
+            <Tr key='group-title'><Th indent={4}>{group.accountTitle}</Th></Tr>
+            {group.items.map((item, index) => {
+                return <Tr key={item.id}>
+                    <TdLeft width={14} indent={4}>{transactionTypeLabel(item.txnType)} {item.txnId}</TdLeft>
+                    <Td width={11} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
+                    <TdLeft width={20}>{item.actorTitle}</TdLeft>
+                    <Td width={34}>{
+                        !item.txnDescription ? item.description :
+                        !item.description ? item.txnDescription :
+                        `${item.txnDescription}: ${item.description}`
+                    }</Td>
+                    <TdRight width={17} innerStyle={index == group.items.length - 1 ? {
+                        marginBottom: 3,
+                        paddingBottom: 3,
+                        borderBottomWidth: 1,
+                    } : {}}>{toFormattedAbs(item.amount, item.currency)} {item.currency}</TdRight>
+                </Tr>
+            })}
+
+            {group.totals.map((money, index) => {
+                return <Tr key={money.currency} style={index == group.totals.length - 1 ? {
+                        marginBottom: 12,
+                    } : {}}>
+                    <TdLeft width={79} indent={4}>
+                        {index == 0 ? `Total ${group.accountTitle}` : ''}
+                    </TdLeft>
+                    <TdRight width={17}>
+                        {toFormattedAbs(money.amount, money.currency)} {money.currency}
+                    </TdRight>
+                </Tr>
+            })}
+        </React.Fragment>)}
+
+        <View wrap={division.expenses.totals.length > CURRENCY_TOTALS_WRAP}>
+        {division.expenses.totals.map((money, index) => {
+            return <Tr key={money.currency} style={index == division.expenses.totals.length-1 ? {
+                marginBottom: 12,
+            } : {}}>
+                <ThLeft width={81} indent={2} innerStyle={index == 0 ? {
+                    paddingTop: 3,
+                    borderTopWidth: 1,
+                    borderColor: '#fff', // transparent
+                } : {}}>{index == 0 ? 'Total Expenses' : ''}</ThLeft>
+                <ThRight width={17} innerStyle={index == 0 ? {
+                    paddingTop: 3,
+                    borderTopWidth: 1,
+                } : {}}>
+                    {toFormattedAbs(money.amount, money.currency)} {money.currency}
+                </ThRight>
+            </Tr>
+        })}
+        </View>
+
+        <Totals totals={division.netTotals} label={netLabel} />
+    </>
+}
+
+type TotalsProps = {
+    label: string
+    totals: Money[]
+}
+
+function Totals({label, totals}: TotalsProps) {
+    // Keep totals together unless there are a lot of currencies
+    return <View wrap={totals.length > CURRENCY_TOTALS_WRAP}>
+        {totals.map((money, index) => {
+            return <Tr key={`${money.currency}`} style={index == totals.length-1 ? {
+                marginBottom: 12,
+            } : {}}>
+                <ThLeft width={85} style={index == 0 ? {
+                    paddingTop: 3,
+                    borderTopWidth: 2,
+                    borderColor: '#fff', // transparent
+                } : {}}>{index == 0 ? `${label}` : ''}</ThLeft>
+                <ThRight width={15} style={{
+                    borderTopWidth: index == 0 ? 2 : 0,
+                    paddingTop: index == 0 ? 3 : 0,
+                    borderBottomWidth: index == totals.length-1 ? 2 : 0,
+                    paddingBottom: index == totals.length-1 ? 3 : 0,
+                }}>
+                    {toFormattedAbs(money.amount, money.currency)} {money.currency}
+                </ThRight>
+            </Tr>
+        })}
+    </View>
 }

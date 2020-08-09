@@ -6,6 +6,7 @@ import { Money, addSubtractMoney } from './currency'
 import { Account, AccountType } from './Account'
 import { Element } from './Element'
 import { Transaction, TransactionType } from './Transaction'
+import { Project } from './Project'
 
 type Item = {
     // parent transaction
@@ -42,8 +43,7 @@ type Group = {
     totals: Money[]
 }
 
-type Normality = {
-    type: 'ordinary' | 'abnormal' | 'extraordinary'
+type Division = {
     revenues: {
         groups: Group[]
         totals: Money[]
@@ -58,13 +58,20 @@ type Normality = {
 type ProfitAndLoss = {
     startDate: string
     endDate: string
-    divisions: Normality[]
-    netTotals: Money[]
+    hasOperations: boolean
+    operations: Division
+    hasDepreciation: boolean
+    depreciation: Division
+    hasInterestTax: boolean
+    interestTax: Division
+    ebitda: Money[]
+    ebit: Money[]
+    netProfit: Money[]
 }
 
-export { Item, Money, Account, Normality, ProfitAndLoss }
+export { Item, Money, Account, Division, ProfitAndLoss }
 
-// ToDo: accural vs cash accounting
+// ToDo: accrual vs cash accounting ??
 export async function profitAndLoss(startDate: string, endDate: string, accrual?: boolean) : Promise<ProfitAndLoss> {
     const elements = await Element.query()
         .leftJoin('txn', 'txnElement.transactionId', 'txn.id')
@@ -82,72 +89,82 @@ export async function profitAndLoss(startDate: string, endDate: string, accrual?
         .where('txn.date', '>=', startDate).where('txn.date', '<=', endDate)
         .orderBy([{column: 'txn.date', order: 'asc'}, {column: 'txn.id', order: 'asc'}])
 
-    const rMap: Record<number, Group> = {}
-    const eMap: Record<number, Group> = {}
+    const result: any = {
+        startDate,
+        endDate,
+        hasOperations: false,
+        operations: { revenues: {groups: [], totals: []}, expenses: {groups: [], totals: []}, netTotals: []},
+        hasDepreciation: false,
+        depreciation: { revenues: {groups: [], totals: []}, expenses: {groups: [], totals: []}, netTotals: []},
+        hasInterestTax: false,
+        interestTax: { revenues: {groups: [], totals: []}, expenses: {groups: [], totals: []}, netTotals: []},
+        netTotals: []
+    }
+
+    const items: {
+        operations: { revenues: Record<number, Group>, expenses: Record<number, Group> }
+        depreciation: { revenues: Record<number, Group>, expenses: Record<number, Group> }
+        interestTax: { revenues: Record<number, Group>, expenses: Record<number, Group> }
+    } = {
+        operations: { revenues: {}, expenses: {} },
+        depreciation: { revenues: {}, expenses: {} },
+        interestTax: { revenues: {}, expenses: {} },
+    }
+
+    function pushItem(map: Record<number, Group>, item: Item) {
+        if (!map[item.accountId]) {
+            map[item.accountId] = {
+                accountId: item.accountId,
+                accountTitle: item.accountTitle,
+                items: [],
+                totals: []
+            }    
+        }
+        map[item.accountId].items.push(item)
+    }
+
+    // Allocate items to buckets
     elements.forEach(element => {
         const item: Item = element as any
         if (Account.TypeGroupInfo[Account.Revenue].types.includes(item.accountType)) {
-            if (!rMap[item.accountId]) {
-                rMap[item.accountId] = {
-                    accountId: item.accountId,
-                    accountTitle: item.accountTitle,
-                    items: [],
-                    totals: []
-                }
-            }
-            rMap[item.accountId].items.push(item)
+            pushItem(items.operations.revenues, item)
+            result.hasOperations = true
+        }
+        else if (item.accountType == Account.DepreciationExpense) {
+            pushItem(items.depreciation.expenses, item)
+            result.hasDepreciation = true
+        }
+        else if (item.accountType == Account.InterestExpense || item.accountType == Account.TaxExpense) {
+            pushItem(items.interestTax.expenses, item)
+            result.hasInterestTax = true
         }
         else if (Account.TypeGroupInfo[Account.Expense].types.includes(item.accountType)) {
-            if (!eMap[item.accountId]) {
-                eMap[item.accountId] = {
-                    accountId: item.accountId,
-                    accountTitle: item.accountTitle,
-                    items: [],
-                    totals: []
-                }
-            }
-            eMap[item.accountId].items.push(item)
+            pushItem(items.operations.expenses, item)
+            result.hasOperations = true
         }
     })
 
-    const rGroups: Group[] = []
-    Object.keys(rMap).forEach((k: any) => {
-        rMap[k].totals = Transaction.getSums(rMap[k].items)
-        rGroups.push(rMap[k])
+    ;['operations', 'depreciation', 'interestTax'].forEach(division => {
+        ;['revenues', 'expenses'].forEach(half => {
+            Object.keys((items as any)[division][half]).forEach((accountId: any) => {
+                const group = (items as any)[division][half][accountId]
+                group.totals = Transaction.getSums(group.items)
+
+                const halfdivision = result[division][half]
+                halfdivision.groups.push(group)
+                halfdivision.totals = halfdivision.groups.reduce((acc: Money[], cur: Group) => {
+                    return addSubtractMoney([...acc, ...cur.totals])
+                }, [])
+            })    
+        })
+
+        result[division].netTotals = addSubtractMoney(result[division].revenues.totals, result[division].expenses.totals)
     })
-    rGroups.sort((a, b) => { return a.accountTitle < b.accountTitle ? -1 : 1 })
 
-    const rTotals: Money[] = rGroups.reduce((acc: Money[], cur: Group) => {
-        return addSubtractMoney([...acc, ...cur.totals])
-    }, [])
+    const money0 = {currency: Project.variables.get('currency'), amount: 0}
+    result.ebitda = addSubtractMoney([money0, ...result.operations.netTotals])
+    result.ebit = addSubtractMoney([...result.ebitda, ...result.depreciation.netTotals])
+    result.netProfit = addSubtractMoney([...result.ebit, ...result.interestTax.netTotals])
 
-    const eGroups: Group[] = []
-    Object.keys(eMap).forEach((k: any) => {
-        eMap[k].totals = Transaction.getSums(eMap[k].items)
-        eGroups.push(eMap[k])
-    })
-    eGroups.sort((a, b) => { return a.accountTitle < b.accountTitle ? -1 : 1 })
-
-    const eTotals: Money[] = eGroups.reduce((acc: Money[], cur: Group) => {
-        return addSubtractMoney([...acc, ...cur.totals])
-    }, [])
-
-    const nTotals = addSubtractMoney(rTotals, eTotals)
-    return {
-        startDate,
-        endDate,
-        divisions: [{
-            type: 'ordinary',
-            revenues: {
-                groups: rGroups,
-                totals: rTotals,
-            },
-            expenses: {
-                groups: eGroups,
-                totals: eTotals,
-            },
-            netTotals: nTotals,
-        }],
-        netTotals: nTotals,
-    }
+    return result
 }

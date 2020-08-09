@@ -91,7 +91,7 @@ export function Table({children, style}: any) {
 }
 
 export function Tr({children, style}: any) {
-    return <View style={[{flexDirection: 'row'}, style]}>{children}</View>
+    return <View style={[{flexDirection: 'row'}, style]} wrap={false}>{children}</View>
 }
 
 export function Th({children, style, innerStyle, width, indent}: any) {
