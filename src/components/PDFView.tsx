@@ -30,7 +30,9 @@ export function Viewer(props: {url: string}) {
     const [viewer, setViewer] = React.useState<any>()
 
     React.useEffect(() => {
-        if (props.url) {
+        let mounted = true
+
+        if (mounted && props.url) {
             const eventBus = new pdfjsWebViewer.EventBus()
             eventBus.on('pagesinit', (e: any) => {
                 setScale(e.source.currentScale)
@@ -44,9 +46,13 @@ export function Viewer(props: {url: string}) {
 
             const loadingTask = pdfjs.getDocument(props.url)
             loadingTask.promise.then((document: any) => {
-                pdfViewer.setDocument(document)
+                if (mounted) {
+                    pdfViewer.setDocument(document)
+                }
             })
         }
+
+        return () => {mounted=false}
     }, [props.url])
 
     function zoom(delta: number) {
