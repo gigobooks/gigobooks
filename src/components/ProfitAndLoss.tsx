@@ -79,7 +79,7 @@ export function ProfitAndLossDetail() {
                 <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
             </Tr>
 
-            {info.hasDepreciation ? <Division
+            {info.hasOperations ? <Division
                 label='Ordinary revenue / expense'
                 netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
                 division={info.operations} 
