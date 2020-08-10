@@ -68,7 +68,7 @@ export function ProfitAndLossDetail() {
             {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
         </div>
 
-        {info && <PDFView><Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
+        {info && <PDFView filename='profit-and-loss-detail.pdf'><Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
             <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Detail' />
 
             <Tr key='header' style={{marginBottom: 6}}>

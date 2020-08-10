@@ -19,6 +19,14 @@ declare module native {
      * @param filename pathname to delete
      */
     function remove(filename: string): Promise<void>
+
+    /**
+     * Writes to a file
+     * 
+     * @param filename pathname to write to
+     * @param data data to write
+     */
+    function writeFile(filename: string, data: Blob): Promise<void>
 }
 
 declare module dialog {
