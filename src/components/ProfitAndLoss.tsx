@@ -10,7 +10,7 @@ import { Transaction, TransactionType, formatDateOnly, toFormattedAbs,
 import { DateRange, ReportHeader } from './Reports'
 
 // Keep lists of currencies together (ie. no wrapping) unless there are a lot of them
-const CURRENCY_TOTALS_WRAP = 5
+const CURRENCY_TOTALS_WRAP = 7
 
 function transactionTypeLabel(type: TransactionType) {
     // Abbreviate some long labels
@@ -93,14 +93,14 @@ export function ProfitAndLossDetail() {
                 netLabel='Net depreciation and amortisation'
                 division={info.depreciation} 
             />}
-            <Totals totals={info.ebit} label='Earnings before interest and tax (EBIT)' />
+            <Totals key='ebit' totals={info.ebit} label='Earnings before interest and tax (EBIT)' />
 
             {info.hasInterestTax && <Division
                 label='Interest and tax'
                 netLabel='Net interest and tax'
                 division={info.interestTax} 
             />}
-            <Totals totals={info.netProfit} label='Net profit' />
+            <Totals key='netProfit' totals={info.netProfit} label='Net profit' />
         </Page></Document></PDFView>}
     </div>
 }
@@ -236,11 +236,9 @@ type TotalsProps = {
 
 function Totals({label, totals}: TotalsProps) {
     // Keep totals together unless there are a lot of currencies
-    return <View wrap={totals.length > CURRENCY_TOTALS_WRAP}>
+    return <View wrap={totals.length > CURRENCY_TOTALS_WRAP} style={{marginBottom: 12}}>
         {totals.map((money, index) => {
-            return <Tr key={`${money.currency}`} style={index == totals.length-1 ? {
-                marginBottom: 12,
-            } : {}}>
+            return <Tr key={money.currency}>
                 <ThLeft width={85} style={index == 0 ? {
                     paddingTop: 3,
                     borderTopWidth: 2,
