@@ -2,14 +2,11 @@
  * Copyright (c) 2020-present Beng Tan
  */
 
+import { dirname } from './util'
+
 const MRU = 'mru'
 const DIR = 'mruDir'
 const SIZE = 10
-
-function dirname(path: string) {
-    const result = path.match(/(.*)\//)
-    return result && result.length > 1 ? result[1] : ''
-}
 
 export function mruList(): string[] {
     try {

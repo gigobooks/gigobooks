@@ -63,6 +63,11 @@ function basename(path: string): string {
     return parts[parts.length - 1]
 }
 
+export function dirname(path: string) {
+    const result = path.match(/(.*)\//)
+    return result && result.length > 1 ? result[1] : ''
+}
+
 export function refreshWindowTitle() {
     let prefix = ''
     const parts: string[] = []

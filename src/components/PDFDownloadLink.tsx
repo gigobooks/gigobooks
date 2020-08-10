@@ -4,12 +4,23 @@
 
 import * as React from 'react'
 import { BlobParamsAndFilename } from './PDFView'
+import { dirname } from '../util/util'
+
+const PDFDIR = 'pdfDir'
+
+function pdfDir() {
+    return localStorage.getItem(PDFDIR) || undefined
+}
+
+function setPdfDir(directory: string) {
+    localStorage.setItem(PDFDIR, directory)
+}
 
 export default function PDFDownloadLink(props: BlobParamsAndFilename) {
     async function saveBlob() {
-        // ToDo: mru startDir
-        const filename = await dialog.File({type: 'save', title: 'Save PDF as'})
+        const filename = await dialog.File({type: 'save', title: 'Save PDF as', startDir: pdfDir()})
         await native.writeFile(filename, props.blob!)
+        setPdfDir(dirname(filename))
     }
 
     function onClick(e: any) {
