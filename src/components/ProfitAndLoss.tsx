@@ -49,26 +49,8 @@ export function ProfitAndLossDetail() {
         }
     }, [startDate, endDate])
 
-    return <div>
-        <h1><span className='title'>Profit and Loss: Detail</span></h1>
-        <div>
-            <span className='date-preset'>
-                <label htmlFor='preset'>Date:</label>
-                <select name='preset' value={preset} onChange={onPresetChange}>
-                    {!preset && <option key='' value=''></option>}
-                    <option key='this-month' value='this-month'>This month</option>
-                    <option key='this-quarter' value='this-quarter'>This quarter</option>
-                    <option key='this-year' value='this-year'>This financial year</option>
-                    <option key='prev-month' value='prev-month'>Last month</option>
-                    <option key='prev-quarter' value='prev-quarter'>Last quarter</option>
-                    <option key='prev-year' value='prev-year'>Last financial year</option>
-                    <option key='custom' value='custom'>Custom date range</option>
-                </select>
-            </span>
-            {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
-        </div>
-
-        {info && <PDFView filename='profit-and-loss-detail.pdf'><Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
+    const report = React.useMemo(() => {
+        return info ? <Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
             <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Detail' />
 
             <Tr key='header' style={{marginBottom: 6}}>
@@ -101,7 +83,29 @@ export function ProfitAndLossDetail() {
                 division={info.interestTax} 
             />}
             <Totals key='netProfit' totals={info.netProfit} label='Net profit' />
-        </Page></Document></PDFView>}
+        </Page></Document> : null
+    }, [info])
+
+    return <div>
+        <h1><span className='title'>Profit and Loss: Detail</span></h1>
+        <div>
+            <span className='date-preset'>
+                <label htmlFor='preset'>Date:</label>
+                <select name='preset' value={preset} onChange={onPresetChange}>
+                    {!preset && <option key='' value=''></option>}
+                    <option key='this-month' value='this-month'>This month</option>
+                    <option key='this-quarter' value='this-quarter'>This quarter</option>
+                    <option key='this-year' value='this-year'>This financial year</option>
+                    <option key='prev-month' value='prev-month'>Last month</option>
+                    <option key='prev-quarter' value='prev-quarter'>Last quarter</option>
+                    <option key='prev-year' value='prev-year'>Last financial year</option>
+                    <option key='custom' value='custom'>Custom date range</option>
+                </select>
+            </span>
+            {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
+        </div>
+
+        {report && <PDFView filename='profit-and-loss-detail.pdf'>{report}</PDFView>}
     </div>
 }
 
