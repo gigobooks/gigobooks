@@ -66,8 +66,8 @@ export function ProfitAndLossDetail() {
                 netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
                 division={info.operations} 
             /> : <>
-                <Tr key='label'><Th>Ordinary revenue / expense</Th></Tr>
-                <Tr key='none'><Td indent={2}>No items</Td></Tr>
+                <Tr key='label' style={{marginBottom: 3}}><Th width={100}>Ordinary revenue / expense</Th></Tr>
+                <Tr key='none'><Td indent={2} width={98}>No items</Td></Tr>
             </>}
 
             {info.hasDepreciation && <DivisionDetail
@@ -236,17 +236,23 @@ function DivisionDetail({label, netLabel, division}: DivisionProps) {
 type TotalsProps = {
     label: string
     totals: Money[]
+    width?: number
 }
 
-function Totals({label, totals}: TotalsProps) {
+function Totals({label, totals, width = 100}: TotalsProps) {
     // Keep totals together unless there are a lot of currencies
     return <View wrap={totals.length > CURRENCY_TOTALS_WRAP} style={{marginBottom: 12}}>
         {totals.map((money, index) => {
             return <Tr key={money.currency}>
-                <ThLeft width={85} style={index == 0 ? {
+                <ThLeft width={width - 15} style={index == 0 ? {
                     paddingTop: 3,
                     borderTopWidth: 2,
                     borderColor: '#fff', // transparent
+                } : {}} innerStyle={index == 0 ? {
+                    paddingTop: 3,
+                    borderTopWidth: 2,
+                    borderColor: '#fff', // transparent
+                    position: 'absolute',
                 } : {}}>{index == 0 ? `${label}` : ''}</ThLeft>
                 <ThRight width={15} style={{
                     borderTopWidth: index == 0 ? 2 : 0,
@@ -300,8 +306,8 @@ export function ProfitAndLossSummary() {
                 netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
                 division={info.operations} 
             /> : <>
-                <Tr key='label'><Th>Ordinary revenue / expense</Th></Tr>
-                <Tr key='none'><Td indent={2}>No items</Td></Tr>
+                <Tr key='label' style={{marginBottom: 3}}><Th width={60}>Ordinary revenue / expense</Th></Tr>
+                <Tr key='none'><Td indent={2} width={58}>No items</Td></Tr>
             </>}
 
             {info.hasDepreciation && <DivisionSummary
@@ -309,14 +315,14 @@ export function ProfitAndLossSummary() {
                 netLabel='Net depreciation and amortisation'
                 division={info.depreciation} 
             />}
-            <Totals key='ebit' totals={info.ebit} label='Earnings before interest and tax (EBIT)' />
+            <Totals key='ebit' totals={info.ebit} width={60} label='Earnings before interest and tax (EBIT)' />
 
             {info.hasInterestTax && <DivisionSummary
                 label='Interest and tax'
                 netLabel='Net interest and tax'
                 division={info.interestTax} 
             />}
-            <Totals key='netProfit' totals={info.netProfit} label='Net profit' />
+            <Totals key='netProfit' totals={info.netProfit} width={60} label='Net profit' />
         </Page></Document> : null
     }, [info])
 
@@ -345,15 +351,15 @@ export function ProfitAndLossSummary() {
 
 function DivisionSummary({label, netLabel, division}: DivisionProps) {
     return <>
-        <Tr key='label' style={{marginBottom: 3}}><Th width={100}>{label}</Th></Tr>
+        <Tr key='label' style={{marginBottom: 3}}><Th width={60}>{label}</Th></Tr>
  
-        {division.revenues.groups.length > 0 && <Tr key='revenue' style={{marginBottom: 3}}><Th indent={2} width={98}>Revenue</Th></Tr>}
+        {division.revenues.groups.length > 0 && <Tr key='revenue' style={{marginBottom: 3}}><Th indent={2} width={58}>Revenue</Th></Tr>}
         {division.revenues.groups.map(group => <React.Fragment key={`group-${group.accountId}`}>
             {group.totals.map((money, index) => {
                 return <Tr key={money.currency} style={index == group.totals.length - 1 ? {
                         marginBottom: 3,
                     } : {}}>
-                    <TdLeft width={79} indent={4}>
+                    <TdLeft width={39} indent={4}>
                         {index == 0 ? group.accountTitle : ''}
                     </TdLeft>
                     <TdRight width={17}>
@@ -368,7 +374,7 @@ function DivisionSummary({label, netLabel, division}: DivisionProps) {
             return <Tr key={money.currency} style={index == division.revenues.totals.length-1 ? {
                 marginBottom: 12,
             } : {}}>
-                <ThLeft width={81} indent={2} innerStyle={index == 0 ? {
+                <ThLeft width={41} indent={2} innerStyle={index == 0 ? {
                     paddingTop: 3,
                     borderTopWidth: 1,
                     borderColor: '#fff', // transparent
@@ -383,13 +389,13 @@ function DivisionSummary({label, netLabel, division}: DivisionProps) {
         })}
         </View>
 
-        {division.expenses.groups.length > 0 && <Tr key='expenses' style={{marginBottom: 3}}><Th indent={2} width={98}>Expenses</Th></Tr>}
+        {division.expenses.groups.length > 0 && <Tr key='expenses' style={{marginBottom: 3}}><Th indent={2} width={58}>Expenses</Th></Tr>}
         {division.expenses.groups.map(group => <React.Fragment key={`group-${group.accountId}`}>
             {group.totals.map((money, index) => {
                 return <Tr key={money.currency} style={index == group.totals.length - 1 ? {
                         marginBottom: 3,
                     } : {}}>
-                    <TdLeft width={79} indent={4}>
+                    <TdLeft width={39} indent={4}>
                         {index == 0 ? group.accountTitle : ''}
                     </TdLeft>
                     <TdRight width={17}>
@@ -404,7 +410,7 @@ function DivisionSummary({label, netLabel, division}: DivisionProps) {
             return <Tr key={money.currency} style={index == division.expenses.totals.length-1 ? {
                 marginBottom: 12,
             } : {}}>
-                <ThLeft width={81} indent={2} innerStyle={index == 0 ? {
+                <ThLeft width={41} indent={2} innerStyle={index == 0 ? {
                     paddingTop: 3,
                     borderTopWidth: 1,
                     borderColor: '#fff', // transparent
@@ -419,6 +425,6 @@ function DivisionSummary({label, netLabel, division}: DivisionProps) {
         })}
         </View>
 
-        <Totals totals={division.netTotals} label={netLabel} />
+        <Totals totals={division.netTotals} label={netLabel} width={60}/>
     </>
 }
