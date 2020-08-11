@@ -24,7 +24,7 @@ import Sale from './Sale'
 import Purchase from './Purchase'
 import { refreshWindowTitle } from '../util/util'
 import { mruList, mruInsert, mruClear, mruDir } from '../util/mru'
-import { ProfitAndLossDetail } from './ProfitAndLoss'
+import { ProfitAndLossDetail, ProfitAndLossSummary } from './ProfitAndLoss'
 
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
@@ -211,6 +211,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
             <MenuItem key='/settings/tax'>Tax Settings</MenuItem>
         </SubMenu>}
         {props.open && <SubMenu key='reports' title="Reports">
+            <MenuItem key='/reports/pl-summary'>Profit and Loss: Summary</MenuItem>
             <MenuItem key='/reports/pl-detail'>Profit and Loss: Detail</MenuItem>
         </SubMenu>}
         <SubMenu key='help' title="Help">
@@ -223,6 +224,9 @@ function Main() {
     return <Switch>
         <Route path='/reports/pl-detail'>
             <ProfitAndLossDetail />
+        </Route>
+        <Route path='/reports/pl-summary'>
+            <ProfitAndLossSummary />
         </Route>
         <Route path='/purchases/:arg1'>
             <DispatchWithParams element={Purchase} />
