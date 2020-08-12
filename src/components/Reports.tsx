@@ -9,6 +9,9 @@ import { Project, parseISO, toDateOnly, dateFormatString as dfs } from '../core'
 import { View } from '@react-pdf/renderer'
 import { B, T } from './PDFView'
 
+// Keep lists of currencies together (ie. no wrapping) unless there are a lot of them
+export const CURRENCY_TOTALS_WRAP = 7
+
 type DateRangeSelectProps = {
     startDate: string
     endDate: string

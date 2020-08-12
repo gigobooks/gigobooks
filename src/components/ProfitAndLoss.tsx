@@ -4,20 +4,10 @@
 
 import * as React from 'react'
 import { Document, Page, View } from '@react-pdf/renderer'
-import { PDFView, Styles, Table, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
-import { Transaction, TransactionType, formatDateOnly, toFormattedAbs,
+import { PDFView, Styles, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
+import { Transaction, formatDateOnly, toFormattedAbs,
     Money, ProfitAndLoss, profitAndLoss, datePresetDates } from '../core'
-import { DateRange, ReportHeader } from './Reports'
-
-// Keep lists of currencies together (ie. no wrapping) unless there are a lot of them
-const CURRENCY_TOTALS_WRAP = 7
-
-function transactionTypeLabel(type: TransactionType) {
-    // Abbreviate some long labels
-    return type == Transaction.Sale ? 'Sale' :
-        type == Transaction.Purchase ? 'Purchase' :
-        Transaction.TypeInfo[type].label
-}
+import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
 
 export function ProfitAndLossDetail() {
     const [preset, setPreset] = React.useState<string>('')
@@ -124,10 +114,10 @@ function DivisionDetail({label, netLabel, division}: DivisionProps) {
             <Tr key='group-title' style={{marginBottom: 3}}><Th indent={4} width={96}>{group.accountTitle}</Th></Tr>
             {group.items.map((item, index) => {
                 return <Tr key={item.id}>
-                    <TdLeft width={14} indent={4}>{transactionTypeLabel(item.txnType)} {item.txnId}</TdLeft>
+                    <TdLeft width={14} indent={4}>{Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}</TdLeft>
                     <Td width={11} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
-                    <TdLeft width={20}>{item.actorTitle}</TdLeft>
-                    <Td width={34}>{
+                    <TdLeft width={20} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
+                    <Td width={34} innerStyle={{maxLines: 2}}>{
                         !item.txnDescription ? item.description :
                         !item.description ? item.txnDescription :
                         `${item.txnDescription}: ${item.description}`
@@ -179,10 +169,10 @@ function DivisionDetail({label, netLabel, division}: DivisionProps) {
             <Tr key='group-title' style={{marginBottom: 3}}><Th indent={4} width={96}>{group.accountTitle}</Th></Tr>
             {group.items.map((item, index) => {
                 return <Tr key={item.id}>
-                    <TdLeft width={14} indent={4}>{transactionTypeLabel(item.txnType)} {item.txnId}</TdLeft>
+                    <TdLeft width={14} indent={4}>{Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}</TdLeft>
                     <Td width={11} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
-                    <TdLeft width={20}>{item.actorTitle}</TdLeft>
-                    <Td width={34}>{
+                    <TdLeft width={20} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
+                    <Td width={34} innerStyle={{maxLines: 2}}>{
                         !item.txnDescription ? item.description :
                         !item.description ? item.txnDescription :
                         `${item.txnDescription}: ${item.description}`

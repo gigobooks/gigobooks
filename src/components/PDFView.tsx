@@ -103,10 +103,6 @@ export function I({children, style}: any) {
     return <Text style={[{fontFamily: 'Helvetica-Oblique'}, style]}>{children}</Text>
 }
 
-export function Table({children, style}: any) {
-    return <View style={[{display: 'table', width: 'auto'}, style]}>{children}</View>
-}
-
 export function Tr({children, style}: any) {
     return <View style={[{flexDirection: 'row', marginHorizontal: 'auto'}, style]} wrap={false}>{children}</View>
 }
