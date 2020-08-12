@@ -160,7 +160,7 @@ form textarea { width: 20em; height: 5em; }
 
 .pdfViewer-toolbar { text-align: right; }
 .pdfViewer-toolbar .zoom-percent { display: inline-block; width: 4em; padding-left: 0.5em; }
-.pdfViewer-container { background-color: #333; width: 100%; height: 100%; position: relative; overflow: scroll; }
+.pdfViewer-container { background-color: #333; width: 100%; height: 100%; position: relative; }
 .pdf-download-link { display: inline-block; margin-right: 0.5em; }
 
 /***********************************************************
