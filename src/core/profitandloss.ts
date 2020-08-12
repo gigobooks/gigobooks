@@ -32,6 +32,7 @@ type Item = {
     // other fields
     id: number
     description: string
+    drcr: number
     amount: number
     currency: string
 }
@@ -83,7 +84,7 @@ export async function profitAndLoss(startDate: string, endDate: string, accrual?
             'account.Id as accountId', 'account.title as accountTitle', 'account.type as accountType')
             // splitId, splitTitle ??
         .whereIn('account.type', [
-            ...Account.TypeGroupInfo[Account.Revenue].types, 
+            ...Account.TypeGroupInfo[Account.Revenue].types,
             ...Account.TypeGroupInfo[Account.Expense].types
         ])
         .where('txn.date', '>=', startDate).where('txn.date', '<=', endDate)
@@ -98,8 +99,10 @@ export async function profitAndLoss(startDate: string, endDate: string, accrual?
         depreciation: { revenues: {groups: [], totals: []}, expenses: {groups: [], totals: []}, netTotals: []},
         hasInterestTax: false,
         interestTax: { revenues: {groups: [], totals: []}, expenses: {groups: [], totals: []}, netTotals: []},
-        netTotals: []
-    }
+        ebitda: [],
+        ebit: [],
+        netProfit: [],
+    } as ProfitAndLoss
 
     const items: {
         operations: { revenues: Record<number, Group>, expenses: Record<number, Group> }
@@ -148,7 +151,7 @@ export async function profitAndLoss(startDate: string, endDate: string, accrual?
         ;['revenues', 'expenses'].forEach(half => {
             Object.keys((items as any)[division][half]).forEach((accountId: any) => {
                 const group = (items as any)[division][half][accountId]
-                group.totals = Transaction.getSums(group.items)
+                group.totals = half == 'revenues' ? Transaction.getCreditBalances(group.items) : Transaction.getDebitBalances(group.items)
 
                 const halfdivision = result[division][half]
                 halfdivision.groups.push(group)
