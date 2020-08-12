@@ -25,16 +25,16 @@ export enum TransactionType {
     BillPayment = 'bill-payment',
 }
 
-export const TransactionTypeInfo: Record<string, any> = {
-    [TransactionType.Raw]: { label: 'Raw' },
-    [TransactionType.Contribution]: { label: 'Contribution' },
+export const TransactionTypeInfo: Record<string, {label: string, shortLabel: string}> = {
+    [TransactionType.Raw]: { label: 'Raw', shortLabel: 'Raw' },
+    [TransactionType.Contribution]: { label: 'Contribution', shortLabel: 'Contrib' },
     // [TransactionType.Dividend]: { label: 'Dividend' },
-    [TransactionType.Sale]: { label: 'Cash sale' },
-    [TransactionType.Invoice]: { label: 'Invoice' },
-    [TransactionType.InvoicePayment]: { label: 'Invoice payment' },
-    [TransactionType.Purchase]: { label: 'Cash purchase' },
-    [TransactionType.Bill]: { label: 'Bill' },
-    [TransactionType.BillPayment]: { label: 'Bill payment' },
+    [TransactionType.Sale]: { label: 'Cash sale', shortLabel: 'Sale' },
+    [TransactionType.Invoice]: { label: 'Invoice', shortLabel: 'Inv' },
+    [TransactionType.InvoicePayment]: { label: 'Invoice payment', shortLabel: 'Inv pay' },
+    [TransactionType.Purchase]: { label: 'Cash purchase', shortLabel: 'Purch' },
+    [TransactionType.Bill]: { label: 'Bill', shortLabel: 'Bill' },
+    [TransactionType.BillPayment]: { label: 'Bill payment', shortLabel: 'Bill pay' },
 }
 
 export class Transaction extends Base {

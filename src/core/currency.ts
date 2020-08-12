@@ -61,10 +61,11 @@ export function toFormatted(amount: number, currency: string, loc = locale): str
     }
 
     // This is yucky. Render the number into something like '1,234 USD'
-    // and then: replace the group separator and the currency code
-    // (ie. uppercase letters) with spaces; and then trim whitespace.
+    // and then: delete the currency code (ie. uppercase letters),
+    // replace the group separator with space, and then trim whitespace.
     return info.formatter.format(amount / info.scale)
-        .replace(new RegExp(`[${info.grouper}A-Z]`, 'g'), ' ').trim()
+        .replace(new RegExp(`[A-Z]`, 'g'), '')
+        .replace(new RegExp(`${info.grouper}`, 'g'), ' ').trim()
 
     // Convert `group` parts to space. Omit `currency` parts
     // This can't be used because `.formatToParts` seems to be missing from

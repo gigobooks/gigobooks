@@ -50,7 +50,7 @@ const AccountTypeGroupInfo: any = {
             AccountType.DepreciationExpense, AccountType.Loss],
         prefix: 5,
     },
-}
+} as Record<string, {label: string, types: AccountType[], prefix: number}>
 
 export const AccountTypeInfo: Record<string, any> = {
     [AccountType.Asset]: { label: 'Asset', group: AccountType.Asset },
@@ -71,14 +71,6 @@ export const AccountTypeInfo: Record<string, any> = {
     [AccountType.Loss]: { label: 'Loss', group: AccountType.Expense,
         description: 'A one-off loss from the sale or disposal of an asset' },
 }
-
-const DebitTypes: any = [
-    AccountType.Asset, AccountType.LongTermAsset,
-    AccountType.Expense, AccountType.GrossExpense, AccountType.InterestExpense, 
-    AccountType.TaxExpense, AccountType.DepreciationExpense, 
-    // Apparently dividends are debit balance too,
-    // but dividend isn't an account type. Huh ??
-]
 
 // Any account with id strictly less than 100 is a reserved/inbuilt/system account.
 // These accounts are needed for higher level functionality to work.
@@ -163,10 +155,6 @@ export class Account extends Base {
         return this.id! <= RESERVED_ACCOUNT_ID_MAX
     }
 
-    get isDebitBalance() {
-        return DebitTypes.includes(this.type)
-    }
-
     get typeGroup() {
         return AccountTypeInfo[this.type!].group
     }
@@ -207,6 +195,10 @@ export class Account extends Base {
         this.id = prefixPreservingIncrement(
             Math.max(floor, RESERVED_ACCOUNT_ID_MAX), groupInfo.prefix)
         return Account.query(trx).insert(this)
+    }
+
+    static isDebitBalanceType(t: AccountType) {
+        return AccountTypeGroupInfo[Account.Asset].types.includes(t) || AccountTypeGroupInfo[Account.Expense].types.includes(t)
     }
 }
 
