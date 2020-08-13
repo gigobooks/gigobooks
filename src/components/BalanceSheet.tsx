@@ -219,3 +219,105 @@ function Totals({label, totals, width = 100}: TotalsProps) {
         })}
     </View>
 }
+
+export function BalanceSheet() {
+    const [preset, setPreset] = React.useState<string>('')
+    const [startDate, setStartDate] = React.useState<string>('')
+    const [endDate, setEndDate] = React.useState<string>('')
+    const [info, setInfo] = React.useState<BalanceSheet>()
+
+    function onPresetChange(e: any) {
+        const value = e.target.value
+        setPreset(value)
+
+        if (value != 'custom') {
+            const range = datePresetDates(value)
+            setStartDate(range[0])
+            setEndDate(range[1])
+        }
+    }
+
+    function onDateChange(startDate: string, endDate: string) {
+        setStartDate(startDate)
+        setEndDate(endDate)
+    }
+
+    React.useEffect(() => {
+        if (startDate && endDate) {
+            balanceSheet(startDate, endDate).then(data => {
+                setInfo(data)
+            })
+        }
+    }, [startDate, endDate])
+
+    const report = React.useMemo(() => {
+        return info ? <Document><Page size='A4' style={[Styles.page, {fontSize: 9}]}>
+            <View fixed={true}>
+                <ReportHeader endDate={info.endDate} title='Balance Sheet' />
+            </View>
+
+            <Tr key='assets' style={{marginBottom: 3}}><Th width={50}>ASSETS</Th></Tr>
+            <Subdivision label='Current assets' subdivision={info.assets.current} drcr={Debit}/>
+            <Subtotals totals={info.assets.current.totals} label='Total current assets' width={50} />
+            <Subdivision label='Non-current assets' subdivision={info.assets.nonCurrent} drcr={Debit} />
+            <Subtotals totals={info.assets.nonCurrent.totals} label='Total non-current assets' width={50} />
+            <Totals totals={info.assets.totals} label='TOTAL ASSETS' width={50} />
+
+            <Tr key='liabilities' style={{marginBottom: 3}}><Th width={50}>LIABILITIES</Th></Tr>
+            <Subdivision label='Current liabilities' subdivision={info.liabilities.current} drcr={Credit} />
+            <Subtotals totals={info.liabilities.current.totals} label='Total current liabilities' width={50} />
+            <Subdivision label='Non-current liabilities' subdivision={info.liabilities.nonCurrent} drcr={Credit} />
+            <Subtotals totals={info.liabilities.nonCurrent.totals} label='Total non-current liabilities' width={50} />
+            <Totals totals={info.liabilities.totals} label='TOTAL LIABILITIES' width={50} />
+
+            <Totals totals={info.netAssets} label='NET ASSETS' width={50} />
+
+            <Tr key='label' style={{marginBottom: 3}}><Th width={50}>EQUITY</Th></Tr>
+            <Subdivision label={false} subdivision={info.equity.accounts} drcr={Credit} />
+            <Totals totals={info.equity.accounts.totals} label='TOTAL EQUITY' width={50} />
+        </Page></Document> : null
+    }, [info])
+
+    return <div>
+        <h1><span className='title'>Balance Sheet</span></h1>
+        <div>
+            <span className='date-preset'>
+                <label htmlFor='preset'>Date:</label>
+                <select name='preset' value={preset} onChange={onPresetChange}>
+                    {!preset && <option key='' value=''></option>}
+                    <option key='this-month' value='this-month'>This month</option>
+                    <option key='this-quarter' value='this-quarter'>This quarter</option>
+                    <option key='this-year' value='this-year'>This financial year</option>
+                    <option key='prev-month' value='prev-month'>Last month</option>
+                    <option key='prev-quarter' value='prev-quarter'>Last quarter</option>
+                    <option key='prev-year' value='prev-year'>Last financial year</option>
+                    <option key='custom' value='custom'>Custom date range</option>
+                </select>
+            </span>
+            {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
+        </div>
+
+        {report && <PDFView filename='balance-sheet.pdf'>{report}</PDFView>}
+    </div>
+}
+
+function Subdivision({label, subdivision, drcr}: {label: string | false, subdivision: BalanceSheet['assets']['current'], drcr: number}) {
+    return <>
+        {subdivision.groups.length > 0 && label && <Tr key={label} style={{marginBottom: 3}}><Th indent={2} width={48}>{label}</Th></Tr>}
+        {subdivision.groups.map(group => {
+            return <React.Fragment key={`group-${group.accountId}`}>
+            {group.closingBalance.map((money, index) => {
+                return <Tr key={money.currency} style={index == group.closingBalance.length - 1 ? {
+                        marginBottom: 6,
+                    } : {}}>
+                    <TdLeft width={29} indent={4}>
+                        {index == 0 ? <B>{group.accountTitle}</B> : ''}
+                    </TdLeft>
+                    <TdRight width={17}>
+                        {toFormatted(money.amount, money.currency)} {money.currency}
+                    </TdRight>
+                </Tr>
+            })}
+        </React.Fragment>})}
+    </>
+}
