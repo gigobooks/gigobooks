@@ -85,6 +85,7 @@ const ReservedAccountIds = {
     AccountsPayable: 20,
     TaxPayable: 22,
     Equity: 30,
+    RetainedEarnings: 31,
 }
 
 export const PrepopulatedAccounts = [
@@ -97,6 +98,7 @@ export const PrepopulatedAccounts = [
     {id: 21, title: 'Long Term Liabilities', type: 'long-term-liability'},
     {id: ReservedAccountIds.TaxPayable, title: 'Tax Payable', type: 'liability'},
     {id: ReservedAccountIds.Equity, title: 'Equity', type: 'equity'},
+    {id: ReservedAccountIds.RetainedEarnings, title: 'Retained Earnings', type: 'equity'},
     {id: 50, title: 'Cost of Goods Sold', type: 'gross-expense'},
     {id: 51, title: 'Interest Expense', type: 'interest-expense'},
     {id: 52, title: 'Income Tax Expense', type: 'tax-expense'},
