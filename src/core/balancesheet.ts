@@ -147,7 +147,8 @@ export async function balanceSheet(startDate: string, endDate: string, accrual?:
     ])
     Transaction.getCreditBalances(netProfitItems).forEach((m: Money, index) => {
         reGroup.items.push({
-            txnDescription: `Net Profit (${m.currency})`,
+            txnId: 'Net Profit' as any,     // !! Hack
+            txnDescription: m.currency,
             accountId: reAccount.id,
             accountTitle: reAccount.title,
             accountType: reAccount.type,
