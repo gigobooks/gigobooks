@@ -7,6 +7,7 @@ import { Account, AccountType } from './Account'
 import { Element } from './Element'
 import { Transaction, TransactionType } from './Transaction'
 import { Project } from './Project'
+import { orderByField } from '../util/util'
 
 type Item = {
     // parent transaction
@@ -149,16 +150,18 @@ export async function profitAndLoss(startDate: string, endDate: string, accrual?
 
     ;['operations', 'depreciation', 'interestTax'].forEach(division => {
         ;['revenues', 'expenses'].forEach(half => {
+            const halfdivision = result[division][half]
             Object.keys((items as any)[division][half]).forEach((accountId: any) => {
                 const group = (items as any)[division][half][accountId]
                 group.totals = half == 'revenues' ? Transaction.getCreditBalances(group.items) : Transaction.getDebitBalances(group.items)
 
-                const halfdivision = result[division][half]
                 halfdivision.groups.push(group)
                 halfdivision.totals = halfdivision.groups.reduce((acc: Money[], cur: Group) => {
                     return addSubtractMoney([...acc, ...cur.totals])
                 }, [])
-            })    
+            })
+
+            halfdivision.groups.sort(orderByField('accountTitle'))
         })
 
         result[division].netTotals = addSubtractMoney(result[division].revenues.totals, result[division].expenses.totals)

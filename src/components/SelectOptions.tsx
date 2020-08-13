@@ -6,6 +6,7 @@ var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
 import { Account, Actor, Project, taxCodeInfo, TaxCodeInfo, taxCodes } from '../core'
+import { orderByField } from '../util/util'
 
 // A thin wrapper around <select /> with the following optimisation:
 // If only one option is available, then set to disabled so it does not receive focus
@@ -111,9 +112,7 @@ export function countryOptions() {
         items.push({id, title: data[id].name})
     })
 
-    return flatSelectOptions(items.sort(function (a, b) {
-        return a.title < b.title ? -1 : 1
-    }))
+    return flatSelectOptions(items.sort(orderByField('title')))
 }
 
 export function countrySubdivisionOptions(countryCode: string) {
@@ -130,9 +129,7 @@ export function countrySubdivisionOptions(countryCode: string) {
         })
     }
 
-    return flatSelectOptions(items.sort(function (a, b) {
-        return a.title < b.title ? -1 : 1
-    }))
+    return flatSelectOptions(items.sort(orderByField('title')))
 }
 
 // Returns a list of ALL currency select options, with the supplied values at the top

@@ -68,6 +68,12 @@ export function dirname(path: string) {
     return result && result.length > 1 ? result[1] : ''
 }
 
+// Returns a function that orders objects (lexicographically) according to the
+// member variable denoted by 'field'
+export function orderByField(field: string) {
+    return function (a: any, b: any) { return a[field] < b[field] ? -1 : 1 }
+}
+
 export function refreshWindowTitle() {
     let prefix = ''
     const parts: string[] = []

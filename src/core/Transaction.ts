@@ -6,6 +6,7 @@ import { QueryBuilder } from 'objection'
 import { Base, Model, TransactionOrKnex } from './Base'
 import { Element, IElement } from './Element'
 import { isDateOnly } from './date'
+import { orderByField } from '../util/util'
 import { Money } from './currency'
 import { Project } from './Project'
 import Account from './Account'
@@ -370,7 +371,7 @@ export class Transaction extends Base {
         })
 
         return Object.keys(balances).map(currency => ({amount: balances[currency], currency}))
-            .sort((a, b) => { return a.currency < b.currency ? -1 : 1 })
+            .sort(orderByField('currency'))
     }
 
     static getDebitBalances(elements: IElement[]) {

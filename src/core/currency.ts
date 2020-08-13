@@ -3,6 +3,7 @@
  */
 
 import * as CurrencyCodes from 'currency-codes'
+import { orderByField } from '../util/util'
 
 type Info = {
     code: string        // ISO 4217 code
@@ -143,5 +144,5 @@ export function addSubtractMoney(add: Money[], subtract: Money[] = []): Money[] 
     })
 
     return Object.keys(hash).map(currency => ({amount: hash[currency], currency}))
-    .sort((a, b) => { return a.currency < b.currency ? -1 : 1 })
+        .sort(orderByField('currency'))
 }
