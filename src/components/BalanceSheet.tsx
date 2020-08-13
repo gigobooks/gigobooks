@@ -44,16 +44,17 @@ export function BalanceSheetLog() {
 
     const report = React.useMemo(() => {
         return info ? <Document><Page size='A4' style={[Styles.page, {fontSize: 9}]}>
-            <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Balance Sheet: Log' />
-
-            <Tr key='header' style={{marginBottom: 6}}>
-                <ThLeft width={18} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
-                <ThLeft width={11} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
-                <ThLeft width={17} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
-                <Th width={20} innerStyle={{borderBottomWidth: 1}}>Description</Th>
-                <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
-                <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Balance</ThRight>
-            </Tr>
+            <View fixed={true}>
+                <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Balance Sheet: Log' />
+                <Tr key='header' style={{marginBottom: 6}}>
+                    <ThLeft width={18} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
+                    <ThLeft width={11} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
+                    <ThLeft width={17} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
+                    <Th width={20} innerStyle={{borderBottomWidth: 1}}>Description</Th>
+                    <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
+                    <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Balance</ThRight>
+                </Tr>
+            </View>
 
             <Tr key='assets' style={{marginBottom: 3}}><Th width={100}>ASSETS</Th></Tr>
             <SubdivisionLog label='Current assets' subdivision={info.assets.current} drcr={Debit}/>

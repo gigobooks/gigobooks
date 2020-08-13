@@ -41,15 +41,16 @@ export function ProfitAndLossDetail() {
 
     const report = React.useMemo(() => {
         return info ? <Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
-            <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Detail' />
-
-            <Tr key='header' style={{marginBottom: 6}}>
-                <ThLeft width={18} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
-                <ThLeft width={11} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
-                <ThLeft width={20} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
-                <Th width={34} innerStyle={{borderBottomWidth: 1}}>Description</Th>
-                <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
-            </Tr>
+            <View fixed={true}>
+                <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Detail' />
+                <Tr key='header' style={{marginBottom: 6}}>
+                    <ThLeft width={18} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
+                    <ThLeft width={11} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
+                    <ThLeft width={20} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
+                    <Th width={34} innerStyle={{borderBottomWidth: 1}}>Description</Th>
+                    <ThRight width={17} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
+                </Tr>
+            </View>
 
             {info.hasOperations ? <DivisionDetail
                 label='Ordinary revenue / expense'
@@ -289,7 +290,9 @@ export function ProfitAndLossSummary() {
 
     const report = React.useMemo(() => {
         return info ? <Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
-            <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Summary' />
+            <View fixed={true}>
+                <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Summary' />
+            </View>
 
             {info.hasOperations ? <DivisionSummary
                 label='Ordinary revenue / expense'
