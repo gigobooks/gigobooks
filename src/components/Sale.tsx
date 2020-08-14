@@ -363,20 +363,10 @@ function ElementFamily(props: ElementFamilyProps) {
         </button>
     </td></tr>
 
-    {fields.length > 0 && <tr className='child-header' key={`${item.id}-taxes`}><td className='header-space-start' rowSpan={65534}>
-        &nbsp;
-    </td><th className='header-tax-code'>
-        tax
-    </th><th className='header-tax-rate'>
-        tax rate
-    </th><th className='header-space-middle' colSpan={2}>
-        &nbsp;
-    </th><th className='header-amount'>
-        amount
-    </th></tr>}
-
     {fields.map((subItem, subIndex) => 
-    <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}><td className='child-tax-code'>
+    <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}><td className='header-space-start' colSpan={2}>
+        &nbsp;
+    </td><td className='child-tax-code'>
         {!!subItem.eId && 
         <input
             type='hidden'
@@ -384,43 +374,46 @@ function ElementFamily(props: ElementFamilyProps) {
             value={subItem.eId}
             ref={form.register()}
         />}
-        <select
-            name={`elements[${index}].taxes[${subIndex}].code`}
-            defaultValue={subItem.code}
-            onChange={e => {
-                const info = taxCodeInfo(e.target.value)
-                form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
-                state.rates[subIndex] = info.rate
-                formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
+        <label htmlFor={`elements[${index}].taxes[${subIndex}].code`}>Tax code:
+            <select
+                name={`elements[${index}].taxes[${subIndex}].code`}
+                defaultValue={subItem.code}
+                onChange={e => {
+                    const info = taxCodeInfo(e.target.value)
+                    form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
+                    state.rates[subIndex] = info.rate
+                    formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
 
-                ratesEnabled[subIndex] = info.variable
-                setRatesEnabled([...ratesEnabled])
-            }}
-            ref={form.register()}
-        >
-            {taxSelectOptions(subItem.code)}
-        </select>
+                    ratesEnabled[subIndex] = info.variable
+                    setRatesEnabled([...ratesEnabled])
+                }}
+                ref={form.register()}
+            >
+                {taxSelectOptions(subItem.code)}
+            </select>
+        </label>
     </td><td className='child-tax-rate'>
-        <input
-            name={`elements[${index}].taxes[${subIndex}].rate`}
-            defaultValue={subItem.rate}
-            onChange={e => {
-                state.rates[subIndex] = e.target.value
-                formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
-            }}
-            disabled={!ratesEnabled[subIndex]}
-            ref={form.register()}
-        />
-        <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>%</label>
-    </td><td className='child-space-middle' colSpan={2}>
-        &nbsp;
-    </td><td className='child-amount'>
-        <input
-            name={`elements[${index}].taxes[${subIndex}].amount`}
-            defaultValue={subItem.amount}
-            disabled={true}
-            ref={form.register()}
-        />
+        <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>
+            Rate:<input
+                name={`elements[${index}].taxes[${subIndex}].rate`}
+                defaultValue={subItem.rate}
+                onChange={e => {
+                    state.rates[subIndex] = e.target.value
+                    formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
+                }}
+                disabled={!ratesEnabled[subIndex]}
+                ref={form.register()}
+            /> %
+        </label>
+    </td><td className='child-amount' colSpan={2}>
+        <label htmlFor={`elements[${index}].taxes[${subIndex}].amount`}>Amount:
+            <input
+                name={`elements[${index}].taxes[${subIndex}].amount`}
+                defaultValue={subItem.amount}
+                disabled={true}
+                ref={form.register()}
+            />
+        </label>
         {formErrors.elements && formErrors.elements[index] &&
             formErrors.elements[index].taxes && formErrors.elements[index].taxes[subIndex] &&
             formErrors.elements[index].taxes[subIndex].amount &&

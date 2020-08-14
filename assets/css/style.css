@@ -86,12 +86,15 @@ form textarea { width: 20em; height: 5em; }
     background: cornsilk; text-transform: uppercase; font-size: 0.875em;
 }
 
-.transaction-elements td { background: white; vertical-align: top; }
+.transaction-elements td { background: white; }
 .transaction-elements .element-0 td { border-top: 1px solid #444; padding-top: 0.5em; }
+
+.transaction-elements input:disabled { border-color: transparent; }
 
 .element-family th { background: cornsilk; text-transform: uppercase; font-size: 0.75em; }
 .element-family .child-last td { padding-bottom: 1.25em; }
 
+.transaction-elements .account, .transaction-elements .add-tax { vertical-align: top; }
 .transaction-elements .add-tax { white-space: nowrap; }
 .transaction-elements .account select { max-width: 12em; }
 
@@ -102,16 +105,21 @@ form textarea { width: 20em; height: 5em; }
 }
 
 .transaction-elements .currency { text-align: right; }
+.transaction-elements .gross-amount input, .transaction-elements .amount input,
+.transaction-elements .debit input, .transaction-elements .credit input {
+    text-align: right;
+    width: 5em;
+}
 
 .transaction-elements .header-space-start { width: 100%; }
 
-.transaction-elements .child-tax-rate { white-space: nowrap; }
-.transaction-elements .gross-amount input, .transaction-elements .amount input,
-.transaction-elements .child-tax-rate input, .transaction-elements .child-amount input,
-.transaction-elements .debit input, .transaction-elements .credit input {
-    text-align: right;
-    width: 5em; 
+.transaction-elements .child-tax-code, .transaction-elements .child-tax-rate, .transaction-elements .child-amount {
+    white-space: nowrap; text-align: right;
 }
+.transaction-elements .child label { font-variant: small-caps; font-weight: bold; font-size: 0.875em; }
+.transaction-elements .child input { width: 5em; text-align: right; }
+.transaction-elements .child input, .transaction-elements .child-tax-code select { margin-left: 0.5em; }
+.transaction-elements .child-tax-rate input { width: 4em; }
 
 .transaction-form .more { text-align: right; padding-bottom: 1em; }
 
