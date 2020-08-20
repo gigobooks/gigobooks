@@ -38,9 +38,7 @@ The flag `x` indicates that the tax rate can be modified/supplied/overridden by 
 
 A tag is any arbitrary four-or-more character string. The meaning of a tag is dependent on the tax authority or system albeit it's generally informational-only. Multiple tags are supported.
 
-For more information about flags and tags, see below.
-
-The `variant` field is one of the following: `zero`, `reduced`, `super-reduced`, `parking`. If `variant` is missing, then the standard/default rate is implied. Generally, `variant` is used to handle zero-ratings and (for EU VAT) multiple tax rates.
+The `variant` field is one of the following: `zero`, `reduced`, `super-reduced`, `parking` and others (see specific tax authorities). If `variant` is missing, then the standard/default rate is implied. Generally, `variant` is used to handle zero-ratings, (for EU VAT) multiple tax rates, and as a lighter-weight form of tagging.
 
 The `rate` field is the tax rate percentage in string form, and can include up to three decimal places. This field is optional and can be empty.
 
@@ -81,21 +79,30 @@ Possible future examples (these are tentative and not confirmed):
 `CA-QC:QST:9.975` - Canada Quebec QST of 9.975%
 
 
-# Flag and tags
-
-ToDo: Fill this in ??
-
-
 # Other notes
 
-A tax code which has no flags nor tags specified (ie. at default values) is also known as a base tax code.
-
+A tax code which has no tags specified is also known as a base tax code.
 */
 
+var iso3166 = require('iso-3166-2')
 import { Project } from './Project'
 
 // Since some tax rates have three decimal places, scale up by 1000 before calculating
 const TaxRateScale = 1000
+
+export function authorityCountryCode(authority: string) {
+    // Note: Greece is 'EL', Britain is 'UK'
+    return authority.startsWith('EU-') ? authority.substring(3, 5) : authority.substring(0, 2)
+}
+
+export function authorityCountryName(authority: string) {
+    // Note: Greece is 'EL', Britain is 'UK'
+    const cc0 = authorityCountryCode(authority)
+    const cc = cc0 == 'EL' ? 'GR' :
+               cc0 == 'UK' ? 'GB' : cc0
+    const countryInfo = iso3166.country(cc)
+    return countryInfo ? countryInfo.name : cc
+}
 
 export class TaxCode {
     authority: string
@@ -183,8 +190,12 @@ export class TaxCode {
         return taxAuthorities[this.authority] ? taxAuthorities[this.authority].taxInfo(this) : { label: this.taxCode, weight: 100 }
     }
 
+    get isEU() {
+        return this.geoParts[0] == 'EU'
+    }
+
     get label() {
-        const parts = [this.info.label]
+        const parts = [`${authorityCountryCode(this.authority)}:`, this.info.label]
         if (this.rate) {
             parts.push(this.rate + '%')
         }
@@ -221,7 +232,13 @@ export class TaxAuthority {
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
 
     taxInfo(code: TaxCode) {
-        const k = code.variant != '' ? `${code.type}:${code.variant}` : code.type
+        let k = code.type
+        if (code.reverse) {
+            k += ';r'
+        }
+        if (code.variant) {
+            k += `:${code.variant}`
+        }
         return this.taxesInfo()[k] || { label: code.taxCode, weight: 100 }
     }
 }
@@ -265,53 +282,85 @@ export class TaxAuthorityNZ extends TaxAuthority {
     }
 }
 
-export const taxAuthorities: Record<string, TaxAuthority> = {
-    'AU': new TaxAuthorityAU('AU', 'Australian Tax Office'),
-    'NZ': new TaxAuthorityNZ('NZ', 'Inland Revenue Department'),
+export class TaxAuthorityEU extends TaxAuthority {
+    taxesInfo() {
+        return {
+            'VAT': { label: 'VAT (standard)', weight: 0 },
+            'VAT:reduced': { label: 'VAT (reduced)', weight: 1 },
+            'VAT:super-reduced': { label: 'VAT (super reduced)', weight: 2 },
+            'VAT:parking': { label: 'VAT (parking)', weight: 3 },
+            'VAT:zero': { label: 'VAT (zero-rated)', weight: 4 },
+            'VAT;r': { label: 'VAT (reverse charge)', weight: 5 },
+            'VAT;r:reduced': { label: 'VAT (reverse charge)', weight: 6 },
+            'VAT;r:super-reduced': { label: 'VAT (reverse charge)', weight: 7 },
+            'VAT;r:parking': { label: 'VAT (reverse charge)', weight: 8 },
+            'VAT;r:zero': { label: 'VAT (reverse charge)', weight: 9 },
+        }
+    }
+
+    taxes(homeAuthority: string, isSale: boolean) {
+        const rates = taxRatesEU[this.id.substring(3, 5)]
+        const items: string[] = []
+
+        // common
+        rates.forEach(s => {
+            items.push(`${this.id}:VAT:${s}`)
+        })
+        items.push(`${this.id}:VAT:zero:0`)
+
+        // reverse charges
+        if (homeAuthority == this.id) {
+            items.push(`${this.id}:VAT;r:zero:0`)
+
+            // reverse charge purchase
+            if (!isSale) {
+                rates.forEach(s => {
+                    items.push(`${this.id}:VAT;r:${s}`)
+                })
+            }
+        }
+        return items
+    }
 }
 
-export function taxesEU(country?: string) {
-    const data: Record<string, string[]> = {
-        AT: ['20', 'reduced:10', 'reduced:13', 'parking:13'],
-        BE: ['21', 'reduced:6', 'reduced:12', 'parking:12'],
-        BG: ['20', 'reduced:9'],
-        HR: ['25', 'reduced:5', 'reduced:13'],
-        CY: ['19', 'reduced:5', 'reduced:9'],
-        CZ: ['21', 'reduced:10', 'reduced:15'],
-        DK: ['25'],
-        EE: ['20', 'reduced:9'],
-        DE: ['19', 'reduced:7'],
-        EL: ['24', 'reduced:6', 'reduced:13'],
-        FI: ['24', 'reduced:10', 'reduced:14'],
-        FR: ['20', 'reduced:5.5', 'reduced:10', 'super-reduced:2.1'],
-        HU: ['27', 'reduced:5', 'reduced:18'],
-        IE: ['23', 'reduced:9', 'reduced:13.5', 'super-reduced:4.8', 'parking:13.5'],
-        IT: ['22', 'reduced:5', 'reduced:10', 'super-reduced:4'],
-        LV: ['21', 'reduced:12', 'super-reduced:5'],
-        LT: ['21', 'reduced:5', 'reduced:9'],
-        LU: ['17', 'reduced:8', 'super-reduced:3', 'parking:14'],
-        MT: ['18', 'reduced:5', 'reduced:7'],
-        NL: ['21', 'reduced:9'],
-        PL: ['23', 'reduced:5', 'reduced:8'],
-        PT: ['23', 'reduced:6', 'reduced:13', 'parking:13'],
-        RO: ['19', 'reduced:5', 'reduced:9'],
-        SK: ['20', 'reduced:10'],
-        SI: ['22', 'reduced:9.5'],
-        ES: ['21', 'reduced:10', 'super-reduced:4'],
-        SE: ['25', 'reduced:6', 'reduced:12'],
-        UK: ['20', 'reduced:5'],
-    }
-    const codes: string[] = [] // ['EU:VAT;r:0']
+export const taxAuthorities: Record<string, TaxAuthority> = {
+    'AU': new TaxAuthorityAU('AU', 'Australian Tax Office'),
+    // 'EU-EE': new TaxAuthorityEU('EU-EE', 'Tax and Customs Board'),
+    // 'EU-EL': new TaxAuthorityEU('EU-EL', 'Independent Authority for Public Revenue'),
+    // 'EU-IE': new TaxAuthorityEU('EU-IE', 'Irish Tax and Customs'),
+    'NZ': new TaxAuthorityNZ('NZ', 'Inland Revenue Department'),
+    // 'EU-UK': new TaxAuthorityEU('EU-UK', 'HM Revenue and Customs'),
+}
 
-    ;(!country ? Object.keys(data) :
-      data[country] ? [country] : []).forEach(cc => {
-        data[cc].forEach(suffix => {
-            codes.push(`EU-${cc}:VAT:${suffix}`)
-        })
-        codes.push(`EU-${cc}:VAT:zero:0`)
-    })
-
-    return codes
+export const taxRatesEU: Record<string, string[]> = {
+    AT: ['20', 'reduced:10', 'reduced:13', 'parking:13'],
+    BE: ['21', 'reduced:6', 'reduced:12', 'parking:12'],
+    BG: ['20', 'reduced:9'],
+    HR: ['25', 'reduced:5', 'reduced:13'],
+    CY: ['19', 'reduced:5', 'reduced:9'],
+    CZ: ['21', 'reduced:10', 'reduced:15'],
+    DK: ['25'],
+    EE: ['20', 'reduced:9'],
+    DE: ['19', 'reduced:7'],
+    EL: ['24', 'reduced:6', 'reduced:13'],
+    FI: ['24', 'reduced:10', 'reduced:14'],
+    FR: ['20', 'reduced:5.5', 'reduced:10', 'super-reduced:2.1'],
+    HU: ['27', 'reduced:5', 'reduced:18'],
+    IE: ['23', 'reduced:9', 'reduced:13.5', 'super-reduced:4.8', /*'parking:13.5'*/],
+    IT: ['22', 'reduced:5', 'reduced:10', 'super-reduced:4'],
+    LV: ['21', 'reduced:12', 'super-reduced:5'],
+    LT: ['21', 'reduced:5', 'reduced:9'],
+    LU: ['17', 'reduced:8', 'super-reduced:3', 'parking:14'],
+    MT: ['18', 'reduced:5', 'reduced:7'],
+    NL: ['21', 'reduced:9'],
+    PL: ['23', 'reduced:5', 'reduced:8'],
+    PT: ['23', 'reduced:6', 'reduced:13', 'parking:13'],
+    RO: ['19', 'reduced:5', 'reduced:9'],
+    SK: ['20', 'reduced:10'],
+    SI: ['22', 'reduced:9.5'],
+    ES: ['21', 'reduced:10', 'super-reduced:4'],
+    SE: ['25', 'reduced:6', 'reduced:12'],
+    UK: ['20', 'reduced:5'],
 }
 
 /*

@@ -5,7 +5,7 @@
 import * as React from 'react'
 import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Link } from 'react-router-dom'
-import { Project, taxAuthorities } from '../core'
+import { Project, authorityCountryName, taxAuthorities } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
 type FormData = {
@@ -17,7 +17,7 @@ type FormData = {
 function taxAuthorityOptions() {
     return <>
         {Object.keys(taxAuthorities).map(k => 
-            <option key={k} value={k}>{k}: {taxAuthorities[k].title}</option>
+            <option key={k} value={k}>{authorityCountryName(k)}: {taxAuthorities[k].title}</option>
         )}
     </>
 }

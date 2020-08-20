@@ -175,17 +175,12 @@ export function currencySelectOptions(currency?: string) {
     </>
 }
 
-function prefixLabel(prefix: string): string {
-    if (prefix == 'EU') {
-        return 'Europe'
-    }
-
+function prefixLabel(prefix0: string): string {
+    // Convert 'EL' to 'GR, 'UK' to 'GB'
+    const prefix = prefix0 == 'EL' ? 'GR' :
+                   prefix0 == 'UK' ? 'GB' : prefix0
     const countryInfo = iso3166.country(prefix)
-    if (countryInfo) {
-        return countryInfo.name
-    }
-
-    return prefix
+    return countryInfo ? countryInfo.name : prefix
 }
 
 // Returns a list of enabled tax code select options.
@@ -207,7 +202,7 @@ export function taxSelectOptions(isSale: boolean, code0?: string, optional = tru
                 }
                 if (a.weight == b.weight) {
                     // Reversed so tax rates are descending
-                    return a.rate > b.rate ? -1 : 1
+                    return Number(a.rate) > Number(b.rate) ? -1 : 1
                 }
                 return a.weight < b.weight ? -1 : 1
             }
@@ -220,7 +215,7 @@ export function taxSelectOptions(isSale: boolean, code0?: string, optional = tru
     const groups: Record<string, TaxCode[]> = {}
     const other: TaxCode[] = []
     codes.forEach(info => {
-        const prefix = info.geoParts[0]
+        const prefix = info.isEU ? info.geoParts[1] : info.geoParts[0]
         if (prefix) {
             groups[prefix] = groups[prefix] || []
             groups[prefix].push(info)
@@ -235,7 +230,7 @@ export function taxSelectOptions(isSale: boolean, code0?: string, optional = tru
         {other.map(info =>
             <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
         )}
-        {Object.keys(groups).map(prefix => {
+        {Object.keys(groups).sort().map(prefix => {
             if (groups[prefix].length == 1 && groups[prefix][0].geoParts.length == 1) {
                 const info = groups[prefix][0]
                 return <option key={info.taxCode} value={info.taxCode}>{info.label}</option>

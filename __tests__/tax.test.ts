@@ -1,6 +1,6 @@
 var VATRates = require('vatrates')
 import { Project } from '../src/core'
-import { TaxCode, baseTaxCodes, taxesEU, calculateTaxes } from '../src/core/tax'
+import { TaxCode, taxRatesEU, calculateTaxes } from '../src/core/tax'
 import { CalculateTaxState, formCalculateTaxes } from '../src/components/form'
 import { MockForm } from '../src/test/MockForm'
 
@@ -14,25 +14,25 @@ afterAll(() => {
     return Project.close()
 })
 
-function taxCodesFromVATRates(homeCountryCode: string) {
-    const codes: string[] = [] // ['EU:VAT;r:0']
+function taxRatesFromVATRates() {
+    const codes: Record<string, string[]> = {}
     new VATRates().getJSON().rates.forEach((data: any) => {
-        function process(rates: any, suffix = '') {
+        function process(rates: any) {
+            codes[data.code] = []
             if (rates.standard) {
-                codes.push(`EU-${data.code}:VAT${suffix}:${rates.standard}`)
+                codes[data.code].push(`${rates.standard}`)
             }
             if (Array.isArray(rates.reduced)) {
                 rates.reduced.forEach((rate: number) => {
-                    codes.push(`EU-${data.code}:VAT${suffix}:reduced:${rate}`)
+                    codes[data.code].push(`reduced:${rate}`)
                 })
             }
             if (rates.superReduced) {
-                codes.push(`EU-${data.code}:VAT${suffix}:super-reduced:${rates.superReduced}`)
+                codes[data.code].push(`super-reduced:${rates.superReduced}`)
             }
             if (rates.parking) {
-                codes.push(`EU-${data.code}:VAT${suffix}:parking:${rates.parking}`)
+                codes[data.code].push(`parking:${rates.parking}`)
             }
-            codes.push(`EU-${data.code}:VAT${suffix}:zero:0`)
         }
 
         process(data.periods[0].rates)
@@ -41,8 +41,8 @@ function taxCodesFromVATRates(homeCountryCode: string) {
     return codes
 }
 
-function logCodes(codes: (TaxCode | string)[]) {
-    let text = ''
+function logCodes(codes: (TaxCode | string)[], prefix = '') {
+    let text = prefix ? `${prefix}\n` : ''
     codes.forEach((item) => {
         const obj = typeof(item) === 'string' ? new TaxCode(item): item
         text += `${obj.taxCode} => ${obj.label}\n`
@@ -51,34 +51,12 @@ function logCodes(codes: (TaxCode | string)[]) {
 }
 
 test('cross comparison against VATRates', () => {
-    let taxLabelsFromVATRates: Record<string, string>
-    let taxLabeslsEU: Record<string, string>
+    const copy = taxRatesEU
+    // Insert an item that is missing from our code
+    copy.IE.push('parking:13.5')
 
-    taxLabelsFromVATRates = {}
-    taxLabeslsEU = {}
-    taxCodesFromVATRates('').forEach(code => {
-        taxLabelsFromVATRates[code] = code
-    })
-    taxesEU().forEach(code => {
-        taxLabeslsEU[code] = code
-    })
-    expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
+    expect(taxRatesFromVATRates()).toEqual(copy)
 })
-
-/*
-test('existence of tax codes', () => {
-    const codes = taxCodes()
-    ;[
-        'AU:GST:10',
-        'CA:GST:5', 'CA-BC:PST:7',
-        'US-MA:st;x:6.25', 'US-CA:st;x:7.25',
-        // Inserted by setting `customTaxCodes` above
-        'MY:GST:6', 'MY:st:10',
-    ].forEach(item => {
-        expect(codes).toContain(item)
-    })
-})
-*/
 
 test('parsing', () => {
     let info = new TaxCode('EU-AT:VAT:20')
@@ -149,14 +127,14 @@ test('labels', () => {
     expect(new TaxCode('EU-UK:VAT:20').label).toEqual('United Kingdom VAT 20%')
     */
 
-    // expect(new TaxCode('EU-IE:VAT;r:zero:0').label).toEqual('Ireland VAT (zero) 0%')
-    // expect(new TaxCode('EU:VAT;r:0').label).toEqual('VAT reverse charged 0%')
+    // expect(new TaxCode('EU-IE:VAT:zero:0').label).toEqual('IE: VAT (zero-rated) 0%')
+    // expect(new TaxCode('EU-IE:VAT;r:zero:0').label).toEqual('IE: VAT (reverse charge) 0%')
 
-    expect(new TaxCode('AU:GST:10').label).toEqual('GST 10%')
-    expect(new TaxCode('AU:GST:zero:0').label).toEqual('GST Free 0%')
-    expect(new TaxCode('AU:GST:export:0').label).toEqual('GST Free Export 0%')
-    expect(new TaxCode('AU:GST:input:0').label).toEqual('GST (input taxed) 0%')
-    expect(new TaxCode('AU:GST:capital:10').label).toEqual('GST (capital purchase) 10%')
+    expect(new TaxCode('AU:GST:10').label).toEqual('AU: GST 10%')
+    expect(new TaxCode('AU:GST:zero:0').label).toEqual('AU: GST Free 0%')
+    expect(new TaxCode('AU:GST:export:0').label).toEqual('AU: GST Free Export 0%')
+    expect(new TaxCode('AU:GST:input:0').label).toEqual('AU: GST (input taxed) 0%')
+    expect(new TaxCode('AU:GST:capital:10').label).toEqual('AU: GST (capital purchase) 10%')
 
     /*
     expect(new TaxCode('CA:GST:5').label).toEqual('Canada GST 5%')
