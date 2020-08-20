@@ -3,22 +3,30 @@
  */
 
 import * as React from 'react'
-import { useForm, FormContextValues as FCV } from 'react-hook-form'
+import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Link } from 'react-router-dom'
-import { Project } from '../core'
+import { Project, taxAuthorities } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
 type FormData = {
-    taxId: string
-    taxEnable: Record<string, string | false>
-    customTaxCodes: string
+    taxAuthority: string
+    otherTaxAuthorities: string[]
     submit?: string    // Only for displaying general submit error messages
+}
+
+function taxAuthorityOptions() {
+    return <>
+        {Object.keys(taxAuthorities).map(k => 
+            <option key={k} value={k}>{k}: {taxAuthorities[k].title}</option>
+        )}
+    </>
 }
 
 export default function SettingsTax() {
     const form = useForm<FormData>({
         defaultValues: extractFormValues(),
     })
+    const {fields, append} = useFieldArray({control: form.control, name: 'otherTaxAuthorities'})
 
     const onSubmit = async (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -44,33 +52,38 @@ export default function SettingsTax() {
             </span>
         </h1>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-            <table className='horizontal-table-form'><tbody><tr className='row row-textarea row-tax-id'>
+            <table className='horizontal-table-form'><tbody><tr className='row row-tax-authority'>
                 <th scope='row'>
-                    <label htmlFor='taxId'>Tax registrations:</label>
-                    <br />
-                    (include type and id, one per line)
+                    <label htmlFor='taxAuthority'>Home tax authority:</label>
                 </th><td>
-                    <textarea name='taxId' ref={form.register} />
-                    {form.errors.taxId && <span className='error'>
-                        {form.errors.taxId.message}
-                    </span>}
+                    <select name='taxAuthority' ref={form.register}>
+                        <option key='none' value='none'>Not in this list</option>
+                        {taxAuthorityOptions()}
+                    </select>
+                    <button type='button' onClick={() => append({name: 'otherTaxAuthorities'})}>
+                        Add tax authority
+                    </button>
                 </td>
-            </tr><tr className='row row-tax-enable'>
-                <th scope='row'>
-                    <label htmlFor='taxEnable'>Enable taxes:</label>
+            </tr>
+
+            {fields.map((item, index) =>
+                <tr key={item.id} className='row row-other-tax-authority'><th scope='row'>
+                    {index == 0
+                    ? <label htmlFor='otherTaxAuthorities[0]'>Other tax authorities:</label>
+                    : <>&nbsp;</>}                        
                 </th><td>
-                    <label><input name='taxEnable[AU]' type='checkbox' value='AU' ref={form.register} />Australia</label>
-                    <label><input name='taxEnable[CA]' type='checkbox' value='CA' ref={form.register} />Canada</label>
-                    <label><input name='taxEnable[EU]' type='checkbox' value='EU' ref={form.register} />Europe</label>
-                    <label><input name='taxEnable[US]' type='checkbox' value='US' ref={form.register} />United States</label>
-                </td>
-            </tr><tr className='row row-textarea row-custom-tax-codes'>
-                <th scope='row'>
-                    <label htmlFor='customTaxCodes'>Custom tax codes:</label>
-                </th><td>
-                    <textarea name='customTaxCodes' ref={form.register}/>
-                </td>
-            </tr></tbody></table>
+                    <select
+                        name={`otherTaxAuthorities[${index}]`}
+                        defaultValue={item.value}
+                        ref={form.register()}
+                    >
+                        <option key='none' value='none'>None</option>
+                        {taxAuthorityOptions()}
+                    </select>
+                </td></tr>
+            )}            
+
+            </tbody></table>
             <div className='errors'>
                 {form.errors.submit && form.errors.submit.message}
             </div><div className='buttons'>
@@ -82,18 +95,11 @@ export default function SettingsTax() {
 
 function extractFormValues(): FormData {
     const values = Project.variables.getMultiple([
-        'taxId',
-        'taxEnable',
-        'customTaxCodes',
-    ])
+        'taxAuthority',
+        'otherTaxAuthorities'
+    ]) as FormData
 
-    return {
-        ...values,
-        taxEnable: values.taxEnable.reduce((acc: Record<string, string>, val: string) => {
-            acc[val] = val
-            return acc
-        }, {}),
-    } as FormData
+    return values
 }
 
 // Returns true if validation succeeded, false otherwise
@@ -103,8 +109,12 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
 
 // Returns: positive for success, 0 otherwise
 async function saveFormData(data: FormData) {
-    await Project.variables.setMultiple({
-        ...data,
-        taxEnable: Object.keys(data.taxEnable).filter(key => data.taxEnable[key]).sort(),
-    })
+    // Filter out $currency and 'none' from otherTaxAuthorities.
+    // Then remove duplicates and sort.
+    data.otherTaxAuthorities = data.otherTaxAuthorities || []
+    data.otherTaxAuthorities = [...new Set(data.otherTaxAuthorities.filter(c => {
+        return c != data.taxAuthority && c != 'none'
+    }))].sort()
+
+    await Project.variables.setMultiple(data)
 }

@@ -13,9 +13,11 @@ const defaultVariables = {
     address: '',
     currency: 'USD',
     otherCurrencies: [],
-    taxEnable: [],
-    customTaxCodes: '',
     fiscalYear: '0101',
+
+    taxAuthority: 'none',
+    otherTaxAuthorities: [],
+
     mru: '/settings',
     // lastSavedDate
 }

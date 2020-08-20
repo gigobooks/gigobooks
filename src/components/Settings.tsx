@@ -81,7 +81,7 @@ export default function Settings() {
             {fields.map((item, index) =>
                 <tr key={item.id} className='row row-other-currency'><th scope='row'>
                     {index == 0
-                    ? <label htmlFor='otherCurrencies'>Other currencies:</label>
+                    ? <label htmlFor='otherCurrencies[0]'>Other currencies:</label>
                     : <>&nbsp;</>}                        
                 </th><td>
                     <select

@@ -5,7 +5,7 @@
 var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
-import { Account, Actor, Project, taxCodeInfo, TaxCodeInfo, taxCodes } from '../core'
+import { Account, Actor, Project, TaxCode, baseTaxCodes } from '../core'
 import { orderByField } from '../util/util'
 
 // A thin wrapper around <select /> with the following optimisation:
@@ -190,17 +190,26 @@ function prefixLabel(prefix: string): string {
 
 // Returns a list of enabled tax code select options.
 // If the supplied tax code is not in the list, it is added
-export function taxSelectOptions(code?: string, optional = true) {
-    const codes0 = taxCodes()
-    if (code && codes0.indexOf(code) == -1) {
-        codes0.push(code)
+export function taxSelectOptions(isSale: boolean, code0?: string, optional = true) {
+    const codes0 = baseTaxCodes(isSale)
+    if (code0 && codes0.indexOf(code0) == -1) {
+        codes0.push(code0)
+        // codes0.push(new TaxCode(code0).baseCode)
+        // Also ToDo: Duplication?
     }
 
-    const codes = codes0.map(code => taxCodeInfo(code))
+    const codes = codes0.map(code => new TaxCode(code))
     codes.sort(function (a, b) {
         if (a.geoParts[0] == b.geoParts[0]) {
             if (a.geoParts.length == b.geoParts.length) {
-                return a.code < b.code ? -1 : 1
+                if (a.geoParts.length > 1 && a.geoParts[1] != b.geoParts[1]) {
+                    return a.geoParts[1] < b.geoParts[1] ? -1 : 1
+                }
+                if (a.weight == b.weight) {
+                    // Reversed so tax rates are descending
+                    return a.rate > b.rate ? -1 : 1
+                }
+                return a.weight < b.weight ? -1 : 1
             }
             return a.geoParts.length - b.geoParts.length
         }
@@ -208,8 +217,8 @@ export function taxSelectOptions(code?: string, optional = true) {
     })
 
     // Distribute to 'buckets'
-    const groups: Record<string, TaxCodeInfo[]> = {}
-    const other: TaxCodeInfo[] = []
+    const groups: Record<string, TaxCode[]> = {}
+    const other: TaxCode[] = []
     codes.forEach(info => {
         const prefix = info.geoParts[0]
         if (prefix) {
@@ -224,17 +233,17 @@ export function taxSelectOptions(code?: string, optional = true) {
     return <>
         {optional && <option key='' value=''>None</option>}
         {other.map(info =>
-            <option key={info.code} value={info.code}>{info.label}</option>
+            <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
         )}
         {Object.keys(groups).map(prefix => {
             if (groups[prefix].length == 1 && groups[prefix][0].geoParts.length == 1) {
                 const info = groups[prefix][0]
-                return <option key={info.code} value={info.code}>{info.label}</option>
+                return <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
             }
             else {
                 return <optgroup key={prefix} label={prefixLabel(prefix)}>
                 {groups[prefix].map(info =>
-                    <option key={info.code} value={info.code}>{info.label}</option>
+                    <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
                 )}
                 </optgroup>
             }

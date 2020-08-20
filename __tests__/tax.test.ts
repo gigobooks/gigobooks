@@ -1,17 +1,11 @@
 var VATRates = require('vatrates')
 import { Project } from '../src/core'
-import { taxCodeInfo, taxCodes, taxCodesEU,
-    taxLabel, taxCodeWithRate, calculateTaxes } from '../src/core/tax'
+import { TaxCode, baseTaxCodes, taxesEU, calculateTaxes } from '../src/core/tax'
 import { CalculateTaxState, formCalculateTaxes } from '../src/components/form'
 import { MockForm } from '../src/test/MockForm'
 
 beforeAll(async () => {
     await Project.create(':memory:')
-    await Project.variables.set('taxEnable', ['AU', 'CA', 'EU', 'US'])
-    await Project.variables.set('customTaxCodes', `
-        MY:GST:6
-        MY:st:10
-    `)
     return Promise.resolve()
 })
 
@@ -21,7 +15,7 @@ afterAll(() => {
 })
 
 function taxCodesFromVATRates(homeCountryCode: string) {
-    const codes: string[] = ['EU:VAT;r:0']
+    const codes: string[] = [] // ['EU:VAT;r:0']
     new VATRates().getJSON().rates.forEach((data: any) => {
         function process(rates: any, suffix = '') {
             if (rates.standard) {
@@ -37,7 +31,8 @@ function taxCodesFromVATRates(homeCountryCode: string) {
             }
             if (rates.parking) {
                 codes.push(`EU-${data.code}:VAT${suffix}:parking:${rates.parking}`)
-            }    
+            }
+            codes.push(`EU-${data.code}:VAT${suffix}:zero:0`)
         }
 
         process(data.periods[0].rates)
@@ -46,16 +41,11 @@ function taxCodesFromVATRates(homeCountryCode: string) {
     return codes
 }
 
-function logCodes(codes0?: any[]) {
+function logCodes(codes: (TaxCode | string)[]) {
     let text = ''
-    const codes = codes0 || taxCodes()
-    codes.forEach((item: {code: string, label: string} | string) => {
-        if (typeof(item) === 'object') {
-            text += `${item.code} => ${item.label}\n`
-        }
-        else {
-            text += `${item} => ${taxLabel(item)}\n`
-        }
+    codes.forEach((item) => {
+        const obj = typeof(item) === 'string' ? new TaxCode(item): item
+        text += `${obj.taxCode} => ${obj.label}\n`
     })
     console.log(text)
 }
@@ -67,44 +57,15 @@ test('cross comparison against VATRates', () => {
     taxLabelsFromVATRates = {}
     taxLabeslsEU = {}
     taxCodesFromVATRates('').forEach(code => {
-        taxLabelsFromVATRates[code] = taxLabel(code)
+        taxLabelsFromVATRates[code] = code
     })
-    taxCodesEU().forEach(code => {
-        taxLabeslsEU[code] = taxLabel(code)
-    })
-    expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
-
-    taxLabelsFromVATRates = {}
-    taxLabeslsEU = {}
-    taxCodesFromVATRates('AT').forEach(code => {
-        taxLabelsFromVATRates[code] = taxLabel(code)
-    })
-    taxCodesEU().forEach(code => {
-        taxLabeslsEU[code] = taxLabel(code)
-    })
-    expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
-
-    taxLabelsFromVATRates = {}
-    taxLabeslsEU = {}
-    taxCodesFromVATRates('GR').forEach(code => {
-        taxLabelsFromVATRates[code] = taxLabel(code)
-    })
-    taxCodesEU().forEach(code => {
-        taxLabeslsEU[code] = taxLabel(code)
-    })
-    expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
-
-    taxLabelsFromVATRates = {}
-    taxLabeslsEU = {}
-    taxCodesFromVATRates('GB').forEach(code => {
-        taxLabelsFromVATRates[code] = taxLabel(code)
-    })
-    taxCodesEU().forEach(code => {
-        taxLabeslsEU[code] = taxLabel(code)
+    taxesEU().forEach(code => {
+        taxLabeslsEU[code] = code
     })
     expect(taxLabelsFromVATRates).toEqual(taxLabeslsEU)
 })
 
+/*
 test('existence of tax codes', () => {
     const codes = taxCodes()
     ;[
@@ -117,100 +78,107 @@ test('existence of tax codes', () => {
         expect(codes).toContain(item)
     })
 })
+*/
 
 test('parsing', () => {
-    let info = taxCodeInfo('EU-AT:VAT:20')
+    let info = new TaxCode('EU-AT:VAT:20')
+    expect(info.authority).toEqual('EU-AT')
     expect(info.geoParts).toEqual(['EU', 'AT'])
-    expect(info.typeParts).toEqual(['VAT'])
+    expect(info.authorityExtra).toEqual('')
+    expect(info.type).toEqual('VAT')
+    expect(info.reverse).toBeFalsy()
+    expect(info.variable).toBeFalsy()
+    expect(info.tags).toEqual([])
     expect(info.variant).toBe('')
     expect(info.rate).toEqual('20')
-    expect(info.reverse).toBeFalsy()
 
-    info = taxCodeInfo('AU:GST:10')
+    info = new TaxCode('EU-IE:VAT;foo;ding;r:reduced:13.5')
+    expect(info.authority).toEqual('EU-IE')
+    expect(info.geoParts).toEqual(['EU', 'IE'])
+    expect(info.authorityExtra).toEqual('')
+    expect(info.type).toEqual('VAT')
+    expect(info.reverse).toBeTruthy()
+    expect(info.variable).toBeFalsy()
+    expect(info.tags).toEqual(['ding'])
+    expect(info.variant).toBe('reduced')
+    expect(info.rate).toEqual('13.5')
+
+    info = new TaxCode('EU-IE-MOSS;FR:VAT;x:zero:0')
+    expect(info.authority).toEqual('EU-IE-MOSS')
+    expect(info.geoParts).toEqual(['EU', 'IE'])
+    expect(info.authorityExtra).toEqual('FR')
+    expect(info.type).toEqual('VAT')
+    expect(info.reverse).toBeFalsy()
+    expect(info.variable).toBeTruthy()
+    expect(info.tags).toEqual([])
+    expect(info.variant).toBe('zero')
+    expect(info.rate).toEqual('0')
+
+    info = new TaxCode('AU:GST;export;input:10')
+    expect(info.authority).toEqual('AU')
     expect(info.geoParts).toEqual(['AU'])
-    expect(info.typeParts).toEqual(['GST'])
+    expect(info.authorityExtra).toEqual('')
+    expect(info.type).toEqual('GST')
+    expect(info.reverse).toBeFalsy()
+    expect(info.variable).toBeFalsy()
+    expect(info.tags).toEqual(['export', 'input'])
     expect(info.variant).toBe('')
     expect(info.rate).toEqual('10')
-    expect(info.reverse).toBeFalsy()
 
-    info = taxCodeInfo(':zero:0')
+    info = new TaxCode('')
+    expect(info.authority).toEqual('')
     expect(info.geoParts).toEqual([''])
-    expect(info.typeParts).toEqual(['zero'])
-    expect(info.variant).toBe('')
-    expect(info.rate).toEqual('0')
+    expect(info.authorityExtra).toEqual('')
+    expect(info.type).toEqual('')
     expect(info.reverse).toBeFalsy()
-
-    info = taxCodeInfo(':exempt:0')
-    expect(info.geoParts).toEqual([''])
-    expect(info.typeParts).toEqual(['exempt'])
-    expect(info.variant).toBe('')
-    expect(info.rate).toEqual('0')
-    expect(info.reverse).toBeFalsy()
-
-    // Some bogus strings
-    info = taxCodeInfo(':tax:')
-    expect(info.geoParts).toEqual([''])
-    expect(info.typeParts).toEqual(['tax'])
+    expect(info.variable).toBeFalsy()
+    expect(info.tags).toEqual([])
     expect(info.variant).toBe('')
     expect(info.rate).toEqual('')
-    expect(info.reverse).toBeFalsy()
-
-    info = taxCodeInfo('')
-    expect(info.geoParts).toEqual([''])
-    expect(info.typeParts).toEqual([''])
-    expect(info.variant).toBe('')
-    expect(info.rate).toEqual('')
-    expect(info.reverse).toBeFalsy()
-
-    info = taxCodeInfo(':')
-    expect(info.geoParts).toEqual([''])
-    expect(info.typeParts).toEqual([''])
-    expect(info.variant).toBe('')
-    expect(info.rate).toEqual('')
-    expect(info.reverse).toBeFalsy()
 })
 
 test('labels', () => {
-    expect(taxLabel('EU-AT:VAT:20')).toEqual('Austria VAT 20%')
-    expect(taxLabel('EU-AT:VAT:reduced:10')).toEqual('Austria VAT (reduced) 10%')
-    expect(taxLabel('EU-AT:VAT:reduced:13')).toEqual('Austria VAT (reduced) 13%')
-    expect(taxLabel('EU-AT:VAT:parking:13')).toEqual('Austria VAT (parking) 13%')
-    expect(taxLabel('EU-FR:VAT:super-reduced:2.1')).toEqual('France VAT (super reduced) 2.1%')
+    /*
+    expect(new TaxCode('EU-AT:VAT:20').label).toEqual('Austria VAT 20%')
+    expect(new TaxCode('EU-AT:VAT:reduced:10').label).toEqual('Austria VAT (reduced) 10%')
+    expect(new TaxCode('EU-AT:VAT:reduced:13').label).toEqual('Austria VAT (reduced) 13%')
+    expect(new TaxCode('EU-AT:VAT:parking:13').label).toEqual('Austria VAT (parking) 13%')
+    expect(new TaxCode('EU-FR:VAT:super-reduced:2.1').label).toEqual('France VAT (super reduced) 2.1%')
 
-    expect(taxLabel('EU-EL:VAT:24')).toEqual('Greece VAT 24%')
-    expect(taxLabel('EU-UK:VAT:20')).toEqual('United Kingdom VAT 20%')
+    expect(new TaxCode('EU-EL:VAT:24').label).toEqual('Greece VAT 24%')
+    expect(new TaxCode('EU-UK:VAT:20').label).toEqual('United Kingdom VAT 20%')
+    */
 
-    expect(taxLabel('EU:VAT;r:0')).toEqual('VAT reverse charged 0%')
+    // expect(new TaxCode('EU-IE:VAT;r:zero:0').label).toEqual('Ireland VAT (zero) 0%')
+    // expect(new TaxCode('EU:VAT;r:0').label).toEqual('VAT reverse charged 0%')
 
-    expect(taxLabel('AU:GST:10')).toEqual('Australia GST 10%')
-    expect(taxLabel('CA:GST:5')).toEqual('Canada GST 5%')
-    expect(taxLabel('CA-PE:HST:15')).toEqual('Prince Edward Island HST 15%')
-    expect(taxLabel('CA-QC:QST:9.975')).toEqual('Quebec QST 9.975%')
-    expect(taxLabel('CA-SK:PST:6')).toEqual('Saskatchewan PST 6%')
+    expect(new TaxCode('AU:GST:10').label).toEqual('GST 10%')
+    expect(new TaxCode('AU:GST:zero:0').label).toEqual('GST Free 0%')
+    expect(new TaxCode('AU:GST:export:0').label).toEqual('GST Free Export 0%')
+    expect(new TaxCode('AU:GST:input:0').label).toEqual('GST (input taxed) 0%')
+    expect(new TaxCode('AU:GST:capital:10').label).toEqual('GST (capital purchase) 10%')
 
-    expect(taxLabel('US-CA:st;x:')).toEqual('California Sales Tax')
-    expect(taxLabel('US-CA:st;x:7.25')).toEqual('California Sales Tax 7.25%')
+    /*
+    expect(new TaxCode('CA:GST:5').label).toEqual('Canada GST 5%')
+    expect(new TaxCode('CA-PE:HST:15').label).toEqual('Prince Edward Island HST 15%')
+    expect(new TaxCode('CA-QC:QST:9.975').label).toEqual('Quebec QST 9.975%')
+    expect(new TaxCode('CA-SK:PST:6').label).toEqual('Saskatchewan PST 6%')
 
-    expect(taxLabel(':zero:0')).toEqual('Zero rated 0%')
-    expect(taxLabel(':exempt:0')).toEqual('Tax exempt 0%')
+    expect(new TaxCode('US-CA:st;x:').label).toEqual('California Sales Tax')
+    expect(new TaxCode('US-CA:st;x:7.25').label).toEqual('California Sales Tax 7.25%')
 
-    expect(taxLabel(':tax:')).toEqual('tax')
-    expect(taxLabel(':TAX:')).toEqual('TAX')
-    // expect(taxLabel(':Sales Tax;r:10.123')).toEqual('Sales Tax 10.123%')
+    expect(new TaxCode(':zero:0').label).toEqual('Zero rated 0%')
+    expect(new TaxCode(':exempt:0').label).toEqual('Tax exempt 0%')
 
-    expect(taxLabel('')).toEqual('')
-    expect(taxLabel(':')).toEqual('')
-    expect(taxLabel('::')).toEqual('')
-    expect(taxLabel(':::')).toEqual('')
-})
+    expect(new TaxCode(':tax:').label).toEqual('tax')
+    expect(new TaxCode(':TAX:').label).toEqual('TAX')
+    // expect(new TaxCode(':Sales Tax;r:10.123')).toEqual('Sales Tax 10.123%')
 
-test('taxCodeWithRate', () => {
-    expect(taxCodeWithRate('', '10')).toBe('::10')
-    expect(taxCodeWithRate(':', '10')).toBe('::10')
-    expect(taxCodeWithRate('::', '10')).toBe('::10')
-    expect(taxCodeWithRate('::abc', '10')).toBe('::10')
-    expect(taxCodeWithRate(':::', '10')).toBe(':::10')
-    expect(taxCodeWithRate(':::abc', '10')).toBe(':::10')
+    expect(new TaxCode('').label).toEqual('')
+    expect(new TaxCode(':').label).toEqual('')
+    expect(new TaxCode('::').label).toEqual('')
+    expect(new TaxCode(':::').label).toEqual('')
+*/
 })
 
 test('calculate tax', () => {

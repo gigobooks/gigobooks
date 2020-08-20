@@ -9,7 +9,7 @@ import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
     Project, Transaction, TransactionType, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
-    toFormatted, parseFormatted, taxCodeInfo, taxRate, taxCodeWithRate } from '../core'
+    toFormatted, parseFormatted, TaxCode } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, flatSelectOptions, accountSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
@@ -288,7 +288,7 @@ function ElementFamily(props: ElementFamilyProps) {
     const state = {formatted, setFormatted, grossFormatted, setGrossFormatted, useGross, setUseGross, currency, setCurrency, rates, setRates}
     const [enabled, setEnabled] = React.useState<boolean>(!item.useGross || !item.grossAmount)
     const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
-    const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => taxCodeInfo(subItem.code).variable))
+    const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => new TaxCode(subItem.code).variable))
     const formErrors: any = form.errors
 
     return <tbody className='element-family'>
@@ -384,7 +384,7 @@ function ElementFamily(props: ElementFamilyProps) {
                 name={`elements[${index}].taxes[${subIndex}].code`}
                 defaultValue={subItem.code}
                 onChange={e => {
-                    const info = taxCodeInfo(e.target.value)
+                    const info = new TaxCode(e.target.value)
                     form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
                     state.rates[subIndex] = info.rate
                     formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
@@ -394,7 +394,7 @@ function ElementFamily(props: ElementFamilyProps) {
                 }}
                 ref={form.register()}
             >
-                {taxSelectOptions(subItem.code)}
+                {taxSelectOptions(false, subItem.code)}
             </select>
         </label>
     </td><td className='child-tax-rate'>
@@ -469,7 +469,7 @@ export function extractFormValues(t: Transaction): FormData {
                     p.taxes!.push({
                         eId: e.id,
                         code: e.taxCode!,
-                        rate: taxRate(e.taxCode!),
+                        rate: new TaxCode(e.taxCode!).rate,
                         amount: toFormatted(e.amount!, e.currency!),
                     })
 
@@ -550,6 +550,13 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
 
         if (e0.taxes) {
             e0.taxes.forEach(sub => {
+                let taxCode = ''
+                if (sub.code != '') {
+                    const info = new TaxCode(sub.code)
+                    info.rate = sub.rate
+                    taxCode = info.taxCode
+                }
+
                 elements.push({
                     id: sub.eId ? Number(sub.eId) : undefined,
                     accountId: Account.Reserved.TaxReceivable,
@@ -561,8 +568,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                     grossAmount: 0,
                     description: '',
                     settleId: 0,
-                    taxCode: (sub.code != '' || Number(sub.rate)) ?
-                        taxCodeWithRate(sub.code, sub.rate) : '',
+                    taxCode,
                     parentId: -1,
                 })
             })

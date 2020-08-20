@@ -28,7 +28,7 @@ test('purchase form', async done => {
     let result = await saveFormData(t0, {type: Transaction.Purchase, actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 506, amount: '10', currency: 'USD', useGross: 0, grossAmount: '11', description: 'one', taxes: [
             {code: ':zero:0', rate: '0', amount: '0'},
-            {code: '', rate: '10', amount: '1'},
+            {code: '::', rate: '10', amount: '1'},
             {code: '', rate: '', amount: '0'},
         ]},
         {accountId: 506, amount: '', currency: '', useGross: 0, grossAmount: '', description: 'empty'},
