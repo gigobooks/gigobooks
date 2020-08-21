@@ -215,7 +215,7 @@ export function taxSelectOptions(isSale: boolean, code0?: string, optional = tru
     const groups: Record<string, TaxCode[]> = {}
     const other: TaxCode[] = []
     codes.forEach(info => {
-        const prefix = info.isEU ? info.geoParts[1] : info.geoParts[0]
+        const prefix = info.countryCode
         if (prefix) {
             groups[prefix] = groups[prefix] || []
             groups[prefix].push(info)

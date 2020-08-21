@@ -59,9 +59,9 @@ test('cross comparison against VATRates', () => {
 })
 
 test('parsing', () => {
-    let info = new TaxCode('EU-AT:VAT:20')
-    expect(info.authority).toEqual('EU-AT')
-    expect(info.geoParts).toEqual(['EU', 'AT'])
+    let info = new TaxCode('AT:VAT:20')
+    expect(info.authority).toEqual('AT')
+    expect(info.geoParts).toEqual(['AT'])
     expect(info.authorityExtra).toEqual('')
     expect(info.type).toEqual('VAT')
     expect(info.reverse).toBeFalsy()
@@ -70,9 +70,9 @@ test('parsing', () => {
     expect(info.variant).toBe('')
     expect(info.rate).toEqual('20')
 
-    info = new TaxCode('EU-IE:VAT;foo;ding;r:reduced:13.5')
-    expect(info.authority).toEqual('EU-IE')
-    expect(info.geoParts).toEqual(['EU', 'IE'])
+    info = new TaxCode('IE:VAT;foo;ding;r:reduced:13.5')
+    expect(info.authority).toEqual('IE')
+    expect(info.geoParts).toEqual(['IE'])
     expect(info.authorityExtra).toEqual('')
     expect(info.type).toEqual('VAT')
     expect(info.reverse).toBeTruthy()
@@ -81,9 +81,9 @@ test('parsing', () => {
     expect(info.variant).toBe('reduced')
     expect(info.rate).toEqual('13.5')
 
-    info = new TaxCode('EU-IE-MOSS;FR:VAT;x:zero:0')
-    expect(info.authority).toEqual('EU-IE-MOSS')
-    expect(info.geoParts).toEqual(['EU', 'IE'])
+    info = new TaxCode('IE--MOSS;FR:VAT;x:zero:0')
+    expect(info.authority).toEqual('IE--MOSS')
+    expect(info.geoParts).toEqual(['IE', ''])
     expect(info.authorityExtra).toEqual('FR')
     expect(info.type).toEqual('VAT')
     expect(info.reverse).toBeFalsy()
@@ -116,19 +116,17 @@ test('parsing', () => {
 })
 
 test('labels', () => {
-    /*
-    expect(new TaxCode('EU-AT:VAT:20').label).toEqual('Austria VAT 20%')
-    expect(new TaxCode('EU-AT:VAT:reduced:10').label).toEqual('Austria VAT (reduced) 10%')
-    expect(new TaxCode('EU-AT:VAT:reduced:13').label).toEqual('Austria VAT (reduced) 13%')
-    expect(new TaxCode('EU-AT:VAT:parking:13').label).toEqual('Austria VAT (parking) 13%')
-    expect(new TaxCode('EU-FR:VAT:super-reduced:2.1').label).toEqual('France VAT (super reduced) 2.1%')
+    expect(new TaxCode('AT:VAT:20').label).toEqual('AT: VAT (standard) 20%')
+    expect(new TaxCode('AT:VAT:reduced:10').label).toEqual('AT: VAT (reduced) 10%')
+    expect(new TaxCode('AT:VAT:reduced:13').label).toEqual('AT: VAT (reduced) 13%')
+    expect(new TaxCode('AT:VAT:parking:13').label).toEqual('AT: VAT (parking) 13%')
+    expect(new TaxCode('FR:VAT:super-reduced:2.1').label).toEqual('FR: VAT (super reduced) 2.1%')
 
-    expect(new TaxCode('EU-EL:VAT:24').label).toEqual('Greece VAT 24%')
-    expect(new TaxCode('EU-UK:VAT:20').label).toEqual('United Kingdom VAT 20%')
-    */
+    expect(new TaxCode('EL:VAT:24').label).toEqual('EL: VAT (standard) 24%')
+    expect(new TaxCode('UK:VAT:20').label).toEqual('UK: VAT (standard) 20%')
 
-    // expect(new TaxCode('EU-IE:VAT:zero:0').label).toEqual('IE: VAT (zero-rated) 0%')
-    // expect(new TaxCode('EU-IE:VAT;r:zero:0').label).toEqual('IE: VAT (reverse charge) 0%')
+    expect(new TaxCode('IE:VAT:zero:0').label).toEqual('IE: VAT (zero-rated) 0%')
+    expect(new TaxCode('IE:VAT;r:zero:0').label).toEqual('IE: VAT (reverse charge) 0%')
 
     expect(new TaxCode('AU:GST:10').label).toEqual('AU: GST 10%')
     expect(new TaxCode('AU:GST:zero:0').label).toEqual('AU: GST Free 0%')

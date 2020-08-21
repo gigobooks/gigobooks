@@ -10,7 +10,7 @@ When written/represented as a string, a tax code comprises a tuple (colon delimi
 <authority[;extra]>:<type[;flags-and-tags...]>:[rate]
 <authority[;extra]>:<type[;flags-and-tags...]>:[variant]:[rate]
 
-The first field, `authority`, indicates the tax authority or jurisdiction. It loosely corresponds to geographical area in a hierarchical form ie. `EU-AT`, `AU`, `US-CA`, `CA-BC`, `IN-AP`, `CN-AH`, but this might not always be true.
+The first field, `authority`, indicates the tax authority or jurisdiction. It loosely corresponds to geographical area in a hierarchical form ie. `AT`, `AU`, `US-CA`, `CA-BC`, `IN-AP`, `CN-AH`, but this might not always be true.
 
 (Country indicators are either EU VAT codes or ISO 3166-1 ish. State or subdivision indicators are ISO 3166-2-ish.)
 
@@ -44,23 +44,23 @@ The `rate` field is the tax rate percentage in string form, and can include up t
 
 Some examples:
 
-`EU-AT:VAT:20` - Austria VAT standard rate of 20%
-`EU-AT:VAT:reduced:10` - Austria VAT reduced rate of 10%
-`EU-AT:VAT:reduced:13` - Austria VAT reduced rate of 13%
-`EU-AT:VAT:parking:13` - Austria VAT parking rate of 13%
-`EU-FR:VAT:super-reduced:2.1` - France VAT super-reduced rate of 2.1%
+`AT:VAT:20` - Austria VAT standard rate of 20%
+`AT:VAT:reduced:10` - Austria VAT reduced rate of 10%
+`AT:VAT:reduced:13` - Austria VAT reduced rate of 13%
+`AT:VAT:parking:13` - Austria VAT parking rate of 13%
+`FR:VAT:super-reduced:2.1` - France VAT super-reduced rate of 2.1%
 
-'EU-EL:VAT:24` - Greece VAT standard rate of 24% (Non-standard country code)
-'EU-UK:VAT:20` - UK VAT standard rate of 20% (Non-standard country code)
+'EL:VAT:24` - Greece VAT standard rate of 24% (Non-standard country code)
+'UK:VAT:20` - UK VAT standard rate of 20% (Non-standard country code)
 
-`EU-FR:VAT;r:20` - France VAT standard rate of 20% (reverse charge on own purchases)
-`EU-FR:VAT;r:super-reduced:2.1` - France VAT super-reduced rate of 2.1% (reverse charge on own purchases)
+`FR:VAT;r:20` - France VAT standard rate of 20% (reverse charge on own purchases)
+`FR:VAT;r:super-reduced:2.1` - France VAT super-reduced rate of 2.1% (reverse charge on own purchases)
 
-`EU-IE:VAT;intra-eu;goods:23` - Ireland standard rate of 23%, A supply or acquisition of goods within the EU community.
-`EU-IE:VAT;r;intra-eu:23` - Ireland standard rate of 23% applied as a reverse charge on own purchase of a service from within the EU community.
-`EU-IE:VAT;export:zero:0` - Ireland zero-rated service, Exported outside of the EU community.
+`IE:VAT;intra-eu;goods:23` - Ireland standard rate of 23%, A supply or acquisition of goods within the EU community.
+`IE:VAT;r;intra-eu:23` - Ireland standard rate of 23% applied as a reverse charge on own purchase of a service from within the EU community.
+`IE:VAT;export:zero:0` - Ireland zero-rated service, Exported outside of the EU community.
 
-`EU-IE-MOSS;FR:VAT:20` - France standard rate of 20% transmitted via Ireland's MOSS
+`IE--MOSS;FR:VAT:20` - France standard rate of 20% transmitted via Ireland's MOSS
 
 `AU:GST:10` - Australia GST rate of 10%
 `AU:GST:zero:0` - Australia GST free/zero-rated
@@ -90,14 +90,13 @@ import { Project } from './Project'
 // Since some tax rates have three decimal places, scale up by 1000 before calculating
 const TaxRateScale = 1000
 
-export function authorityCountryCode(authority: string) {
-    // Note: Greece is 'EL', Britain is 'UK'
-    return authority.startsWith('EU-') ? authority.substring(3, 5) : authority.substring(0, 2)
-}
+export const euCountryCodes = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK',
+    'EE', 'DE', 'EL', 'FI', 'FR', 'HU', 'IE', 'IT', 'LV', 'LT',
+    'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+    'UK']
 
-export function authorityCountryName(authority: string) {
+export function countryName(cc0: string) {
     // Note: Greece is 'EL', Britain is 'UK'
-    const cc0 = authorityCountryCode(authority)
     const cc = cc0 == 'EL' ? 'GR' :
                cc0 == 'UK' ? 'GB' : cc0
     const countryInfo = iso3166.country(cc)
@@ -148,25 +147,19 @@ export class TaxCode {
         this.rate = parts[parts.length - 1]
     }
 
-    toString() {
-        return this.taxCode
-    }
-
-    _code(flagsAndTags: boolean) {
+    _code(includeTags: boolean) {
         const parts = []
         parts.push(this.authorityExtra ? `${this.authority};${this.authorityExtra}` : this.authority)
 
         const typeParts = [this.type]
-        if (flagsAndTags) {
-            if (this.reverse) {
-                typeParts.push('r')
-            }
-            if (this.variable) {
-                typeParts.push('x')
-            }
-            if (this.tags.length > 0) {
-                typeParts.push(...this.tags.sort())
-            }
+        if (this.reverse) {
+            typeParts.push('r')
+        }
+        if (this.variable) {
+            typeParts.push('x')
+        }
+        if (includeTags && this.tags.length > 0) {
+            typeParts.push(...this.tags.sort())
         }
         parts.push(typeParts.join(';'))
 
@@ -186,16 +179,25 @@ export class TaxCode {
         return this._code(false)
     }
 
-    get info() {
-        return taxAuthorities[this.authority] ? taxAuthorities[this.authority].taxInfo(this) : { label: this.taxCode, weight: 100 }
+    toString() {
+        return this.taxCode
     }
 
-    get isEU() {
-        return this.geoParts[0] == 'EU'
+    get taxAuthority() {
+        // A clunky way to simulate inheritance
+        return taxAuthorities[this.authority] || fallbackTaxAuthority
+    }
+
+    get info() {
+        return this.taxAuthority.taxInfo(this)
+    }
+
+    get countryCode() {
+        return this.geoParts[0]
     }
 
     get label() {
-        const parts = [`${authorityCountryCode(this.authority)}:`, this.info.label]
+        const parts = [`${this.countryCode}:`, this.info.label]
         if (this.rate) {
             parts.push(this.rate + '%')
         }
@@ -217,17 +219,18 @@ type TaxInfo = {
     weight: number
 }
 
-// This class is not meant to be instantiated
 export class TaxAuthority {
     readonly id: string
     readonly title: string
+    readonly enable: boolean
     
-    constructor(id: string, title: string) {
+    constructor(id: string, title: string, enable = false) {
         this.id = id
         this.title = title
+        this.enable = enable
     }
 
-    // These are stubs that should never be called
+    // These are stubs that should be overridden by subclasses
     taxesInfo(): Record<string, TaxInfo> { return {} }
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
 
@@ -299,7 +302,7 @@ export class TaxAuthorityEU extends TaxAuthority {
     }
 
     taxes(homeAuthority: string, isSale: boolean) {
-        const rates = taxRatesEU[this.id.substring(3, 5)]
+        const rates = taxRatesEU[this.id]
         const items: string[] = []
 
         // common
@@ -323,13 +326,39 @@ export class TaxAuthorityEU extends TaxAuthority {
     }
 }
 
+const fallbackTaxAuthority = new TaxAuthority('', '', false)
+
 export const taxAuthorities: Record<string, TaxAuthority> = {
-    'AU': new TaxAuthorityAU('AU', 'Australian Tax Office'),
-    // 'EU-EE': new TaxAuthorityEU('EU-EE', 'Tax and Customs Board'),
-    // 'EU-EL': new TaxAuthorityEU('EU-EL', 'Independent Authority for Public Revenue'),
-    // 'EU-IE': new TaxAuthorityEU('EU-IE', 'Irish Tax and Customs'),
+    'AT': new TaxAuthorityEU('AT', 'Federal Ministry of Finance'),
+    'AU': new TaxAuthorityAU('AU', 'Australian Tax Office', true),
+    'BE': new TaxAuthorityEU('BE', 'Ministry of Finance'),
+    'BG': new TaxAuthorityEU('BG', 'National Revenuue Agency'),
+    'HR': new TaxAuthorityEU('HR', 'Ministry of Finance'),
+    'CY': new TaxAuthorityEU('CY', 'Ministry of Finance'),
+    'CZ': new TaxAuthorityEU('CZ', 'Development of Taxpayer Services Unit'),
+    'DK': new TaxAuthorityEU('DK', 'Danish Customs and Tax Administration'),
+    'EE': new TaxAuthorityEU('EE', 'Tax and Customs Board'),
+    'DE': new TaxAuthorityEU('DE', 'Federal Ministry of Finance'),
+    'EL': new TaxAuthorityEU('EL', 'Independent Authority for Public Revenue'),
+    'FI': new TaxAuthorityEU('FI', 'Finnish Tax Administration'),
+    'FR': new TaxAuthorityEU('FR', 'Ministry of Action and public accounts'),
+    'HU': new TaxAuthorityEU('HU', 'National Tax and Customs Administration'),
+    'IE': new TaxAuthorityEU('IE', 'Irish Tax and Customs'),
+    'IT': new TaxAuthorityEU('IT', 'Ministry of Economy and Finance'),
+    'LV': new TaxAuthorityEU('LV', 'State Revenue Service'),
+    'LT': new TaxAuthorityEU('LT', 'Ministry of Finance'),
+    'LU': new TaxAuthorityEU('LU', 'Administration for registration, domains and VAT'),
+    'MT': new TaxAuthorityEU('MT', 'Ministry of Finance'),
+    'NL': new TaxAuthorityEU('NL', 'Dutch Tax and Customs Administration'),
     'NZ': new TaxAuthorityNZ('NZ', 'Inland Revenue Department'),
-    // 'EU-UK': new TaxAuthorityEU('EU-UK', 'HM Revenue and Customs'),
+    'PL': new TaxAuthorityEU('PL', 'Ministry of Finance'),
+    'PT': new TaxAuthorityEU('PT', 'Tax and Customs Authority'),
+    'RO': new TaxAuthorityEU('RO', 'Ministry of Public Finance'),
+    'SK': new TaxAuthorityEU('SK', 'Financial Administration of Slovak Republic'),
+    'SI': new TaxAuthorityEU('SI', 'Financial Administration of the Republic of Slovenia'),
+    'ES': new TaxAuthorityEU('ES', 'Tax Agency'),
+    'SE': new TaxAuthorityEU('SE', 'Swedish Tax Agency'),
+    'UK': new TaxAuthorityEU('UK', 'HM Revenue and Customs'),
 }
 
 export const taxRatesEU: Record<string, string[]> = {
@@ -411,7 +440,7 @@ export function baseTaxCodes(isSale: boolean) {
     const codes: string[] = []
 
     ;[homeAuthority, ...Project.variables.get('otherTaxAuthorities')].forEach(k => {
-        if (taxAuthorities[k]) {
+        if (taxAuthorities[k] && taxAuthorities[k].enable) {
             codes.push(...taxAuthorities[k].taxes(homeAuthority, isSale))
         }
     })
