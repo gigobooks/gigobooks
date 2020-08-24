@@ -372,9 +372,7 @@ function ElementFamily(props: ElementFamilyProps) {
         const hasTagOptions = Object.keys(tagOptions).length > 0
 
         return <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}>
-        <td className='header-space-start' colSpan={2}>
-            &nbsp;
-        </td><td className='child-tax-code'>
+        <td className='child-tax-code' colSpan={3}>
             {!!subItem.eId && 
             <input
                 type='hidden'
@@ -403,6 +401,7 @@ function ElementFamily(props: ElementFamilyProps) {
                     {taxSelectOptions(true, baseCode)}
                 </select>
             </label>
+            {hasTagOptions && <>&nbsp;</>}
             <label htmlFor={`elements[${index}].taxes[${subIndex}].tag`} style={hasTagOptions ? {} : {display: 'none'}}>Tag:
                 <select
                     name={`elements[${index}].taxes[${subIndex}].tag`}

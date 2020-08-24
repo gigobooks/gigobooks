@@ -113,10 +113,11 @@ form textarea { width: 20em; height: 5em; }
 
 .transaction-elements .header-space-start { width: 100%; }
 
-.transaction-elements .child-tax-code, .transaction-elements .child-tax-rate, .transaction-elements .child-amount {
+.transaction-elements .child-tax-rate, .transaction-elements .child-amount {
     white-space: nowrap; text-align: right;
 }
 .transaction-elements .child label { font-variant: small-caps; font-weight: bold; font-size: 0.875em; }
+.transaction-elements .child-tax-code label { white-space: nowrap; }
 .transaction-elements .child input { width: 5em; text-align: right; }
 .transaction-elements .child input, .transaction-elements .child-tax-code select { margin-left: 0.5em; }
 .transaction-elements .child-tax-rate input { width: 4em; }
