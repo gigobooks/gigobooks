@@ -373,6 +373,8 @@ function ElementFamily(props: ElementFamilyProps) {
 
     {fields.map((subItem, subIndex) => {
         const baseCode = baseCodes[subIndex] ? new TaxCode(baseCodes[subIndex]) : undefined
+        const tagOptions = baseCode ? baseCode.tagOptions(false) : {}
+        const hasTagOptions = Object.keys(tagOptions).length > 0
 
         return <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}>
         <td className='header-space-start' colSpan={2}>
@@ -385,7 +387,7 @@ function ElementFamily(props: ElementFamilyProps) {
                 value={subItem.eId}
                 ref={form.register()}
             />}
-            <label htmlFor={`elements[${index}].taxes[${subIndex}].baseCode`}>Tax code:
+            <label htmlFor={`elements[${index}].taxes[${subIndex}].baseCode`}>Tax:
                 <select
                     name={`elements[${index}].taxes[${subIndex}].baseCode`}
                     defaultValue={subItem.baseCode}
@@ -404,6 +406,16 @@ function ElementFamily(props: ElementFamilyProps) {
                     ref={form.register()}
                 >
                     {taxSelectOptions(false, baseCode)}
+                </select>
+            </label>
+            <label htmlFor={`elements[${index}].taxes[${subIndex}].tag`} style={hasTagOptions ? {} : {display: 'none'}}>Tag:
+                <select
+                    name={`elements[${index}].taxes[${subIndex}].tag`}
+                    defaultValue={subItem.tag}
+                    ref={form.register()}
+                >
+                    <option key='' value=''>None</option>
+                    {hashSelectOptions(tagOptions)}
                 </select>
             </label>
         </td><td className='child-tax-rate'>
