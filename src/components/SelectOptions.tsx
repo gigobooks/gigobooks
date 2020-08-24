@@ -5,7 +5,7 @@
 var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
-import { Account, Actor, Project, TaxCode, baseTaxCodes } from '../core'
+import { Account, Actor, Project, countryName, TaxCode, baseTaxCodes } from '../core'
 import { orderByField } from '../util/util'
 
 // A thin wrapper around <select /> with the following optimisation:
@@ -183,14 +183,6 @@ export function currencySelectOptions(currency?: string) {
     </>
 }
 
-function prefixLabel(prefix0: string): string {
-    // Convert 'EL' to 'GR, 'UK' to 'GB'
-    const prefix = prefix0 == 'EL' ? 'GR' :
-                   prefix0 == 'UK' ? 'GB' : prefix0
-    const countryInfo = iso3166.country(prefix)
-    return countryInfo ? countryInfo.name : prefix
-}
-
 // Returns a list of enabled base tax code select options.
 // If the supplied base tax code is not in the list, it is added
 export function taxSelectOptions(isSale: boolean, code0?: TaxCode, optional = true) {
@@ -240,12 +232,12 @@ export function taxSelectOptions(isSale: boolean, code0?: TaxCode, optional = tr
             <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
         )}
         {Object.keys(groups).sort().map(prefix => {
-            if (groups[prefix].length == 1 && groups[prefix][0].geoParts.length == 1) {
+            /*if (groups[prefix].length == 1 && groups[prefix][0].geoParts.length == 1) {
                 const info = groups[prefix][0]
                 return <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
             }
-            else {
-                return <optgroup key={prefix} label={prefixLabel(prefix)}>
+            else*/ {
+                return <optgroup key={prefix} label={countryName(prefix)}>
                 {groups[prefix].map(info =>
                     <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
                 )}
