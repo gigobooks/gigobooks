@@ -12,7 +12,7 @@ import { TransactionOrKnex, Model,
     toFormatted, parseFormatted, TaxCode } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
-import { MaybeSelect, flatSelectOptions, accountSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
+import { MaybeSelect, hashSelectOptions, flatSelectOptions, accountSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
 import BillPayment from './BillPayment'
 
@@ -37,7 +37,8 @@ export type FormData = {
         description?: string
         taxes?: {
             eId?: number
-            code: string
+            baseCode: string
+            tag: string
             rate: string
             amount: string
         }[]
@@ -285,10 +286,12 @@ function ElementFamily(props: ElementFamilyProps) {
     const [useGross, setUseGross] = React.useState<number>(item.useGross ? 1 : 0)
     const [currency, setCurrency] = React.useState<string>(props.currency)
     const [rates, setRates] = React.useState<string[]>(fields.map(subItem => subItem.rate))
+    const [baseCodes, setBaseCodes] = React.useState<string[]>(fields.map(subItem => subItem.baseCode))
+
     const state = {formatted, setFormatted, grossFormatted, setGrossFormatted, useGross, setUseGross, currency, setCurrency, rates, setRates}
     const [enabled, setEnabled] = React.useState<boolean>(!item.useGross || !item.grossAmount)
     const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
-    const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => new TaxCode(subItem.code).variable))
+    const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => new TaxCode(subItem.baseCode).variable))
     const formErrors: any = form.errors
 
     return <tbody className='element-family'>
@@ -368,63 +371,69 @@ function ElementFamily(props: ElementFamilyProps) {
         </button>
     </td></tr>
 
-    {fields.map((subItem, subIndex) => 
-    <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}><td className='header-space-start' colSpan={2}>
-        &nbsp;
-    </td><td className='child-tax-code'>
-        {!!subItem.eId && 
-        <input
-            type='hidden'
-            name={`elements[${index}].taxes[${subIndex}].eId`}
-            value={subItem.eId}
-            ref={form.register()}
-        />}
-        <label htmlFor={`elements[${index}].taxes[${subIndex}].code`}>Tax code:
-            <select
-                name={`elements[${index}].taxes[${subIndex}].code`}
-                defaultValue={subItem.code}
-                onChange={e => {
-                    const info = new TaxCode(e.target.value)
-                    form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
-                    state.rates[subIndex] = info.rate
-                    formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
+    {fields.map((subItem, subIndex) => {
+        const baseCode = baseCodes[subIndex] ? new TaxCode(baseCodes[subIndex]) : undefined
 
-                    ratesEnabled[subIndex] = info.variable
-                    setRatesEnabled([...ratesEnabled])
-                }}
-                ref={form.register()}
-            >
-                {taxSelectOptions(false, subItem.code)}
-            </select>
-        </label>
-    </td><td className='child-tax-rate'>
-        <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>
-            Rate:<input
-                name={`elements[${index}].taxes[${subIndex}].rate`}
-                defaultValue={subItem.rate}
-                onChange={e => {
-                    state.rates[subIndex] = e.target.value
-                    formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
-                }}
-                disabled={!ratesEnabled[subIndex]}
-                ref={form.register()}
-            /> %
-        </label>
-    </td><td className='child-amount' colSpan={2}>
-        <label htmlFor={`elements[${index}].taxes[${subIndex}].amount`}>Amount:
+        return <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}>
+        <td className='header-space-start' colSpan={2}>
+            &nbsp;
+        </td><td className='child-tax-code'>
+            {!!subItem.eId && 
             <input
-                name={`elements[${index}].taxes[${subIndex}].amount`}
-                defaultValue={subItem.amount}
-                disabled={true}
+                type='hidden'
+                name={`elements[${index}].taxes[${subIndex}].eId`}
+                value={subItem.eId}
                 ref={form.register()}
-            />
-        </label>
-        {formErrors.elements && formErrors.elements[index] &&
-            formErrors.elements[index].taxes && formErrors.elements[index].taxes[subIndex] &&
-            formErrors.elements[index].taxes[subIndex].amount &&
-            <div>{formErrors.elements[index].taxes[subIndex].amount.message}</div>}
-    </td></tr>
-    )}
+            />}
+            <label htmlFor={`elements[${index}].taxes[${subIndex}].baseCode`}>Tax code:
+                <select
+                    name={`elements[${index}].taxes[${subIndex}].baseCode`}
+                    defaultValue={subItem.baseCode}
+                    onChange={e => {
+                        const info = new TaxCode(e.target.value)
+                        form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
+                        state.rates[subIndex] = info.rate
+                        formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
+
+                        ratesEnabled[subIndex] = info.variable
+                        setRatesEnabled([...ratesEnabled])
+
+                        baseCodes[subIndex] = e.target.value
+                        setBaseCodes([...baseCodes])
+                    }}
+                    ref={form.register()}
+                >
+                    {taxSelectOptions(false, baseCode)}
+                </select>
+            </label>
+        </td><td className='child-tax-rate'>
+            <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>
+                Rate:<input
+                    name={`elements[${index}].taxes[${subIndex}].rate`}
+                    defaultValue={subItem.rate}
+                    onChange={e => {
+                        state.rates[subIndex] = e.target.value
+                        formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
+                    }}
+                    disabled={!ratesEnabled[subIndex]}
+                    ref={form.register()}
+                /> %
+            </label>
+        </td><td className='child-amount' colSpan={2}>
+            <label htmlFor={`elements[${index}].taxes[${subIndex}].amount`}>Amount:
+                <input
+                    name={`elements[${index}].taxes[${subIndex}].amount`}
+                    defaultValue={subItem.amount}
+                    disabled={true}
+                    ref={form.register()}
+                />
+            </label>
+            {formErrors.elements && formErrors.elements[index] &&
+                formErrors.elements[index].taxes && formErrors.elements[index].taxes[subIndex] &&
+                formErrors.elements[index].taxes[subIndex].amount &&
+                <div>{formErrors.elements[index].taxes[subIndex].amount.message}</div>}
+        </td></tr>
+    })}
     </tbody>
 }
 
@@ -466,10 +475,12 @@ export function extractFormValues(t: Transaction): FormData {
             let orphan = true
             for (let p of values.elements) {
                 if (e.parentId == p.eId) {
+                    const tc = new TaxCode(e.taxCode!)
                     p.taxes!.push({
                         eId: e.id,
-                        code: e.taxCode!,
-                        rate: new TaxCode(e.taxCode!).rate,
+                        baseCode: e.taxCode ? tc.baseCode : '',
+                        tag: e.taxCode ? tc.tag : '',
+                        rate: e.taxCode ? tc.rate : '',
                         amount: toFormatted(e.amount!, e.currency!),
                     })
 
@@ -551,8 +562,11 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
         if (e0.taxes) {
             e0.taxes.forEach(sub => {
                 let taxCode = ''
-                if (sub.code != '') {
-                    const info = new TaxCode(sub.code)
+                if (sub.baseCode) {
+                    const info = new TaxCode(sub.baseCode)
+                    if (sub.tag) {
+                        info.tag = sub.tag
+                    }
                     info.rate = sub.rate
                     taxCode = info.taxCode
                 }

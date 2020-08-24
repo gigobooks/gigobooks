@@ -36,7 +36,7 @@ Currently, two flags are defined: `r` and `x`.
 The flag `r` indicates a reverse charge (ie. EU reverse charge)
 The flag `x` indicates that the tax rate can be modified/supplied/overridden by the user
 
-A tag is any arbitrary four-or-more character string. The meaning of a tag is dependent on the tax authority or system albeit it's generally informational-only. Multiple tags are supported.
+A tag is any arbitrary four-or-more character string. The meaning of a tag is dependent on the tax authority or system albeit it's generally informational-only. At the moment, only up to one tag is supported.
 
 The `variant` field is one of the following: `zero`, `reduced`, `super-reduced`, `parking` and others (see specific tax authorities). If `variant` is missing, then the standard/default rate is implied. Generally, `variant` is used to handle zero-ratings, (for EU VAT) multiple tax rates, and as a lighter-weight form of tagging.
 
@@ -110,7 +110,7 @@ export class TaxCode {
     type: string
     reverse: boolean
     variable: boolean
-    tags: string[]
+    tag: string
     variant: string
     rate: string
 
@@ -126,7 +126,7 @@ export class TaxCode {
         this.type = ''
         this.reverse = false
         this.variable = false
-        this.tags = []
+        this.tag = ''
 
         typeList.forEach((s, index) => {
             if (index == 0) {
@@ -139,7 +139,7 @@ export class TaxCode {
                 this.variable = true
             }
             else if (s.length > 3) {
-                this.tags.push(s)
+                this.tag = s
             }
         })
 
@@ -158,8 +158,8 @@ export class TaxCode {
         if (this.variable) {
             typeParts.push('x')
         }
-        if (includeTags && this.tags.length > 0) {
-            typeParts.push(...this.tags.sort())
+        if (includeTags && this.tag) {
+            typeParts.push(this.tag)
         }
         parts.push(typeParts.join(';'))
 
@@ -209,8 +209,8 @@ export class TaxCode {
         return this.info.weight
     }
 
-    hasTag(tag: string) {
-        return this.tags.indexOf(tag) >= 0
+    tagOptions(isSale: boolean) {
+        return this.taxAuthority.tagOptions(this, isSale)
     }
 }
 
@@ -233,6 +233,7 @@ export class TaxAuthority {
     // These are stubs that should be overridden by subclasses
     taxesInfo(): Record<string, TaxInfo> { return {} }
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
+    tagOptions(code: TaxCode, isSale: boolean): Record<string, string> { return {} }
 
     taxInfo(code: TaxCode) {
         let k = code.type
@@ -323,6 +324,14 @@ export class TaxAuthorityEU extends TaxAuthority {
             }
         }
         return items
+    }
+
+    tagOptions(code: TaxCode, isSale: boolean) {
+        return {
+            'eu-goods': `Intra-EU ${isSale ? 'supply' : 'acquisition'} of goods`,
+            'eu-service': `Intra-EU ${isSale ? 'supply' : 'acquisition'} of service`,
+            [isSale ? 'export' : 'import']: isSale ? 'Export out of EU' : 'Import into EU'
+        }
     }
 }
 

@@ -42,6 +42,14 @@ export class MaybeSelect extends React.Component<any> {
     }
 }
 
+export function hashSelectOptions(obj: Record<string, string>) {
+    return <>
+    {Object.keys(obj).map(k => 
+        <option key={k} value={k}>{obj[k]}</option>
+    )}        
+    </>
+}
+
 export function flatSelectOptions(items: any[]) {
     return <>
     {items.map(a => 
@@ -183,17 +191,18 @@ function prefixLabel(prefix0: string): string {
     return countryInfo ? countryInfo.name : prefix
 }
 
-// Returns a list of enabled tax code select options.
-// If the supplied tax code is not in the list, it is added
-export function taxSelectOptions(isSale: boolean, code0?: string, optional = true) {
-    const codes0 = baseTaxCodes(isSale)
-    if (code0 && codes0.indexOf(code0) == -1) {
-        codes0.push(code0)
-        // codes0.push(new TaxCode(code0).baseCode)
-        // Also ToDo: Duplication?
+// Returns a list of enabled base tax code select options.
+// If the supplied base tax code is not in the list, it is added
+export function taxSelectOptions(isSale: boolean, code0?: TaxCode, optional = true) {
+    const baseCodes = baseTaxCodes(isSale)
+    if (code0) {
+        const baseCode0 = code0.baseCode
+        if (baseCodes.indexOf(baseCode0) == -1) {
+            baseCodes.push(baseCode0)
+        }
     }
 
-    const codes = codes0.map(code => new TaxCode(code))
+    const codes = baseCodes.map(code => new TaxCode(code))
     codes.sort(function (a, b) {
         if (a.geoParts[0] == b.geoParts[0]) {
             if (a.geoParts.length == b.geoParts.length) {
