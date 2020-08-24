@@ -33,7 +33,7 @@ A flag indicates a feature or modification. Multiple flags are supported.
 
 Currently, two flags are defined: `r` and `x`.
 
-The flag `r` indicates a reverse charge (ie. EU reverse charge)
+The flag `r` indicates a reverse charge (ie. EU reverse charge) on a purchase
 The flag `x` indicates that the tax rate can be modified/supplied/overridden by the user
 
 A tag is any arbitrary four-or-more character string. The meaning of a tag is dependent on the tax authority or system albeit it's generally informational-only. At the moment, only up to one tag is supported.
@@ -53,6 +53,7 @@ Some examples:
 'EL:VAT:24` - Greece VAT standard rate of 24% (Non-standard country code)
 'UK:VAT:20` - UK VAT standard rate of 20% (Non-standard country code)
 
+`FR:VAT:reverse:0` - France VAT reverse charge on a sale
 `FR:VAT;r:20` - France VAT standard rate of 20% (reverse charge on own purchases)
 `FR:VAT;r:super-reduced:2.1` - France VAT super-reduced rate of 2.1% (reverse charge on own purchases)
 
@@ -101,6 +102,10 @@ export function countryName(cc0: string) {
                cc0 == 'UK' ? 'GB' : cc0
     const countryInfo = iso3166.country(cc)
     return countryInfo ? countryInfo.name : cc
+}
+
+export function isEUAuthority(authority: string) {
+    return euCountryCodes.indexOf(authority.substring(0, 2)) >= 0
 }
 
 export class TaxCode {
@@ -210,7 +215,7 @@ export class TaxCode {
     }
 
     tagOptions(isSale: boolean) {
-        return this.taxAuthority.tagOptions(this, isSale)
+        return this.taxAuthority.tagOptions(Project.variables.get('taxAuthority'), isSale, this)
     }
 }
 
@@ -224,7 +229,7 @@ export class TaxAuthority {
     readonly title: string
     readonly enable: boolean
     
-    constructor(id: string, title: string, enable = false) {
+    constructor(id: string, title: string, enable = true || false) {
         this.id = id
         this.title = title
         this.enable = enable
@@ -233,7 +238,7 @@ export class TaxAuthority {
     // These are stubs that should be overridden by subclasses
     taxesInfo(): Record<string, TaxInfo> { return {} }
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
-    tagOptions(code: TaxCode, isSale: boolean): Record<string, string> { return {} }
+    tagOptions(homeAuthority: string, isSale: boolean, code: TaxCode): Record<string, string> { return {} }
 
     taxInfo(code: TaxCode) {
         let k = code.type
@@ -299,6 +304,7 @@ export class TaxAuthorityEU extends TaxAuthority {
             'VAT;r:super-reduced': { label: 'VAT (reverse charge)', weight: 7 },
             'VAT;r:parking': { label: 'VAT (reverse charge)', weight: 8 },
             'VAT;r:zero': { label: 'VAT (reverse charge)', weight: 9 },
+            'VAT:reverse': { label: 'VAT (reverse charge)', weight: 10 },
         }
     }
 
@@ -314,24 +320,27 @@ export class TaxAuthorityEU extends TaxAuthority {
 
         // reverse charges
         if (homeAuthority == this.id) {
-            items.push(`${this.id}:VAT;r:zero:0`)
-
-            // reverse charge purchase
-            if (!isSale) {
+            if (isSale) {
+                // reverse charge sale
+                items.push(`${this.id}:VAT:reverse:0`)
+            }
+            else {
+                // reverse charge purchase
                 rates.forEach(s => {
                     items.push(`${this.id}:VAT;r:${s}`)
                 })
+                items.push(`${this.id}:VAT;r:zero:0`)
             }
         }
         return items
     }
 
-    tagOptions(code: TaxCode, isSale: boolean) {
-        return {
-            'eu-goods': `Intra-EU ${isSale ? 'supply' : 'acquisition'} of goods`,
-            'eu-service': `Intra-EU ${isSale ? 'supply' : 'acquisition'} of service`,
+    tagOptions(homeAuthority: string, isSale: boolean, code: TaxCode) {
+        return isEUAuthority(homeAuthority) ? {
+            'eu-goods': `Intra-EU goods`,
+            'eu-service': `Intra-EU service`,
             [isSale ? 'export' : 'import']: isSale ? 'Export out of EU' : 'Import into EU'
-        }
+        } : {} as any
     }
 }
 
