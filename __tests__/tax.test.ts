@@ -1,6 +1,6 @@
 var VATRates = require('vatrates')
 import { Project } from '../src/core'
-import { TaxCode, taxRatesEU, calculateTaxes } from '../src/core/tax'
+import { TaxCode, taxRatesEU, calculateTaxes, TaxAuthority } from '../src/core/tax'
 import { CalculateTaxState, formCalculateTaxes } from '../src/components/form'
 import { MockForm } from '../src/test/MockForm'
 
@@ -155,6 +155,11 @@ test('labels', () => {
     expect(new TaxCode('::').label).toEqual('')
     expect(new TaxCode(':::').label).toEqual('')
 */
+})
+
+test('tax authorities default to disabled', () => {
+    const t = new TaxAuthority('', '')
+    expect(t.enable).toBeFalsy()
 })
 
 test('calculate tax', () => {
