@@ -372,14 +372,14 @@ export const taxAuthorities: Record<string, TaxAuthority> = {
     'FI': new TaxAuthorityEU('FI', 'Finnish Tax Administration'),
     'FR': new TaxAuthorityEU('FR', 'Ministry of Action and public accounts'),
     'HU': new TaxAuthorityEU('HU', 'National Tax and Customs Administration'),
-    'IE': new TaxAuthorityEU('IE', 'Irish Tax and Customs'),
+    'IE': new TaxAuthorityEU('IE', 'Irish Tax and Customs', true),
     'IT': new TaxAuthorityEU('IT', 'Ministry of Economy and Finance'),
     'LV': new TaxAuthorityEU('LV', 'State Revenue Service'),
     'LT': new TaxAuthorityEU('LT', 'Ministry of Finance'),
     'LU': new TaxAuthorityEU('LU', 'Administration for registration, domains and VAT'),
     'MT': new TaxAuthorityEU('MT', 'Ministry of Finance'),
     'NL': new TaxAuthorityEU('NL', 'Dutch Tax and Customs Administration'),
-    'NZ': new TaxAuthorityNZ('NZ', 'Inland Revenue Department'),
+    'NZ': new TaxAuthorityNZ('NZ', 'Inland Revenue Department', true),
     'PL': new TaxAuthorityEU('PL', 'Ministry of Finance'),
     'PT': new TaxAuthorityEU('PT', 'Tax and Customs Authority'),
     'RO': new TaxAuthorityEU('RO', 'Ministry of Public Finance'),
@@ -387,7 +387,7 @@ export const taxAuthorities: Record<string, TaxAuthority> = {
     'SI': new TaxAuthorityEU('SI', 'Financial Administration of the Republic of Slovenia'),
     'ES': new TaxAuthorityEU('ES', 'Tax Agency'),
     'SE': new TaxAuthorityEU('SE', 'Swedish Tax Agency'),
-    'UK': new TaxAuthorityEU('UK', 'HM Revenue and Customs'),
+    'UK': new TaxAuthorityEU('UK', 'HM Revenue and Customs', true),
 }
 
 export const taxRatesEU: Record<string, string[]> = {
