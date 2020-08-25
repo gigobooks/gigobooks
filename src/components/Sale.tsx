@@ -547,6 +547,9 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
         data.actorId = actor.id!
     }
 
+    // Get a list of balancing IDs. Re-use them if available
+    const ids = transaction.getDrElementIds()
+
     Object.assign(transaction, {
         description: data.description,
         type: data.type,
@@ -601,11 +604,8 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
         }
     })
 
-    // Generate balancing elements. Try to re-use IDs if available
-    const sums = Transaction.getSums(elements)
-    const ids = transaction.getDrElementIds()
-
-    for (let money of sums) {
+    // Generate balancing elements.
+    for (let money of Transaction.getCreditBalances(elements)) {
         elements.push({
             id: ids.shift(),
             accountId: data.type == Transaction.Sale ? Account.Reserved.Cash : Account.Reserved.AccountsReceivable,

@@ -493,42 +493,46 @@ export type TaxOutputs = {
 // `useGross` indicates whether the input amount is gross or net.
 // `rates` is a list of tax rate percentages. Each tax rate is expressed as a string.
 // Tax amounts are rounded to an integer
+//
+// Hack: If a tax rate starts with a `#`, it doesn't contribute to net/gross calculations
 export function calculateTaxes(input: TaxInputs): TaxOutputs {
-    const taxes = []
+    const taxes: number[] = []
     let amount = input.amount
+
+    const rates: {rate000: number, additive: boolean}[] = []
+    for (let r of input.rates) {
+        let rate000 = parseFloat(r && r[0] == '#' ? r.substring(1) : r) * TaxRateScale
+        if (Number.isNaN(rate000) || rate000 < 0) {
+            rate000 = 0
+        }
+        rates.push({rate000, additive: !r || r[0] != '#'})
+    }
 
     if (input.useGross) {
         // gross -> net
-        let total000 = 0
-        const rates000 = []
-        for (let r of input.rates) {
-            let rate000 = parseFloat(r) * TaxRateScale
-            if (Number.isNaN(rate000) || rate000 < 0) {
-                rate000 = 0
-            }
+        const total000 = rates.reduce((subTotal, info) => {
+            return info.additive ? subTotal + info.rate000 : subTotal
+        }, 0)
 
-            rates000.push(rate000)
-            total000 += rate000
-        }
-
-        for (let rate000 of rates000) {
-            const taxAmount = Math.round((input.amount * rate000) / (100 * TaxRateScale + total000))
+        rates.forEach(info => {
+            const taxAmount = Math.round((input.amount * info.rate000) / (100 * TaxRateScale + total000))
             taxes.push(taxAmount)
-            amount -= taxAmount
-        }
+
+            if (info.additive) {
+                amount -= taxAmount
+            }
+        })
     }
     else {
         // net -> gross
-        for (let r of input.rates) {
-            let rate000 = parseFloat(r) * TaxRateScale
-            if (Number.isNaN(rate000) || rate000 < 0) {
-                rate000 = 0
-            }
-
-            const taxAmount = Math.round((input.amount * rate000) / (100 * TaxRateScale))
+        rates.forEach(info => {
+            const taxAmount = Math.round((input.amount * info.rate000) / (100 * TaxRateScale))
             taxes.push(taxAmount)
-            amount += taxAmount
-        }
+
+            if (info.additive) {
+                amount += taxAmount
+            }
+        })
     }
 
     return {amount, taxes}

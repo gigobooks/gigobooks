@@ -2,6 +2,7 @@ import { Project, Account, Transaction } from '../src/core'
 import { extractFormValues, saveFormData, validateFormData } from '../src/components/Purchase'
 import { MockForm } from '../src/test/MockForm'
 
+const TaxPayable = Account.Reserved.TaxPayable
 const TaxReceivable = Account.Reserved.TaxReceivable
 const Cash = Account.Reserved.Cash
 
@@ -87,6 +88,34 @@ test('purchase form', async done => {
     const t2 = await Transaction.query().findById(result).withGraphFetched('elements')
     expect(t2).toMatchObject(t1)
     expect(t1).toMatchObject(t2)
+
+    done()
+})
+
+test('purchase form with reverse charge', async done => {
+    // Save a sale using form data
+    let t0 = Transaction.construct({})
+    let result = await saveFormData(t0, {type: Transaction.Purchase, actorId: 1, date: now, description: 'foo', elements: [
+        {accountId: 506, amount: '100', currency: 'USD', useGross: 0, grossAmount: '110', description: 'one', taxes: [
+            {baseCode: ':;r:0', tag: 'tagA', rate: '5', amount: '5'},
+            {baseCode: '::', tag: 'tagB', rate: '10', amount: '10'},
+        ]},
+    ]})
+    expect(result).toBeTruthy()
+    expect(t0.actorId).toBe(1)
+    expect(t0.date).toBe(date)
+    expect(t0.description).toBe('foo')
+    expect(t0.elements!.length).toBe(5)
+    expect(t0.elements![0]).toMatchObject({accountId: 506, amount: 10000, currency: 'USD', useGross: 0, grossAmount: 11000, description: 'one'})
+    expect(t0.elements![1]).toMatchObject({accountId: Cash, amount: 11000, currency: 'USD'})
+    expect(t0.elements![2]).toMatchObject({accountId: TaxReceivable, amount: 500, currency: 'USD'})
+    expect(t0.elements![3]).toMatchObject({accountId: TaxPayable, amount: 500, currency: 'USD'})
+    expect(t0.elements![4]).toMatchObject({accountId: TaxReceivable, amount: 1000, currency: 'USD'})
+
+    // Retrieve it and check
+    const t1 = await Transaction.query().findById(result).withGraphFetched('elements')
+    expect(t1).toMatchObject(t0)
+    expect(t0).toMatchObject(t1)
 
     done()
 })

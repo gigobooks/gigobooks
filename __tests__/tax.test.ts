@@ -202,6 +202,18 @@ test('calculate tax', () => {
         .toEqual({amount: 120000, taxes: [0, 0, 0, 10000, 0, 10000]})
 })
 
+test('calculate tax with gross/net omissions', () => {
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: ['#10']}))
+        .toEqual({amount: 100000, taxes: [10000]})
+    expect(calculateTaxes({amount: 100000, useGross: 0, rates: ['#5', '10']}))
+        .toEqual({amount: 110000, taxes: [5000, 10000]})
+
+    expect(calculateTaxes({amount: 100000, useGross: 1, rates: ['#10']}))
+        .toEqual({amount: 100000, taxes: [10000]})
+    expect(calculateTaxes({amount: 110000, useGross: 1, rates: ['#5', '10']}))
+        .toEqual({amount: 100000, taxes: [5000, 10000]})
+})
+
 test('form calculate tax', () => {
     function defaults() {
         return {

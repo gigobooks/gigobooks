@@ -398,7 +398,7 @@ function ElementFamily(props: ElementFamilyProps) {
                     onChange={e => {
                         const info = new TaxCode(e.target.value)
                         form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
-                        state.rates[subIndex] = info.rate
+                        state.rates[subIndex] = (info.reverse ? '#' : '') + info.rate
                         formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
 
                         ratesEnabled[subIndex] = info.variable
@@ -429,7 +429,8 @@ function ElementFamily(props: ElementFamilyProps) {
                     name={`elements[${index}].taxes[${subIndex}].rate`}
                     defaultValue={subItem.rate}
                     onChange={e => {
-                        state.rates[subIndex] = e.target.value
+                        const info = new TaxCode(baseCodes[subIndex])
+                        state.rates[subIndex] = (info.reverse ? '#' : '') + e.target.value
                         formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
                     }}
                     disabled={!ratesEnabled[subIndex]}
@@ -552,6 +553,9 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
         data.actorId = actor.id!
     }
 
+    // Get a list of balancing IDs. Re-use them if available
+    const ids = transaction.getCrElementIds()
+
     Object.assign(transaction, {
         description: data.description,
         type: data.type,
@@ -579,6 +583,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
         if (e0.taxes) {
             e0.taxes.forEach(sub => {
                 let taxCode = ''
+                let reverseCharge = false
                 if (sub.baseCode) {
                     const info = new TaxCode(sub.baseCode)
                     if (sub.tag) {
@@ -586,6 +591,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                     }
                     info.rate = sub.rate
                     taxCode = info.taxCode
+                    reverseCharge = info.reverse
                 }
 
                 elements.push({
@@ -602,15 +608,30 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                     taxCode,
                     parentId: -1,
                 })
+
+                if (reverseCharge) {
+                    // Inject a reverse charge
+                    elements.push({
+                        id: ids.shift(),
+                        accountId: Account.Reserved.TaxPayable,
+                        drcr: Transaction.Credit,
+                        // Note: Use the currency value of the first item
+                        amount: parseFormatted(sub.amount, data.elements[0].currency),
+                        currency: data.elements[0].currency,
+                        useGross: 0,
+                        grossAmount: 0,
+                        description: '',
+                        settleId: 0,
+                        taxCode: '',
+                        parentId: -1,
+                    })    
+                }
             })
         }
     })
 
-    // Generate balancing elements. Try to re-use IDs if available
-    const sums = Transaction.getSums(elements)
-    const ids = transaction.getCrElementIds()
-
-    for (let money of sums) {
+    // Generate balancing elements.
+    for (let money of Transaction.getDebitBalances(elements)) {
         elements.push({
             id: ids.shift(),
             accountId: data.type == Transaction.Purchase ? Account.Reserved.Cash : Account.Reserved.AccountsPayable,
