@@ -65,7 +65,7 @@ export default function Purchase(props: Props) {
         form.reset({
             actorId: 0,
             date: lastSavedDate(),
-            elements: [{currency}, {currency}],
+            elements: [{currency}],
         })
     }
 
@@ -293,6 +293,12 @@ function ElementFamily(props: ElementFamilyProps) {
     const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
     const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => new TaxCode(subItem.baseCode).variable))
     const formErrors: any = form.errors
+
+    React.useEffect(() => {
+        if (!item.eId && fields.length == 0) {
+            append({name: `elements[${index}].taxes`})
+        }
+    }, [])
 
     return <tbody className='element-family'>
     <tr className={`element element-${index}`} key={item.id}><td className='account' rowSpan={65534}>
