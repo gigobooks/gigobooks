@@ -6,8 +6,12 @@ import * as React from 'react'
 import { BlobProvider, StyleSheet, View, Text } from '@react-pdf/renderer'
 const pdfjsWebViewer = require('pdfjs-dist/web/pdf_viewer.js')
 import 'pdfjs-dist/web/pdf_viewer.css'
-const pdfjsWorker = require('pdfjs-dist/build/pdf.worker.min.js')
-const pdfjs = require("pdfjs-dist/build/pdf.min.js")
+
+// Beware: These have been hand-patched so they don't use Promise.allSettled.
+// The .min.js versions may not have been hand-patched
+const pdfjsWorker = require('pdfjs-dist/build/pdf.worker.js')
+const pdfjs = require("pdfjs-dist/build/pdf.js")
+
 import PDFDownloadLink from './PDFDownloadLink'
 
 // See 'pdfjs-dist/webpack.js'

@@ -1,0 +1,30 @@
+diff --git a/node_modules/pdfjs-dist/build/pdf.js b/node_modules/pdfjs-dist/build/pdf.js
+index 617ad0a..1ed7244 100644
+--- a/node_modules/pdfjs-dist/build/pdf.js
++++ b/node_modules/pdfjs-dist/build/pdf.js
+@@ -7218,8 +7218,8 @@ class MessageHandler {
+   }
+ 
+   async _deleteStreamController(streamId) {
+-    await Promise.allSettled([this.streamControllers[streamId].startCall, this.streamControllers[streamId].pullCall, this.streamControllers[streamId].cancelCall].map(function (capability) {
+-      return capability && capability.promise;
++    await Promise.all([this.streamControllers[streamId].startCall, this.streamControllers[streamId].pullCall, this.streamControllers[streamId].cancelCall].map(function (capability) {
++      return capability && capability.promise && capability.promise.catch(e => e);
+     }));
+     delete this.streamControllers[streamId];
+   }
+diff --git a/node_modules/pdfjs-dist/build/pdf.worker.js b/node_modules/pdfjs-dist/build/pdf.worker.js
+index 337f9f8..4527d17 100644
+--- a/node_modules/pdfjs-dist/build/pdf.worker.js
++++ b/node_modules/pdfjs-dist/build/pdf.worker.js
+@@ -45748,8 +45748,8 @@ class MessageHandler {
+   }
+ 
+   async _deleteStreamController(streamId) {
+-    await Promise.allSettled([this.streamControllers[streamId].startCall, this.streamControllers[streamId].pullCall, this.streamControllers[streamId].cancelCall].map(function (capability) {
+-      return capability && capability.promise;
++    await Promise.all([this.streamControllers[streamId].startCall, this.streamControllers[streamId].pullCall, this.streamControllers[streamId].cancelCall].map(function (capability) {
++      return capability && capability.promise && capability.promise.catch(e => e);
+     }));
+     delete this.streamControllers[streamId];
+   }
