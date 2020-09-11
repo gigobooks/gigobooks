@@ -71,6 +71,8 @@ export default function Purchase(props: Props) {
 
     // Initialise a lot of stuff
     React.useEffect(() => {
+        let mounted = true
+
         // Clear redirectId
         setRedirectId(-1)
 
@@ -80,11 +82,13 @@ export default function Purchase(props: Props) {
             ...Account.TypeGroupInfo[Account.Expense].types])
         .orderBy(['title'])
         .then(rows => {
-            const groupInfo = {
-                [Account.Expense]: { label: 'Expense' },
-                [Account.Asset]: { label: 'Long term asset' },
+            if (mounted) {
+                const groupInfo = {
+                    [Account.Expense]: { label: 'Expense' },
+                    [Account.Asset]: { label: 'Long term asset' },
+                }
+                setAccountOptions(accountSelectOptions(rows, groupInfo))
             }
-            setAccountOptions(accountSelectOptions(rows, groupInfo))
         })
 
         // Load suppliers
@@ -92,8 +96,10 @@ export default function Purchase(props: Props) {
         .where('type', Actor.Supplier)
         .orderBy('title')
         .then((rows: any[]) => {
-            rows.push({id: Actor.NewSupplier, title: '<new supplier>', type: Actor.Supplier})
-            setSupplierOptions(flatSelectOptions(rows))
+            if (mounted) {
+                rows.push({id: Actor.NewSupplier, title: '<new supplier>', type: Actor.Supplier})
+                setSupplierOptions(flatSelectOptions(rows))
+            }
         })
         
         // Load transaction (if exists) and initialise form accordingly
@@ -101,9 +107,15 @@ export default function Purchase(props: Props) {
             Transaction.query().findById(argId).whereIn('type', [Transaction.Purchase, Transaction.Bill])
             .withGraphFetched('elements')
             .then(t => {
-                setTransaction(t)
-                if (t) {
-                    form.reset(extractFormValues(t))
+                if (t && mounted) {
+                    setTransaction(t)
+                    // Even though `mounted` was true recently, it seems to be
+                    // volatile so we need to check it again.
+                    // Actually, this is a work-around since form.reset() should
+                    // take care not to modify unmounted components ??
+                    if (mounted) {
+                        form.reset(extractFormValues(t))
+                    }
                 }
             })
         }
@@ -111,6 +123,8 @@ export default function Purchase(props: Props) {
             setTransaction(Transaction.construct({}))
             clearForm()
         }
+
+        return () => {mounted=false}
     }, [props.arg1, transaction && transaction.id && transaction.updatedAt ? transaction.updatedAt.toString() : 0])
 
     const onSubmit = (data: FormData) => {
@@ -122,6 +136,9 @@ export default function Purchase(props: Props) {
         Model.transaction(trx => saveFormData(transaction!, data, trx)).then(savedId => {
             if (savedId) {
                 playSuccess()
+                // This form.reset() triggers the warning:
+                // 'Can't perform a React state update on an unmounted component. '
+                // Again, I think this is a bug within form.reset()
                 form.reset(extractFormValues(transaction!))
                 setActorTitleEnable(false)
 
