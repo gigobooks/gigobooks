@@ -262,7 +262,7 @@ export class TaxAuthorityAU extends TaxAuthority {
         return {
             'GST': { label: 'GST', weight: 0 },
             'GST:zero': { label: 'GST Free', weight: 1 },
-            'GST:export': { label: 'GST Free Export', weight: 2 },
+            'GST:export': { label: 'Export (GST Free)', weight: 2 },
             'GST:input': { label: 'GST (input taxed)', weight: 3 },
             'GST:capital': { label: 'GST (capital purchase)', weight: 4 },
         }

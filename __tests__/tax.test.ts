@@ -130,7 +130,7 @@ test('labels', () => {
 
     expect(new TaxCode('AU:GST:10').label).toEqual('AU: GST 10%')
     expect(new TaxCode('AU:GST:zero:0').label).toEqual('AU: GST Free 0%')
-    expect(new TaxCode('AU:GST:export:0').label).toEqual('AU: GST Free Export 0%')
+    expect(new TaxCode('AU:GST:export:0').label).toEqual('AU: Export (GST Free) 0%')
     expect(new TaxCode('AU:GST:input:0').label).toEqual('AU: GST (input taxed) 0%')
     expect(new TaxCode('AU:GST:capital:10').label).toEqual('AU: GST (capital purchase) 10%')
 
