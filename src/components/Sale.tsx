@@ -171,6 +171,7 @@ export default function Sale(props: Props) {
                         <label htmlFor='type'>Type:</label>
                     </th><td>
                         <select name='type' ref={form.register} disabled={!!transaction.id}>
+                            {!transaction.type && <option key='' value=''></option>}
                             <option key={Transaction.Sale} value={Transaction.Sale}>
                                 {Transaction.TypeInfo[Transaction.Sale].label}
                             </option>
@@ -178,6 +179,9 @@ export default function Sale(props: Props) {
                                 {Transaction.TypeInfo[Transaction.Invoice].label}
                             </option>
                         </select>
+                        {form.errors.type && <span className='error'>
+                            {form.errors.type.message}
+                        </span>}
                     </td>
                 </tr><tr className='row row-actor'>
                     <th scope='row'>
@@ -320,8 +324,12 @@ function ElementFamily(props: ElementFamilyProps) {
             name={`elements[${index}].accountId`}
             defaultValue={item.accountId}
             ref={form.register()}>
+            {!item.accountId && <option key='' value=''></option>}
             {revenueOptions}
         </select>
+        {form.errors.elements && form.errors.elements[index] &&
+            form.errors.elements[index].accountId &&
+            <div className='error'>{form.errors.elements[index].accountId!.message}</div>}
     </td><td className='description' colSpan={3}>
         <input
             name={`elements[${index}].description`}
@@ -537,6 +545,10 @@ export function extractFormValues(t: Transaction): FormData {
 
 // Returns true if validation succeeded, false otherwise
 export function validateFormData(form: FCV<FormData>, data: FormData) {
+    if (!data.type) {
+        form.setError('type', '', 'Type is required')
+        return false
+    }
     if (!data.actorId) {
         form.setError('actorId', '', 'Customer is required')
         return false
@@ -553,6 +565,14 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
         form.setError('submit', '', 'Nothing to save')
         return false
     }
+
+    for (let index in data.elements) {
+        if (!data.elements[index].accountId) {
+            form.setError(`elements[${index}].accountId`, '', 'This is required')
+            return false    
+        }
+    }
+
     return validateElementAmounts(form, data) && validateElementTaxAmounts(form, data)
 }
 
