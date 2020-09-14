@@ -42,7 +42,7 @@
     "@types/webpack-env": "^1.15.2",
     "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^3.5.2",
-    "husky": "^4.2.5",
+    "husky": "^4.3.0",
     "jest": "^25.4.0",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
