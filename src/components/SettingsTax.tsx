@@ -5,8 +5,9 @@
 import * as React from 'react'
 import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Link } from 'react-router-dom'
-import { Project, countryName, taxAuthorities } from '../core'
+import { Project, countryName, TaxAuthority, taxAuthorities } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
+import { hashSelectOptions } from './SelectOptions'
 
 type FormData = {
     taxAuthority: string
@@ -25,6 +26,7 @@ function taxAuthorityOptions() {
 }
 
 export default function SettingsTax() {
+    const homeAuthority = Project.variables.get('taxAuthority')
     const form = useForm<FormData>({
         defaultValues: extractFormValues(),
     })
@@ -85,6 +87,12 @@ export default function SettingsTax() {
                 </td></tr>
             )}            
 
+            {[homeAuthority, ...Project.variables.get('otherTaxAuthorities')].map(k => {
+                if (taxAuthorities[k] && taxAuthorities[k].enable) {
+                    return <AuthoritySettings key={k} form={form} homeAuthority={homeAuthority} authority={taxAuthorities[k]} />
+                }
+            })}
+
             </tbody></table>
             <div className='errors'>
                 {form.errors.submit && form.errors.submit.message}
@@ -95,13 +103,46 @@ export default function SettingsTax() {
     </div>
 }
 
+function AuthoritySettings(props: {form: FCV<FormData>, homeAuthority: string, authority: TaxAuthority}) {
+    const {form, homeAuthority, authority} = props
+    const fields = authority.settings(homeAuthority)
+    const hasSettings = Object.keys(fields).length > 0
+
+    return hasSettings ? <>
+        <tr><th colSpan={2}><h2>{`Settings (${countryName(authority.id)})`}</h2></th></tr>
+        {Object.keys(fields).map(key => {
+            const field = fields[key]
+
+            return <tr key={key} className='row'>
+                <th scope='row'>
+                    <label htmlFor={key}>{`${field.label}:`}</label>
+                </th><td>
+                    {field.type == 'text' && <input name={key} ref={form.register} />}
+                    {field.type == 'select' && <select name={key} ref={form.register}>
+                        {hashSelectOptions(field.options!)}
+                    </select>}
+                    {field.type == 'checkbox' && <input type='checkbox' name={key} ref={form.register} />}
+                </td>
+            </tr>
+        })}
+    </> : null
+}
+
 function extractFormValues(): FormData {
-    const values = Project.variables.getMultiple([
+    const homeAuthority = Project.variables.get('taxAuthority')
+    const variables = [
         'taxAuthority',
         'otherTaxAuthorities'
-    ]) as FormData
+    ]
 
-    return values
+    // Get variables for tax authorities
+    ;[homeAuthority, ...Project.variables.get('otherTaxAuthorities')].forEach(k => {
+        if (taxAuthorities[k] && taxAuthorities[k].enable) {
+            variables.push(...Object.keys(taxAuthorities[k].settings(homeAuthority)))
+        }
+    })
+
+    return Project.variables.getMultiple(variables) as FormData
 }
 
 // Returns true if validation succeeded, false otherwise

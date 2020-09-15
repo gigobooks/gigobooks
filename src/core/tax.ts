@@ -229,6 +229,12 @@ type TaxInfo = {
     weight: number
 }
 
+type TaxSetting = {
+    type: string
+    label: string
+    options?: Record<string, string>
+}
+
 export class TaxAuthority {
     readonly id: string
     readonly title: string
@@ -241,6 +247,7 @@ export class TaxAuthority {
     }
 
     // These are stubs that should be overridden by subclasses
+    settings(homeAuthority: string): Record<string, TaxSetting> { return {} }
     taxesInfo(): Record<string, TaxInfo> { return {} }
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
     tagOptions(homeAuthority: string, isSale: boolean, code: TaxCode): Record<string, string> { return {} }
@@ -258,6 +265,13 @@ export class TaxAuthority {
 }
 
 export class TaxAuthorityAU extends TaxAuthority {
+    settings(homeAuthority: string) {
+        return {
+            'au:abn': { type: 'text', label: 'ABN' },
+            'au:accrual': { type: 'select', label: 'Accounting method', options: { '': 'Cash', 'accrual': 'Non-cash' } },
+        }
+    }
+
     taxesInfo() {
         return {
             'GST': { label: 'GST', weight: 0 },
@@ -297,6 +311,19 @@ export class TaxAuthorityNZ extends TaxAuthority {
 }
 
 export class TaxAuthorityEU extends TaxAuthority {
+    /*
+    settings(homeAuthority: string) {
+        const fields: Record<string, TaxSetting> = {}
+        fields[`${this.id}:vatId`] = { type: 'text', label: 'VAT ID' }
+
+        if (this.id == 'IE') {
+            fields[`${this.id}:cash`] = { type: 'checkbox', label: 'Cash receipts basis of accounting' }
+        }
+
+        return fields
+    }
+    */
+
     taxesInfo() {
         return {
             'VAT': { label: 'VAT (standard)', weight: 0 },
