@@ -5,7 +5,7 @@
 import * as React from 'react'
 import { Document, Page, View } from '@react-pdf/renderer'
 import { PDFView, Styles, B, T, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
-import { Transaction, TransactionType, formatDateOnly, toFormatted,
+import { Transaction, formatDateOnly, toFormatted,
     Money, BalanceSheet, balanceSheet, datePresetDates } from '../core'
 import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
 
