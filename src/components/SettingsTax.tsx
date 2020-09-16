@@ -5,7 +5,7 @@
 import * as React from 'react'
 import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Link } from 'react-router-dom'
-import { Project, countryName, TaxAuthority, taxAuthorities } from '../core'
+import { Project, TaxAuthority, taxAuthorities } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { hashSelectOptions } from './SelectOptions'
 
@@ -20,7 +20,7 @@ function taxAuthorityOptions() {
         {Object.keys(taxAuthorities).filter(k => {
             return taxAuthorities[k].enable
         }).map(k => 
-            <option key={k} value={k}>{countryName(k)}: {taxAuthorities[k].title}</option>
+            <option key={k} value={k}>{taxAuthorities[k].regionName}: {taxAuthorities[k].title}</option>
         )}
     </>
 }
@@ -109,7 +109,7 @@ function AuthoritySettings(props: {form: FCV<FormData>, homeAuthority: string, a
     const hasSettings = Object.keys(fields).length > 0
 
     return hasSettings ? <>
-        <tr><th colSpan={2}><h2>{`Settings (${countryName(authority.id)})`}</h2></th></tr>
+        <tr><th colSpan={2}><h2>{`Settings (${authority.regionName})`}</h2></th></tr>
         {Object.keys(fields).map(key => {
             const field = fields[key]
 

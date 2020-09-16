@@ -96,17 +96,30 @@ export const euCountryCodes = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK',
     'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
     'UK']
 
-export function countryName(cc0: string) {
-    // Special case
-    if (cc0 == 'EU') {
+// `code` is a 'ISO 3166-1 or ISO 3166-2'-like string, or 'EU'
+export function regionName(code: string) {
+    const parts = (code || '').split('-')
+
+    // Special cases
+    if (parts[0] == 'EU') {
         return 'Europe'
     }
+    else if (parts[0] == 'EL') {
+        parts[0] = 'GR'
+    }
+    else if (parts[0] == 'UK') {
+        parts[0] = 'GB'        
+    }
 
-    // Note: Greece is 'EL', Britain is 'UK'
-    const cc = cc0 == 'EL' ? 'GR' :
-               cc0 == 'UK' ? 'GB' : cc0
-    const countryInfo = iso3166.country(cc)
-    return countryInfo ? countryInfo.name : cc
+    if (parts.length == 1 || parts[1] == '') {
+        // country only
+        const info = iso3166.country(parts[0])
+        return info ? info.name : code
+    }
+
+    // country, subdivision
+    const info = iso3166.subdivision(parts[0], parts[1])
+    return info ? info.name : code
 }
 
 export function isEUAuthority(authority: string) {
@@ -206,6 +219,10 @@ export class TaxCode {
         return this.geoParts[0]
     }
 
+    get regionName() {
+        return regionName(this.authority)
+    }
+
     get label() {
         const parts = [`${this.countryCode}:`, this.info.label]
         if (this.rate) {
@@ -244,6 +261,10 @@ export class TaxAuthority {
         this.id = id
         this.title = title
         this.enable = enable
+    }
+
+    get regionName() {
+        return regionName(this.id)
     }
 
     // These are stubs that should be overridden by subclasses

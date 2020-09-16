@@ -5,7 +5,7 @@
 var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
-import { Account, Actor, Project, countryName, TaxCode, baseTaxCodes } from '../core'
+import { Account, Actor, Project, regionName, TaxCode, baseTaxCodes } from '../core'
 import { orderByField } from '../util/util'
 
 // A thin wrapper around <select /> with the following optimisation:
@@ -237,7 +237,7 @@ export function taxSelectOptions(isSale: boolean, code0?: TaxCode, optional = tr
                 return <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
             }
             else*/ {
-                return <optgroup key={prefix} label={countryName(prefix)}>
+                return <optgroup key={prefix} label={regionName(prefix)}>
                 {groups[prefix].map(info =>
                     <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
                 )}

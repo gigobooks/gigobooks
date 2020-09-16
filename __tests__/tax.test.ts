@@ -1,6 +1,6 @@
 var VATRates = require('vatrates')
 import { Project } from '../src/core'
-import { TaxCode, taxRatesEU, calculateTaxes, TaxAuthority } from '../src/core/tax'
+import { regionName, TaxCode, taxRatesEU, calculateTaxes, TaxAuthority } from '../src/core/tax'
 import { CalculateTaxState, formCalculateTaxes } from '../src/components/form'
 import { MockForm } from '../src/test/MockForm'
 
@@ -49,6 +49,17 @@ function logCodes(codes: (TaxCode | string)[], prefix = '') {
     })
     console.log(text)
 }
+
+test('regionName', () => {
+    expect(regionName('EU')).toEqual('Europe')
+    expect(regionName('EL')).toEqual(regionName('GR'))
+    expect(regionName('UK')).toEqual(regionName('GB'))
+    expect(regionName('US-CA')).toEqual('California')
+    expect(regionName('CA-BC')).toEqual('British Columbia')
+    expect(regionName('IN-AP')).toEqual('Andhra Pradesh')
+    // expect(regionName('CN-AH')).toEqual('')
+    expect(regionName('IE--MOSS')).toEqual('Ireland')
+})
 
 test('cross comparison against VATRates', () => {
     const copy = taxRatesEU
