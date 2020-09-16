@@ -5,7 +5,7 @@
 var iso3166 = require('iso-3166-2')
 import * as React from 'react'
 import * as CurrencyCodes from 'currency-codes'
-import { Account, Actor, Project, regionName, TaxCode, baseTaxCodes } from '../core'
+import { Account, Actor, Project, regionName, TaxCodeInfo, baseTaxCodes } from '../core'
 import { orderByField } from '../util/util'
 
 // A thin wrapper around <select /> with the following optimisation:
@@ -185,17 +185,17 @@ export function currencySelectOptions(currency?: string) {
 
 // Returns a list of enabled base tax code select options.
 // If the supplied base tax code is not in the list, it is added
-export function taxSelectOptions(isSale: boolean, code0?: TaxCode, optional = true) {
+export function taxSelectOptions(isSale: boolean, info0?: TaxCodeInfo, optional = true) {
     const baseCodes = baseTaxCodes(isSale)
-    if (code0) {
-        const baseCode0 = code0.baseCode
+    if (info0) {
+        const baseCode0 = info0.baseCode
         if (baseCodes.indexOf(baseCode0) == -1) {
             baseCodes.push(baseCode0)
         }
     }
 
-    const codes = baseCodes.map(code => new TaxCode(code))
-    codes.sort(function (a, b) {
+    const infos = baseCodes.map(code => new TaxCodeInfo(code))
+    infos.sort(function (a, b) {
         if (a.geoParts[0] == b.geoParts[0]) {
             if (a.geoParts.length == b.geoParts.length) {
                 if (a.geoParts.length > 1 && a.geoParts[1] != b.geoParts[1]) {
@@ -213,9 +213,9 @@ export function taxSelectOptions(isSale: boolean, code0?: TaxCode, optional = tr
     })
 
     // Distribute to 'buckets'
-    const groups: Record<string, TaxCode[]> = {}
-    const other: TaxCode[] = []
-    codes.forEach(info => {
+    const groups: Record<string, TaxCodeInfo[]> = {}
+    const other: TaxCodeInfo[] = []
+    infos.forEach(info => {
         const prefix = info.countryCode
         if (prefix) {
             groups[prefix] = groups[prefix] || []

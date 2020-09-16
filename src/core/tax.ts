@@ -126,7 +126,7 @@ export function isEUAuthority(authority: string) {
     return euCountryCodes.indexOf(authority.substring(0, 2)) >= 0
 }
 
-export class TaxCode {
+export class TaxCodeInfo {
     authority: string
     geoParts: string[]
     authorityExtra: string
@@ -271,17 +271,17 @@ export class TaxAuthority {
     settings(homeAuthority: string): Record<string, TaxSetting> { return {} }
     taxesInfo(): Record<string, TaxInfo> { return {} }
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
-    tagOptions(homeAuthority: string, isSale: boolean, code: TaxCode): Record<string, string> { return {} }
+    tagOptions(homeAuthority: string, isSale: boolean, info: TaxCodeInfo): Record<string, string> { return {} }
 
-    taxInfo(code: TaxCode) {
-        let k = code.type
-        if (code.reverse) {
+    taxInfo(info: TaxCodeInfo) {
+        let k = info.type
+        if (info.reverse) {
             k += ';r'
         }
-        if (code.variant) {
-            k += `:${code.variant}`
+        if (info.variant) {
+            k += `:${info.variant}`
         }
-        return this.taxesInfo()[k] || { label: code.taxCode, weight: 100 }
+        return this.taxesInfo()[k] || { label: info.taxCode, weight: 100 }
     }
 }
 
@@ -393,7 +393,7 @@ export class TaxAuthorityEU extends TaxAuthority {
         return items
     }
 
-    tagOptions(homeAuthority: string, isSale: boolean, code: TaxCode) {
+    tagOptions(homeAuthority: string, isSale: boolean, info: TaxCodeInfo) {
         return isEUAuthority(homeAuthority) ? {
             'eu-goods': `Intra-EU goods`,
             'eu-service': `Intra-EU service`,

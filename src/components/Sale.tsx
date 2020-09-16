@@ -9,7 +9,7 @@ import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
     Project, Transaction, TransactionType, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
-    toFormatted, parseFormatted, TaxCode } from '../core'
+    toFormatted, parseFormatted, TaxCodeInfo } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, hashSelectOptions, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
@@ -307,7 +307,7 @@ function ElementFamily(props: ElementFamilyProps) {
     const state = {formatted, setFormatted, grossFormatted, setGrossFormatted, useGross, setUseGross, currency, setCurrency, rates, setRates}
     const [enabled, setEnabled] = React.useState<boolean>(!item.useGross || !item.grossAmount)
     const [grossEnabled, setGrossEnabled] = React.useState<boolean>(item.useGross || !item.amount)
-    const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => new TaxCode(subItem.baseCode).variable))
+    const [ratesEnabled, setRatesEnabled] = React.useState<boolean[]>(fields.map(subItem => new TaxCodeInfo(subItem.baseCode).variable))
     const formErrors: any = form.errors
 
     React.useEffect(() => {
@@ -398,8 +398,8 @@ function ElementFamily(props: ElementFamilyProps) {
     </td></tr>
 
     {fields.map((subItem, subIndex) => {
-        const baseCode = baseCodes[subIndex] ? new TaxCode(baseCodes[subIndex]) : undefined
-        const tagOptions = baseCode ? baseCode.tagOptions(true) : {}
+        const baseCodeInfo = baseCodes[subIndex] ? new TaxCodeInfo(baseCodes[subIndex]) : undefined
+        const tagOptions = baseCodeInfo ? baseCodeInfo.tagOptions(true) : {}
         const hasTagOptions = Object.keys(tagOptions).length > 0
 
         return <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}>
@@ -416,7 +416,7 @@ function ElementFamily(props: ElementFamilyProps) {
                     name={`elements[${index}].taxes[${subIndex}].baseCode`}
                     defaultValue={subItem.baseCode}
                     onChange={e => {
-                        const info = new TaxCode(e.target.value)
+                        const info = new TaxCodeInfo(e.target.value)
                         form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
                         state.rates[subIndex] = info.rate
                         formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
@@ -429,7 +429,7 @@ function ElementFamily(props: ElementFamilyProps) {
                     }}
                     ref={form.register()}
                 >
-                    {taxSelectOptions(true, baseCode)}
+                    {taxSelectOptions(true, baseCodeInfo)}
                 </select>
             </label>
             {hasTagOptions && <>&nbsp;</>}
@@ -512,12 +512,12 @@ export function extractFormValues(t: Transaction): FormData {
             let orphan = true
             for (let p of values.elements) {
                 if (e.parentId == p.eId) {
-                    const tc = new TaxCode(e.taxCode!)
+                    const info = new TaxCodeInfo(e.taxCode!)
                     p.taxes!.push({
                         eId: e.id,
-                        baseCode: e.taxCode ? tc.baseCode : '',
-                        tag: e.taxCode ? tc.tag : '',
-                        rate: e.taxCode ? tc.rate : '',
+                        baseCode: e.taxCode ? info.baseCode : '',
+                        tag: e.taxCode ? info.tag : '',
+                        rate: e.taxCode ? info.rate : '',
                         amount: toFormatted(e.amount!, e.currency!),
                     })
 
@@ -615,7 +615,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
             e0.taxes.forEach(sub => {
                 let taxCode = ''
                 if (sub.baseCode) {
-                    const info = new TaxCode(sub.baseCode)
+                    const info = new TaxCodeInfo(sub.baseCode)
                     if (sub.tag) {
                         info.tag = sub.tag
                     }
