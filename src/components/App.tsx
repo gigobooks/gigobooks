@@ -26,6 +26,7 @@ import { refreshWindowTitle } from '../util/util'
 import { mruList, mruInsert, mruClear, mruDir } from '../util/mru'
 import { ProfitAndLossDetail, ProfitAndLossSummary } from './ProfitAndLoss'
 import { BalanceSheetLog, BalanceSheet } from './BalanceSheet'
+import { TransactionTaxesDetail } from './TransactionTaxes'
 
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
@@ -216,6 +217,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
             <MenuItem key='/reports/pl-detail'>Profit and Loss: Detail</MenuItem>
             <MenuItem key='/reports/bs'>Balance Sheet</MenuItem>
             <MenuItem key='/reports/bs-log'>Balance Sheet: Log</MenuItem>
+            <MenuItem key='/reports/tax-detail'>Transaction Tax: Detail</MenuItem>
         </SubMenu>}
         <SubMenu key='help' title="Help">
             <MenuItem key='/'>About</MenuItem>
@@ -225,6 +227,9 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
 
 function Main() {
     return <Switch>
+        <Route path='/reports/tax-detail'>
+            <TransactionTaxesDetail />
+        </Route>
         <Route path='/reports/pl-detail'>
             <ProfitAndLossDetail />
         </Route>
