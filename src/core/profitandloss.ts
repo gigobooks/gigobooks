@@ -73,8 +73,7 @@ type ProfitAndLoss = {
 
 export { Item, Money, Account, Division, ProfitAndLoss }
 
-// ToDo: accrual vs cash accounting ??
-export async function profitAndLoss(startDate: string, endDate: string, accrual?: boolean) : Promise<ProfitAndLoss> {
+export async function profitAndLoss(startDate: string, endDate: string) : Promise<ProfitAndLoss> {
     const elements = await Element.query()
         .leftJoin('txn', 'txnElement.transactionId', 'txn.id')
         .leftJoin('account', 'txnElement.accountId', 'account.id')
