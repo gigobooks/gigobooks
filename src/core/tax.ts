@@ -231,6 +231,15 @@ export class TaxCodeInfo {
         return parts.join(' ')
     }
 
+    // A compact label for displaying in reports
+    get reportLabel() {
+        const parts = [this.info.shortLabel]
+        if (this.tag) {
+            parts.push(this.tag)
+        }
+        return parts.join('\n')
+    }
+
     // Used for sorting taxes from the same authority
     get weight() {
         return this.info.weight
@@ -243,6 +252,7 @@ export class TaxCodeInfo {
 
 type TaxInfo = {
     label: string
+    shortLabel: string
     weight: number
 }
 
@@ -295,11 +305,11 @@ export class TaxAuthorityAU extends TaxAuthority {
 
     taxesInfo() {
         return {
-            'GST': { label: 'GST', weight: 0 },
-            'GST:zero': { label: 'GST Free', weight: 1 },
-            'GST:export': { label: 'Export (GST Free)', weight: 2 },
-            'GST:input': { label: 'GST (input taxed)', weight: 3 },
-            'GST:capital': { label: 'GST (capital purchase)', weight: 4 },
+            'GST': { label: 'GST', shortLabel: 'GST', weight: 0 },
+            'GST:zero': { label: 'GST Free', shortLabel: 'GST Free', weight: 1 },
+            'GST:export': { label: 'Export (GST Free)', shortLabel: 'Export', weight: 2 },
+            'GST:input': { label: 'GST (input taxed)', shortLabel: 'Input', weight: 3 },
+            'GST:capital': { label: 'GST (capital purchase)', shortLabel: 'Capital', weight: 4 },
         }
     }
 
@@ -316,9 +326,9 @@ export class TaxAuthorityAU extends TaxAuthority {
 export class TaxAuthorityNZ extends TaxAuthority {
     taxesInfo() {
         return {
-            'GST': { label: 'GST', weight: 0 },
-            'GST:zero': { label: 'GST (zero-rated)', weight: 1 },
-            'GST:import': { label: 'Imported goods', weight: 2 },
+            'GST': { label: 'GST', shortLabel: 'GST', weight: 0 },
+            'GST:zero': { label: 'GST (zero-rated)', shortLabel: '0-rated', weight: 1 },
+            'GST:import': { label: 'Imported goods', shortLabel: 'Import', weight: 2 },
         }
     }
 
@@ -347,17 +357,17 @@ export class TaxAuthorityEU extends TaxAuthority {
 
     taxesInfo() {
         return {
-            'VAT': { label: 'VAT (standard)', weight: 0 },
-            'VAT:reduced': { label: 'VAT (reduced)', weight: 1 },
-            'VAT:super-reduced': { label: 'VAT (super reduced)', weight: 2 },
-            'VAT:parking': { label: 'VAT (parking)', weight: 3 },
-            'VAT:zero': { label: 'VAT (zero-rated)', weight: 4 },
-            'VAT;r': { label: 'VAT (reverse charge)', weight: 5 },
-            'VAT;r:reduced': { label: 'VAT (reverse charge)', weight: 6 },
-            'VAT;r:super-reduced': { label: 'VAT (reverse charge)', weight: 7 },
-            'VAT;r:parking': { label: 'VAT (reverse charge)', weight: 8 },
-            'VAT;r:zero': { label: 'VAT (reverse charge)', weight: 9 },
-            'VAT:reverse': { label: 'VAT (reverse charge)', weight: 10 },
+            'VAT': { label: 'VAT (standard)', shortLabel: 'VAT', weight: 0 },
+            'VAT:reduced': { label: 'VAT (reduced)', shortLabel: 'Reduced', weight: 1 },
+            'VAT:super-reduced': { label: 'VAT (super reduced)', shortLabel: 'Super-r', weight: 2 },
+            'VAT:parking': { label: 'VAT (parking)', shortLabel: 'Parking', weight: 3 },
+            'VAT:zero': { label: 'VAT (zero-rated)', shortLabel: '0-rated', weight: 4 },
+            'VAT;r': { label: 'VAT (reverse charge)', shortLabel: 'Reverse', weight: 5 },
+            'VAT;r:reduced': { label: 'VAT (reverse charge)', shortLabel: 'Reverse', weight: 6 },
+            'VAT;r:super-reduced': { label: 'VAT (reverse charge)', shortLabel: 'Reverse', weight: 7 },
+            'VAT;r:parking': { label: 'VAT (reverse charge)', shortLabel: 'Reverse', weight: 8 },
+            'VAT;r:zero': { label: 'VAT (reverse charge)', shortLabel: 'Reverse', weight: 9 },
+            'VAT:reverse': { label: 'VAT (reverse charge)', shortLabel: 'Reverse', weight: 10 },
         }
     }
 
