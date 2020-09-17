@@ -26,6 +26,7 @@ type Item = {
     accountType: AccountType
 
     parentAmount: number
+    parentDescription: string
 
     // other fields
     id: number
@@ -68,7 +69,7 @@ export async function transactionTaxesDetail(startDate: string, endDate: string,
             'txn.id as txnId', 'txn.type as txnType', 'txn.date as txnDate', 'txn.description as txnDescription',
             'actor.Id as actorId', 'actor.title as actorTitle',
             'account.Id as accountId', 'account.title as accountTitle', 'account.type as accountType',
-            'parent.amount as parentAmount')
+            'parent.amount as parentAmount', 'parent.description as parentDescription')
         .where('txnElement.taxCode', '<>', '')
         .where('txn.date', '>=', startDate).where('txn.date', '<=', endDate)
         .orderBy([{column: 'txn.date', order: 'asc'}, {column: 'txn.id', order: 'asc'}])

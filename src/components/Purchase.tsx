@@ -659,7 +659,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                         grossAmount: 0,
                         description: '',
                         settleId: 0,
-                        taxCode: '',
+                        taxCode,
                         parentId: -1,
                     })    
                 }

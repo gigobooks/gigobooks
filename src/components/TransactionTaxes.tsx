@@ -57,10 +57,10 @@ export function TransactionTaxesDetail() {
 
             {info.authorities.map(division => <React.Fragment key={division.authority.id}>
                 <Tr><Th width={100}>{division.authority.regionName}</Th></Tr>
-                {division.outputs.items.length > 0 && <Group label='Tax Payable / Sales with tax codes' group={division.outputs} />}
-                {division.outputs.items.length > 0 && <GroupTotal label='Total Tax Payable / Sales with tax codes' group={division.outputs} />}
-                {division.inputs.items.length > 0 && <Group label='Tax Receivable / Purchases with tax codes' group={division.inputs} />}
-                {division.inputs.items.length > 0 && <GroupTotal label='Total Tax Receivable / Purchases with tax codes' group={division.inputs} />}
+                {division.outputs.items.length > 0 && <Group label='Tax Payable' group={division.outputs} />}
+                {division.outputs.items.length > 0 && <GroupTotal label='Total Tax Payable' group={division.outputs} />}
+                {division.inputs.items.length > 0 && <Group label='Tax Receivable' group={division.inputs} />}
+                {division.inputs.items.length > 0 && <GroupTotal label='Total Tax Receivable' group={division.inputs} />}
             </React.Fragment>)}
         </Page></Document> : null
     }, [info])
@@ -100,9 +100,9 @@ function Group({label, group}: {label: string | false, group: TransactionTaxes['
                 <Td width={10} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
                 <TdLeft width={15} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
                 <TdLeft width={24} innerStyle={{maxLines: 2}}>{
-                        !item.txnDescription ? item.description :
-                        !item.description ? item.txnDescription :
-                        `${item.txnDescription}: ${item.description}`
+                        !item.txnDescription ? item.parentDescription :
+                        !item.parentDescription ? item.txnDescription :
+                        `${item.txnDescription}: ${item.parentDescription}`
                 }</TdLeft>
                 <Td width={8} innerStyle={{maxLines: 2}}>{item.taxInfo.reportLabel}</Td>
                 <TdRight width={7}>{item.taxInfo.rate}%</TdRight>
