@@ -330,7 +330,13 @@ export class Transaction extends Base {
                 join: {
                     from: 'txn.id',
                     to: 'txnElement.settleId'
-                }
+                },
+                modify: function (builder: QueryBuilder<any, any>) {
+                    // Retrieve date from parent transaction
+                    builder.leftJoin('txn as st', 'txnElement.transactionId', 'st.id')
+                        .select('txnElement.*', 'st.date as date')
+                        .orderBy(['date', 'id'])
+                },
             },
         }
     }

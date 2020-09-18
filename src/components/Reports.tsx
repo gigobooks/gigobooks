@@ -64,6 +64,7 @@ type ReportHeaderProps = {
     title: string
     startDate?: string
     endDate: string
+    children?: any
 }
 
 export function ReportHeader(props: ReportHeaderProps) {
@@ -117,6 +118,7 @@ export function ReportHeader(props: ReportHeaderProps) {
             <B style={{fontSize: 12}}>{Project.variables.get('title')}</B>
             <B style={{fontSize: 18}}>{props.title}</B>
             <T style={{fontSize: 12}}>{interval}</T>
+            {props.children}
         </View>
     </View>
 }

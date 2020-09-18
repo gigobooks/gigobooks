@@ -4,7 +4,7 @@
 
 import { Money } from './currency'
 import { TaxCodeInfo, TaxAuthority, taxAuthorities } from './tax'
-import { AccountType } from './Account'
+import { Account, AccountType } from './Account'
 import { Element } from './Element'
 import { Transaction, TransactionType } from './Transaction'
 import { orderByField } from '../util/util'
@@ -36,6 +36,7 @@ type Item = {
     currency: string
     taxCode: string
 
+    // computed/derived fields
     taxInfo: TaxCodeInfo
 }
 
@@ -56,11 +57,13 @@ type Division = {
 export type TransactionTaxes = {
     startDate: string
     endDate: string
+    accrual: boolean
     authorities: Division[]
 }
 
-export async function transactionTaxesDetail(startDate: string, endDate: string, accrual?: boolean) : Promise<TransactionTaxes> {
-    const elements = await Element.query()
+export async function taxItems(startDate: string, endDate: string, accrual: boolean): Promise<Item[]> {
+    const paid: Transaction[] = []  // Sparse array, only for non-accrual
+    const query = Element.query()
         .leftJoin('txn', 'txnElement.transactionId', 'txn.id')
         .leftJoin('account', 'txnElement.accountId', 'account.id')
         .leftJoin('actor', 'txn.actorId', 'actor.id')
@@ -70,21 +73,99 @@ export async function transactionTaxesDetail(startDate: string, endDate: string,
             'actor.Id as actorId', 'actor.title as actorTitle',
             'account.Id as accountId', 'account.title as accountTitle', 'account.type as accountType',
             'parent.amount as parentAmount', 'parent.description as parentDescription')
-        .where('txnElement.taxCode', '<>', '')
-        .where('txn.date', '>=', startDate).where('txn.date', '<=', endDate)
-        .orderBy([{column: 'txn.date', order: 'asc'}, {column: 'txn.id', order: 'asc'}])
 
+    if (accrual) {
+        query.where('txn.date', '>=', startDate).where('txn.date', '<=', endDate)
+    }
+    else {
+        // Cash accounting: Omit 'accrual-ish' transactions (ie. invoices, bills)
+        // unless they were fully paid during the date range. Transactions which were
+        // partly paid (but not fully paid) during the date range are not included.
+        // In other words, partial payments don't count.
+        //
+        // The logic to do this is a bit crazy and probably too hard to do in SQL.
+        // Instead, retrieve all transactions (and settling payments) which had a
+        // payment within the date range. Then use application logic to filter.
+
+        const candidates = await Transaction.query()
+            .whereIn('type', [Transaction.Invoice, Transaction.Bill])
+            .whereRaw('EXISTS (SELECT e.id FROM txn_element e LEFT JOIN txn t ON e.transaction_id = t.id WHERE settle_id = txn.id AND t.date >= ? AND t.date <= ?)', [startDate, endDate])
+            .withGraphFetched('elements')
+            .withGraphFetched('settledBy')
+
+        // We want to extract transactions which are settled (ie. fully paid)
+        // and the last/most-recent payment falls within the date range.
+        candidates.forEach(_t => {
+            const t: Transaction & { settledBy: Element[] } = _t as any
+            const settlement: Element & { date: string } = t.settledBy[t.settledBy.length-1] as any
+
+            if (settlement.date >= startDate && settlement.date <= endDate) {
+                const allElements = [...t.elements!, ...t.settledBy]
+                let balances: Money[]
+
+                if (settlement.accountId == Account.Reserved.AccountsReceivable) {
+                    balances = Transaction.getDebitBalances(allElements.filter(
+                        e => e.accountId == Account.Reserved.AccountsReceivable))
+                }
+                else if (settlement.accountId == Account.Reserved.AccountsPayable) {
+                    balances = Transaction.getCreditBalances(allElements.filter(
+                        e => e.accountId == Account.Reserved.AccountsPayable))
+                }
+
+                if (balances!.every(b => { return b.amount <= 0 })) {
+                    // Inject settlement date
+                    t.date = settlement.date
+                    paid[t.id!] = t
+                }
+            }
+        })
+
+        query.where(function() {
+            this.where(function () {
+                this.whereIn('txn.type', [Transaction.Invoice, Transaction.Bill])
+                .whereIn('txn.id', Object.keys(paid))
+            }).orWhere(function () {
+                this.whereNotIn('txn.type', [Transaction.Invoice, Transaction.Bill])
+                .where('txn.date', '>=', startDate).where('txn.date', '<=', endDate)
+            })
+        })
+    }
+
+    query.where('txnElement.taxCode', '<>', '')
+    const elements: (Element & Item)[] = await query as any
+
+    if (!accrual) {
+        // Inject settlement date
+        elements.forEach(e => {
+            if (paid[e.transactionId!]) {
+                e.txnDate = paid[e.transactionId!].date!
+            }
+        })
+    }
+
+    elements.sort(function (a: Item, b: Item) {
+        if (a.txnDate == b.txnDate) {
+            return a.txnId < b.txnId ? -1 : 1
+        }
+        return a.txnDate < b.txnDate ? -1 : 1
+    })
+    elements.forEach(item => {
+        item.taxInfo = new TaxCodeInfo(item.taxCode)        
+    })
+    return elements
+}
+
+export async function transactionTaxesDetail(startDate: string, endDate: string, accrual = true) : Promise<TransactionTaxes> {
+    const items = await taxItems(startDate, endDate, accrual)
     const result: TransactionTaxes = {
         startDate,
         endDate,
+        accrual,
         authorities: []
     }
     const authorities: Record<string, Division> = {}
 
-    elements.forEach(element => {
-        const item: Item = element as any
-        item.taxInfo = new TaxCodeInfo(item.taxCode)
-
+    items.forEach(item => {
         if (!authorities[item.taxInfo.authority]) {
             authorities[item.taxInfo.authority] = {
                 authority: taxAuthorities[item.taxInfo.authority],

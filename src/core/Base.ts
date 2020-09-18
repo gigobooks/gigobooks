@@ -56,7 +56,7 @@ export class Base extends Model {
         }
     }
 
-    static get modifiers() {
+    static get modifiers(): {} {
         return {
             sortById(builder: QueryBuilder<any, any>) {
                 builder.orderBy('id')

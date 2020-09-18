@@ -4,7 +4,7 @@
 
 import * as React from 'react'
 import { Document, Page, View } from '@react-pdf/renderer'
-import { PDFView, Styles, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
+import { PDFView, Styles, T, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
 import { Transaction, formatDateOnly, toFormatted,
     TransactionTaxes, transactionTaxesDetail, datePresetDates } from '../core'
 import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
@@ -13,6 +13,7 @@ export function TransactionTaxesDetail() {
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')
+    const [cashBasis, setCashBasis] = React.useState<boolean>(false)
     const [info, setInfo] = React.useState<TransactionTaxes>()
 
     function onPresetChange(e: any) {
@@ -31,18 +32,24 @@ export function TransactionTaxesDetail() {
         setEndDate(endDate)
     }
 
+    function onCashBasisChange(e: any) {
+        setCashBasis(e.target.checked)
+    }
+
     React.useEffect(() => {
         if (startDate && endDate) {
-            transactionTaxesDetail(startDate, endDate).then(data => {
+            transactionTaxesDetail(startDate, endDate, !cashBasis).then(data => {
                 setInfo(data)
             })
         }
-    }, [startDate, endDate])
+    }, [startDate, endDate, cashBasis])
 
     const report = React.useMemo(() => {
         return info ? <Document><Page size="A4" style={[Styles.page, {fontSize: 8}]}>
             <View fixed={true}>
-                <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Transaction Tax: Detail' />
+                <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Transaction Tax: Detail'>
+                    <T style={{fontSize: 10}}>({info.accrual ? 'Accrual' : 'Cash'} accounting basis)</T>                    
+                </ReportHeader>
                 <Tr key='header' style={{marginBottom: 6}}>
                     <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
                     <ThLeft width={10} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
@@ -67,9 +74,10 @@ export function TransactionTaxesDetail() {
 
     return <div>
         <h1><span className='title'>Transaction Tax: Detail</span></h1>
-        <div>
-            <span className='date-preset'>
+        <table className='horizontal-table-form'><tbody><tr className='row row-date-preset'>
+            <th scope='row'>
                 <label htmlFor='preset'>Date:</label>
+            </th><td>
                 <select name='preset' value={preset} onChange={onPresetChange}>
                     {!preset && <option key='' value=''></option>}
                     <option key='this-month' value='this-month'>This month</option>
@@ -80,9 +88,15 @@ export function TransactionTaxesDetail() {
                     <option key='prev-year' value='prev-year'>Last financial year</option>
                     <option key='custom' value='custom'>Custom date range</option>
                 </select>
-            </span>
-            {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
-        </div>
+                {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
+            </td>
+        </tr><tr className='row row-cash-basis'>
+            <th scope='row'>
+                <label htmlFor='cashBasis'>Cash accounting basis:</label>
+            </th><td>
+                <input type='checkbox' name='cashBasis' checked={cashBasis} onChange={onCashBasisChange} />
+            </td>
+        </tr></tbody></table>
 
         {report && <PDFView filename='transaction-tax-detail.pdf'>{report}</PDFView>}
     </div>
