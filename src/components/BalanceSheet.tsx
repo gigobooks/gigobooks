@@ -80,9 +80,10 @@ export function BalanceSheetLog() {
 
     return <div>
         <h1><span className='title'>Balance Sheet: Log</span></h1>
-        <div>
-            <span className='date-preset'>
+        <table className='horizontal-table-form'><tbody><tr className='row row-date-preset'>
+            <th scope='row'>
                 <label htmlFor='preset'>Date:</label>
+            </th><td>
                 <select name='preset' value={preset} onChange={onPresetChange}>
                     {!preset && <option key='' value=''></option>}
                     <option key='this-month' value='this-month'>This month</option>
@@ -93,9 +94,9 @@ export function BalanceSheetLog() {
                     <option key='prev-year' value='prev-year'>Last financial year</option>
                     <option key='custom' value='custom'>Custom date range</option>
                 </select>
-            </span>
-            {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
-        </div>
+                {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
+            </td>
+        </tr></tbody></table>
 
         {report && <PDFView filename='balance-sheet-log.pdf'>{report}</PDFView>}
     </div>
@@ -280,9 +281,10 @@ export function BalanceSheet() {
 
     return <div>
         <h1><span className='title'>Balance Sheet</span></h1>
-        <div>
-            <span className='date-preset'>
+        <table className='horizontal-table-form'><tbody><tr className='row row-date-preset'>
+            <th scope='row'>
                 <label htmlFor='preset'>Date:</label>
+            </th><td>
                 <select name='preset' value={preset} onChange={onPresetChange}>
                     {!preset && <option key='' value=''></option>}
                     <option key='this-month' value='this-month'>This month</option>
@@ -293,9 +295,9 @@ export function BalanceSheet() {
                     <option key='prev-year' value='prev-year'>Last financial year</option>
                     <option key='custom' value='custom'>Custom date range</option>
                 </select>
-            </span>
-            {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
-        </div>
+                {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
+            </td>
+        </tr></tbody></table>
 
         {report && <PDFView filename='balance-sheet.pdf'>{report}</PDFView>}
     </div>

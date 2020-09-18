@@ -178,9 +178,6 @@ form textarea { width: 20em; height: 5em; }
 * Reports                                                  *
 ************************************************************/
 
-.date-preset { padding-right: 0.5em; }
-.date-preset label { font-weight: bold; }
-
 .date-range { padding-right: 0.5em; }
 .date-range input { width: 6em; }
 
