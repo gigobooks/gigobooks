@@ -24,8 +24,8 @@ import Sale from './Sale'
 import Purchase from './Purchase'
 import { refreshWindowTitle } from '../util/util'
 import { mruList, mruInsert, mruClear, mruDir } from '../util/mru'
-import { ProfitAndLossDetail, ProfitAndLossSummary } from './ProfitAndLoss'
-import { BalanceSheetLog, BalanceSheet } from './BalanceSheet'
+import { ProfitAndLoss } from './ProfitAndLoss'
+import { BalanceSheet } from './BalanceSheet'
 import { TransactionTaxesDetail } from './TransactionTaxes'
 
 function App() {
@@ -231,16 +231,16 @@ function Main() {
             <TransactionTaxesDetail />
         </Route>
         <Route path='/reports/pl-detail'>
-            <ProfitAndLossDetail />
+            <ProfitAndLoss />
         </Route>
         <Route path='/reports/pl-summary'>
-            <ProfitAndLossSummary />
+            <ProfitAndLoss summary />
         </Route>
         <Route path='/reports/bs-log'>
-            <BalanceSheetLog />
+            <BalanceSheet />
         </Route>
         <Route path='/reports/bs'>
-            <BalanceSheet />
+            <BalanceSheet summary />
         </Route>
         <Route path='/purchases/:arg1'>
             <DispatchWithParams element={Purchase} />

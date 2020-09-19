@@ -9,7 +9,7 @@ import { Transaction, formatDateOnly, toFormattedAbs,
     Money, ProfitAndLoss, profitAndLoss, datePresetDates } from '../core'
 import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
 
-export function ProfitAndLossDetail() {
+export function ProfitAndLoss({summary}: {summary?: boolean}) {
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')
@@ -40,7 +40,35 @@ export function ProfitAndLossDetail() {
     }, [startDate, endDate])
 
     const report = React.useMemo(() => {
-        return info ? <Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
+        return info ? <Document>{summary ? <Page size="A4" style={[Styles.page, {fontSize: 9}]}>
+            <View fixed={true}>
+                <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Summary' />
+            </View>
+
+            {info.hasOperations ? <DivisionSummary
+                label='Ordinary revenue / expense'
+                netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
+                division={info.operations} 
+            /> : <>
+                <Tr key='label' style={{marginBottom: 3}}><Th width={60}>Ordinary revenue / expense</Th></Tr>
+                <Tr key='none'><Td indent={2} width={58}>No items</Td></Tr>
+            </>}
+
+            {info.hasDepreciation && <DivisionSummary
+                label='Depreciation and amortisation'
+                netLabel='Net depreciation and amortisation'
+                division={info.depreciation} 
+            />}
+            <Totals key='ebit' totals={info.ebit} width={60} label='Earnings before interest and tax (EBIT)' />
+
+            {info.hasInterestTax && <DivisionSummary
+                label='Interest and tax'
+                netLabel='Net interest and tax'
+                division={info.interestTax} 
+            />}
+            <Totals key='netProfit' totals={info.netProfit} width={60} label='Net profit' />
+        </Page> :
+        <Page size="A4" style={[Styles.page, {fontSize: 9}]}>
             <View fixed={true}>
                 <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Detail' />
                 <Tr key='header' style={{marginBottom: 6}}>
@@ -74,11 +102,11 @@ export function ProfitAndLossDetail() {
                 division={info.interestTax} 
             />}
             <Totals key='netProfit' totals={info.netProfit} label='Net profit' />
-        </Page></Document> : null
-    }, [info])
+        </Page>}</Document> : null
+    }, [summary, info])
 
     return <div>
-        <h1><span className='title'>Profit and Loss: Detail</span></h1>
+        <h1><span className='title'>Profit and Loss: {summary ? 'Summary' : 'Detail'}</span></h1>
         <div>
             <span className='date-preset'>
                 <label htmlFor='preset'>Date:</label>
@@ -96,7 +124,7 @@ export function ProfitAndLossDetail() {
             {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
         </div>
 
-        {report && <PDFView filename='profit-and-loss-detail.pdf'>{report}</PDFView>}
+        {report && <PDFView filename={`profit-and-loss-${summary ? 'summary' : 'detail'}.pdf`}>{report}</PDFView>}
     </div>
 }
 
@@ -256,90 +284,6 @@ function Totals({label, totals, width = 100}: TotalsProps) {
             </Tr>
         })}
     </View>
-}
-
-export function ProfitAndLossSummary() {
-    const [preset, setPreset] = React.useState<string>('')
-    const [startDate, setStartDate] = React.useState<string>('')
-    const [endDate, setEndDate] = React.useState<string>('')
-    const [info, setInfo] = React.useState<ProfitAndLoss>()
-
-    function onPresetChange(e: any) {
-        const value = e.target.value
-        setPreset(value)
-
-        if (value != 'custom') {
-            const range = datePresetDates(value)
-            setStartDate(range[0])
-            setEndDate(range[1])
-        }
-    }
-
-    function onDateChange(startDate: string, endDate: string) {
-        setStartDate(startDate)
-        setEndDate(endDate)
-    }
-
-    React.useEffect(() => {
-        if (startDate && endDate) {
-            profitAndLoss(startDate, endDate).then(data => {
-                setInfo(data)
-            })
-        }
-    }, [startDate, endDate])
-
-    const report = React.useMemo(() => {
-        return info ? <Document><Page size="A4" style={[Styles.page, {fontSize: 9}]}>
-            <View fixed={true}>
-                <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Profit and Loss: Summary' />
-            </View>
-
-            {info.hasOperations ? <DivisionSummary
-                label='Ordinary revenue / expense'
-                netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
-                division={info.operations} 
-            /> : <>
-                <Tr key='label' style={{marginBottom: 3}}><Th width={60}>Ordinary revenue / expense</Th></Tr>
-                <Tr key='none'><Td indent={2} width={58}>No items</Td></Tr>
-            </>}
-
-            {info.hasDepreciation && <DivisionSummary
-                label='Depreciation and amortisation'
-                netLabel='Net depreciation and amortisation'
-                division={info.depreciation} 
-            />}
-            <Totals key='ebit' totals={info.ebit} width={60} label='Earnings before interest and tax (EBIT)' />
-
-            {info.hasInterestTax && <DivisionSummary
-                label='Interest and tax'
-                netLabel='Net interest and tax'
-                division={info.interestTax} 
-            />}
-            <Totals key='netProfit' totals={info.netProfit} width={60} label='Net profit' />
-        </Page></Document> : null
-    }, [info])
-
-    return <div>
-        <h1><span className='title'>Profit and Loss: Summary</span></h1>
-        <div>
-            <span className='date-preset'>
-                <label htmlFor='preset'>Date:</label>
-                <select name='preset' value={preset} onChange={onPresetChange}>
-                    {!preset && <option key='' value=''></option>}
-                    <option key='this-month' value='this-month'>This month</option>
-                    <option key='this-quarter' value='this-quarter'>This quarter</option>
-                    <option key='this-year' value='this-year'>This financial year</option>
-                    <option key='prev-month' value='prev-month'>Last month</option>
-                    <option key='prev-quarter' value='prev-quarter'>Last quarter</option>
-                    <option key='prev-year' value='prev-year'>Last financial year</option>
-                    <option key='custom' value='custom'>Custom date range</option>
-                </select>
-            </span>
-            {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
-        </div>
-
-        {report && <PDFView filename='profit-and-loss-detail.pdf'>{report}</PDFView>}
-    </div>
 }
 
 function DivisionSummary({label, netLabel, division}: DivisionProps) {
