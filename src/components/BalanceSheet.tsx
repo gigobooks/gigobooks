@@ -17,6 +17,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')
     const [info, setInfo] = React.useState<BalanceSheet>()
+    const [error, setError] = React.useState<string>('')
     const [nonce, setNonce] = React.useState<number>(0)
 
     function onPresetChange(e: any) {
@@ -39,7 +40,10 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
         if (startDate && endDate) {
             balanceSheet(startDate, endDate).then(data => {
                 setInfo(data)
+                setError('')
                 setNonce(Date.now())
+            }).catch(e => {
+                setError(e.toString())
             })
         }
     }, [startDate, endDate])
@@ -125,6 +129,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
             </td>
         </tr></tbody></table>
 
+        {error && <div className='error'>{error}</div>}
         {report && <PDFView _key={nonce} filename={`balance-sheet${summary ? '' : '-log'}.pdf`}>{report}</PDFView>}
     </div>
 }

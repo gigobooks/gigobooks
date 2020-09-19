@@ -15,6 +15,7 @@ export function TransactionTaxesDetail() {
     const [endDate, setEndDate] = React.useState<string>('')
     const [cashBasis, setCashBasis] = React.useState<boolean>(false)
     const [info, setInfo] = React.useState<TransactionTaxes>()
+    const [error, setError] = React.useState<string>('')
     const [nonce, setNonce] = React.useState<number>(0)
 
     function onPresetChange(e: any) {
@@ -41,7 +42,10 @@ export function TransactionTaxesDetail() {
         if (startDate && endDate) {
             transactionTaxesDetail(startDate, endDate, !cashBasis).then(data => {
                 setInfo(data)
+                setError('')
                 setNonce(Date.now())
+            }).catch(e => {
+                setError(e.toString())
             })
         }
     }, [startDate, endDate, cashBasis])
@@ -100,6 +104,7 @@ export function TransactionTaxesDetail() {
             </td>
         </tr></tbody></table>
 
+        {error && <div className='error'>{error}</div>}
         {report && <PDFView _key={nonce} filename='transaction-tax-detail.pdf'>{report}</PDFView>}
     </div>
 }

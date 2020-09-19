@@ -19,6 +19,9 @@ h1, h2 { font-size: 1.5em; color: #222; }
 
 .breadcrumb { font-size: 0.66667em; }
 
+.error { color: red; }
+
+
 /***********************************************************
 * rc-menu                                                  *
 ************************************************************/
@@ -53,7 +56,6 @@ h1, h2 { font-size: 1.5em; color: #222; }
 * forms                                                    *
 ************************************************************/
 
-form .error { color: red; }
 form textarea { width: 20em; height: 5em; }
 
 .horizontal-table-form { border-spacing: 0; margin-bottom: 1em; width: 100%; }
