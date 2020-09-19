@@ -14,6 +14,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')
     const [info, setInfo] = React.useState<ProfitAndLoss>()
+    const [nonce, setNonce] = React.useState<number>(0)
 
     function onPresetChange(e: any) {
         const value = e.target.value
@@ -35,6 +36,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
         if (startDate && endDate) {
             profitAndLoss(startDate, endDate).then(data => {
                 setInfo(data)
+                setNonce(Date.now())
             })
         }
     }, [startDate, endDate])
@@ -103,7 +105,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
             />}
             <Totals key='netProfit' totals={info.netProfit} label='Net profit' />
         </Page>}</Document> : null
-    }, [summary, info])
+    }, [summary, info && nonce ? nonce : 0])
 
     return <div>
         <h1><span className='title'>Profit and Loss: {summary ? 'Summary' : 'Detail'}</span></h1>
@@ -124,7 +126,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
             {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
         </div>
 
-        {report && <PDFView filename={`profit-and-loss-${summary ? 'summary' : 'detail'}.pdf`}>{report}</PDFView>}
+        {report && <PDFView _key={nonce} filename={`profit-and-loss-${summary ? 'summary' : 'detail'}.pdf`}>{report}</PDFView>}
     </div>
 }
 

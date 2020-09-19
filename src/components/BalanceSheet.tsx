@@ -17,6 +17,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')
     const [info, setInfo] = React.useState<BalanceSheet>()
+    const [nonce, setNonce] = React.useState<number>(0)
 
     function onPresetChange(e: any) {
         const value = e.target.value
@@ -38,6 +39,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
         if (startDate && endDate) {
             balanceSheet(startDate, endDate).then(data => {
                 setInfo(data)
+                setNonce(Date.now())
             })
         }
     }, [startDate, endDate])
@@ -101,7 +103,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
             <SubdivisionLog label={false} subdivision={info.equity.accounts} drcr={Credit} />
             <Totals totals={info.equity.accounts.totals} label='TOTAL EQUITY' />
         </Page>}</Document> : null
-    }, [summary, info])
+    }, [summary, info && nonce ? nonce : 0])
 
     return <div>
         <h1><span className='title'>Balance Sheet{summary ? '' : ': Log'}</span></h1>
@@ -122,7 +124,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
             {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
         </div>
 
-        {report && <PDFView filename={`balance-sheet${summary ? '' : '-log'}.pdf`}>{report}</PDFView>}
+        {report && <PDFView _key={nonce} filename={`balance-sheet${summary ? '' : '-log'}.pdf`}>{report}</PDFView>}
     </div>
 }
 
