@@ -109,7 +109,7 @@ export default function BillPayment(props: Props) {
                         />
                         {form.errors.payments && form.errors.payments[index] && 
                             form.errors.payments[index].date &&
-                            <div>{form.errors.payments[index].date!.message}</div>}
+                            <div className='error'>{form.errors.payments[index].date!.message}</div>}
                     </td><td className='description'>
                         <input
                             name={`payments[${index}].description`}
@@ -132,7 +132,7 @@ export default function BillPayment(props: Props) {
                         />
                         {form.errors.payments && form.errors.payments[index] && 
                             form.errors.payments[index].amount &&
-                            <div>{form.errors.payments[index].amount!.message}</div>}
+                            <div className='error'>{form.errors.payments[index].amount!.message}</div>}
                     </td><td className='button'>
                         <input
                             type='button'
@@ -145,7 +145,7 @@ export default function BillPayment(props: Props) {
                         />
                         {form.errors.payments && form.errors.payments[index] && 
                             form.errors.payments[index].submit &&
-                            <div>{form.errors.payments[index].submit!.message}</div>}
+                            <div className='error'>{form.errors.payments[index].submit!.message}</div>}
                     </td></tr>
                 })}
                 </tbody></table>
