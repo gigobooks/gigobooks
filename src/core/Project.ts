@@ -11,9 +11,11 @@ import { Variables } from './Variables'
 const defaultVariables = {
     title: '',
     address: '',
+    fiscalYear: '0101',
+
     currency: 'USD',
     otherCurrencies: [],
-    fiscalYear: '0101',
+    exchangeRates: {},      // Actually a nested object/hash
 
     taxAuthority: 'none',
     otherTaxAuthorities: [],
