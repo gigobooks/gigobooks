@@ -28,8 +28,8 @@ type BlobParams = {
 
 export type BlobParamsAndFilename = BlobParams & {filename?: string}
 
-export function PDFView(props: {children: any, filename?: string}) {
-    return <BlobProvider document={props.children}>
+export function PDFView(props: {_key?: any, children: any, filename?: string}) {
+    return <BlobProvider key={props._key} document={props.children}>
         {(params: BlobParams) => {
             return <Viewer key={params.url!} {...params} filename={props.filename}/>
         }}

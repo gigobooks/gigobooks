@@ -15,6 +15,7 @@ export function TransactionTaxesDetail() {
     const [endDate, setEndDate] = React.useState<string>('')
     const [cashBasis, setCashBasis] = React.useState<boolean>(false)
     const [info, setInfo] = React.useState<TransactionTaxes>()
+    const [nonce, setNonce] = React.useState<number>(0)
 
     function onPresetChange(e: any) {
         const value = e.target.value
@@ -40,6 +41,7 @@ export function TransactionTaxesDetail() {
         if (startDate && endDate) {
             transactionTaxesDetail(startDate, endDate, !cashBasis).then(data => {
                 setInfo(data)
+                setNonce(Date.now())
             })
         }
     }, [startDate, endDate, cashBasis])
@@ -48,7 +50,7 @@ export function TransactionTaxesDetail() {
         return info ? <Document><Page size="A4" style={[Styles.page, {fontSize: 8}]}>
             <View fixed={true}>
                 <ReportHeader startDate={info.startDate} endDate={info.endDate} title='Transaction Tax: Detail'>
-                    <T style={{fontSize: 10}}>({info.accrual ? 'Accrual' : 'Cash'} accounting basis)</T>                    
+                    <T style={{fontSize: 10}}>({info.accrual ? 'Accrual' : 'Cash'} accounting basis)</T>
                 </ReportHeader>
                 <Tr key='header' style={{marginBottom: 6}}>
                     <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
@@ -70,7 +72,7 @@ export function TransactionTaxesDetail() {
                 {division.inputs.items.length > 0 && <GroupTotal label='Total Tax Receivable' group={division.inputs} />}
             </React.Fragment>)}
         </Page></Document> : null
-    }, [info])
+    }, [info && nonce ? nonce : 0])
 
     return <div>
         <h1><span className='title'>Transaction Tax: Detail</span></h1>
@@ -98,7 +100,7 @@ export function TransactionTaxesDetail() {
             </td>
         </tr></tbody></table>
 
-        {report && <PDFView filename='transaction-tax-detail.pdf'>{report}</PDFView>}
+        {report && <PDFView _key={nonce} filename='transaction-tax-detail.pdf'>{report}</PDFView>}
     </div>
 }
 
