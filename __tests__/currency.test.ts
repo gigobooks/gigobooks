@@ -1,4 +1,15 @@
-import { getCurrencyInfo, toFormatted, parseFormatted, addSubtractMoney } from '../src/core/currency'
+import { Project } from '../src/core'
+import { getCurrencyInfo, toFormatted, parseFormatted, convertCurrency, addSubtractMoney } from '../src/core/currency'
+
+beforeAll(async () => {
+    await Project.create(':memory:')
+    return Promise.resolve()
+})
+
+afterAll(() => {
+    Project.knex.destroy()
+    return Project.close()
+})
 
 // Apparently, node.js, by defaults, only includes locale data for english.
 // So any attempts to test non-english locales may fail.
@@ -86,6 +97,25 @@ test('parseFormatted', () => {
     expect(() => parseFormatted('a', 'USD')).toThrow()
     expect(() => parseFormatted('abc', 'USD')).toThrow()
     expect(() => parseFormatted('1a', 'USD')).toThrow()
+})
+
+test('exchange rates', () => {
+    Project.variables.setMultiple({
+        currency: 'USD',
+        exchangeRates: {
+            USD: { AUD: 1.3714, EUR: 0.8446 }
+        }
+    }, true)    // Setting sessionOnly = true makes it synchronous
+
+    const item0 = { amount: 100, grossAmount: 1000, parentAmount: 10000 }
+    expect(convertCurrency({...item0, currency: 'USD'}, 'AUD')).toEqual({amount: 137, grossAmount: 1371, parentAmount: 13714, currency: 'AUD'})
+    expect(convertCurrency({...item0, currency: 'AUD'}, 'USD')).toEqual({amount: 73, grossAmount: 729, parentAmount: 7292, currency: 'USD'})
+    expect(convertCurrency({...item0, currency: 'USD'}, 'EUR')).toEqual({amount: 84, grossAmount: 845, parentAmount: 8446, currency: 'EUR'})
+    expect(convertCurrency({...item0, currency: 'EUR'}, 'USD')).toEqual({amount: 118, grossAmount: 1184, parentAmount: 11840, currency: 'USD'})
+
+    // Non-primary currency
+    expect(convertCurrency({...item0, currency: 'AUD'}, 'EUR')).toEqual({amount: 62, grossAmount: 616, parentAmount: 6159, currency: 'EUR'})
+    expect(convertCurrency({...item0, currency: 'EUR'}, 'AUD')).toEqual({amount: 162, grossAmount: 1624, parentAmount: 16237, currency: 'AUD'})
 })
 
 test('add/subtract money', () => {

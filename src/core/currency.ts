@@ -3,6 +3,7 @@
  */
 
 import * as CurrencyCodes from 'currency-codes'
+import { Project } from './Project'
 import { orderByField } from '../util/util'
 
 type Info = {
@@ -116,6 +117,56 @@ export function parseFormatted(formatted: string | undefined, currency: string, 
         s1.replace(info.separator, '.') : s1
 
     return s2 ? Math.round(parseFloat(s2) * info.scale) : 0
+}
+
+export type CurrencyConvertable = {
+    amount?: number
+    grossAmount?: number
+    parentAmount?: number
+    currency: string
+}
+
+// Converts an item to another currency in-place (ie. modifies the caller's value)
+// Converts to integers only (ie. has rounding)
+export function convertCurrency(item: CurrencyConvertable, dest: string) {
+    const primary: string = Project.variables.get('currency')
+    const rates: Record<string, Record<string, string>> = Project.variables.get('exchangeRates')
+    const src = item.currency
+
+    if (src != dest) {
+        // Only use rates to/from the primary currency
+        if (!rates[primary]) {
+            throw new Error(`No exchange rates for primary currency ${primary}`)
+        }
+
+        let multRate = 1.0
+        let divRate = 1.0
+
+        if (dest != primary) {
+            if (!rates[primary][dest]) {
+                throw new Error(`No exchange rate for converting ${primary} to ${dest}`)
+            }
+            multRate = parseFloat(rates[primary][dest])
+        }
+
+        if (src != primary) {
+            if (!rates[primary][src]) {
+                throw new Error(`No exchange rate for converting ${src} to ${primary}`)
+            }
+            divRate = parseFloat(rates[primary][src])
+        }
+
+        ;['amount', 'grossAmount', 'parentAmount'].forEach((field: string) => {
+            const record: Record<string, number> = item as any     // typecast
+            if (typeof record[field] === 'number') {
+                record[field] = Math.round(record[field] * multRate / divRate)
+            }
+        })
+
+        item.currency = dest
+    }
+
+    return item
 }
 
 export type Money = {
