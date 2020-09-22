@@ -122,3 +122,15 @@ export function ReportHeader(props: ReportHeaderProps) {
         </View>
     </View>
 }
+
+export function ExchangeRates({rates}: {rates: Record<string, Record<string, string>>}) {
+    return Object.keys(rates).length > 0 ? <View style={{textAlign: 'right'}}>
+        {Object.keys(rates).map(primary => {
+            const parts = [`1 ${primary}`]
+            Object.keys(rates[primary]).forEach(other => {
+                parts.push(`${rates[primary][other]} ${other}`)
+            })            
+            return <T key={primary} style={{fontSize: 8}}>({parts.join(' = ')})</T>
+        })}
+    </View> : null
+}

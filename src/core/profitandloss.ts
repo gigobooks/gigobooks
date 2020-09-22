@@ -2,7 +2,7 @@
  * Copyright (c) 2020-present Beng Tan
  */
 
-import { Money, addSubtractMoney } from './currency'
+import { CurrencyConvertable, convertCurrency, Money, addSubtractMoney } from './currency'
 import { Account, AccountType } from './Account'
 import { Element } from './Element'
 import { Transaction, TransactionType } from './Transaction'
@@ -60,6 +60,7 @@ type Division = {
 type ProfitAndLoss = {
     startDate: string
     endDate: string
+    exchangeRates: Record<string, Record<string, string>>
     hasOperations: boolean
     operations: Division
     hasDepreciation: boolean
@@ -73,7 +74,7 @@ type ProfitAndLoss = {
 
 export { Item, Money, Account, Division, ProfitAndLoss }
 
-export async function profitAndLoss(startDate: string, endDate: string) : Promise<ProfitAndLoss> {
+export async function profitAndLoss(startDate: string, endDate: string, currency?: string) : Promise<ProfitAndLoss> {
     const elements = await Element.query()
         .leftJoin('txn', 'txnElement.transactionId', 'txn.id')
         .leftJoin('account', 'txnElement.accountId', 'account.id')
@@ -93,6 +94,7 @@ export async function profitAndLoss(startDate: string, endDate: string) : Promis
     const result: any = {
         startDate,
         endDate,
+        exchangeRates: {},
         hasOperations: false,
         operations: { revenues: {groups: [], totals: []}, expenses: {groups: [], totals: []}, netTotals: []},
         hasDepreciation: false,
@@ -126,6 +128,17 @@ export async function profitAndLoss(startDate: string, endDate: string) : Promis
         map[item.accountId].items.push(item)
     }
 
+    // Maybe convert currency
+    if (currency) {
+        elements.forEach(element => {
+            convertCurrency(element as CurrencyConvertable, currency)
+        })
+
+        const primary: string = Project.variables.get('currency')
+        const rates: Record<string, Record<string, string>> = Project.variables.get('exchangeRates')
+        result.exchangeRates[primary] = rates[primary]
+    }
+    
     // Allocate items to buckets
     elements.forEach(element => {
         const item: Item = element as any

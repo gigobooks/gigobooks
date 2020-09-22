@@ -2,7 +2,7 @@
  * Copyright (c) 2020-present Beng Tan
  */
 
-import { Money, addSubtractMoney } from './currency'
+import { CurrencyConvertable, convertCurrency, Money, addSubtractMoney } from './currency'
 import { Account } from './Account'
 import { Element } from './Element'
 import { Transaction } from './Transaction'
@@ -33,6 +33,7 @@ type Division = {
 export type BalanceSheet = {
     startDate: string
     endDate: string
+    exchangeRates: Record<string, Record<string, string>>
     assets: Division
     liabilities: Division
     equity: {
@@ -44,7 +45,7 @@ export type BalanceSheet = {
     netAssets: Money[]
 }
 
-export async function balanceSheet(startDate: string, endDate: string, accrual?: boolean) : Promise<BalanceSheet> {
+export async function balanceSheet(startDate: string, endDate: string, currency?: string) : Promise<BalanceSheet> {
     const money0 = {currency: Project.variables.get('currency'), amount: 0}
     const reAccount: Account = await Account.query().findById(Account.Reserved.RetainedEarnings)
     const elements = await Element.query()
@@ -61,6 +62,7 @@ export async function balanceSheet(startDate: string, endDate: string, accrual?:
     const result: any = {
         startDate,
         endDate,
+        exchangeRates: {},
         assets: { current: {groups: [], totals: []}, nonCurrent: {groups: [], totals: []}, totals: [] },
         liabilities: { current: {groups: [], totals: []}, nonCurrent: {groups: [], totals: []}, totals: [] },
         equity: { accounts: {groups: [], totals: []} },
@@ -111,6 +113,17 @@ export async function balanceSheet(startDate: string, endDate: string, accrual?:
         else {
             map[item.accountId].items.push(item)
         }
+    }
+
+    // Maybe convert currency
+    if (currency) {
+        elements.forEach(element => {
+            convertCurrency(element as CurrencyConvertable, currency)
+        })
+
+        const primary: string = Project.variables.get('currency')
+        const rates: Record<string, Record<string, string>> = Project.variables.get('exchangeRates')
+        result.exchangeRates[primary] = rates[primary]
     }
 
     elements.forEach(element => {

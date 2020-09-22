@@ -7,7 +7,8 @@ import { Document, Page, View } from '@react-pdf/renderer'
 import { PDFView, Styles, B, T, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
 import { Transaction, formatDateOnly, toFormatted,
     Money, BalanceSheet, balanceSheet, datePresetDates } from '../core'
-import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
+import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader, ExchangeRates } from './Reports'
+import { currencySelectOptions } from './SelectOptions'
 
 const Debit = Transaction.Debit
 const Credit = Transaction.Credit
@@ -16,6 +17,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')
+    const [currency, setCurrency] = React.useState<string>('')
     const [info, setInfo] = React.useState<BalanceSheet>()
     const [error, setError] = React.useState<string>('')
     const [nonce, setNonce] = React.useState<number>(0)
@@ -36,9 +38,13 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
         setEndDate(endDate)
     }
 
+    function onCurrencyChange(e: any) {
+        setCurrency(e.target.value)
+    }
+
     React.useEffect(() => {
         if (startDate && endDate) {
-            balanceSheet(startDate, endDate).then(data => {
+            balanceSheet(startDate, endDate, currency).then(data => {
                 setInfo(data)
                 setError('')
                 setNonce(Date.now())
@@ -46,7 +52,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
                 setError(e.toString())
             })
         }
-    }, [startDate, endDate])
+    }, [startDate, endDate, currency])
 
     const report = React.useMemo(() => {
         return info ? <Document>{summary ? <Page size='A4' style={[Styles.page, {fontSize: 9}]}>
@@ -73,6 +79,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
             <Tr key='label' style={{marginBottom: 3}}><Th width={50}>EQUITY</Th></Tr>
             <Subdivision label={false} subdivision={info.equity.accounts} drcr={Credit} />
             <Totals totals={info.equity.accounts.totals} label='TOTAL EQUITY' width={50} />
+            <ExchangeRates rates={info.exchangeRates} />
         </Page> :
         <Page size='A4' style={[Styles.page, {fontSize: 9}]}>
             <View fixed={true}>
@@ -106,6 +113,7 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
             <Tr key='label' style={{marginBottom: 3}}><Th width={100}>EQUITY</Th></Tr>
             <SubdivisionLog label={false} subdivision={info.equity.accounts} drcr={Credit} />
             <Totals totals={info.equity.accounts.totals} label='TOTAL EQUITY' />
+            <ExchangeRates rates={info.exchangeRates} />
         </Page>}</Document> : null
     }, [summary, info && nonce ? nonce : 0])
 
@@ -126,6 +134,15 @@ export function BalanceSheet({summary}: {summary?: boolean}) {
                     <option key='custom' value='custom'>Custom date range</option>
                 </select>
                 {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
+            </td>
+            </tr><tr className='row row-currency'>
+            <th scope='row'>
+                <label htmlFor='currency'>Currency:</label>
+            </th><td>
+                <select name='currency' value={currency} onChange={onCurrencyChange}>
+                    <option key='' value=''>All currencies</option>
+                    {currencySelectOptions()}
+                </select>
             </td>
         </tr></tbody></table>
 
