@@ -11,7 +11,7 @@ import fileMenu from './FileMenu'
 import Preamble from './Preamble'
 import About from './About'
 import Settings from './Settings'
-import SettingsTax from './SettingsTax'
+import TaxSettings from './TaxSettings'
 import AccountOverview from './AccountOverview'
 import AccountDetail from './AccountDetail'
 import ActorOverview from './ActorOverview'
@@ -279,7 +279,7 @@ function Main() {
             <AccountOverview />
         </Route>
         <Route path='/settings/tax'>
-            <SettingsTax />
+            <TaxSettings />
         </Route>
         <Route path='/settings'>
             <Settings />
