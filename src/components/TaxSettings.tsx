@@ -25,7 +25,7 @@ function taxAuthorityOptions() {
     </>
 }
 
-export default function SettingsTax() {
+export default function SettingsTax({refreshApp}: {refreshApp: () => void}) {
     const homeAuthority = Project.variables.get('taxAuthority')
     const form = useForm<FormData>({
         defaultValues: extractFormValues(),
@@ -41,6 +41,9 @@ export default function SettingsTax() {
         saveFormData(data).then(() => {
             playSuccess()
             form.reset(extractFormValues())
+
+            // Need to 'refresh app' since tax settings may affect app menu items
+            refreshApp()
         }).catch(e => {
             playAlert()
             form.setError('submit', '', e.toString())

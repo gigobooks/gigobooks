@@ -27,6 +27,7 @@ import { mruList, mruInsert, mruClear, mruDir } from '../util/mru'
 import { ProfitAndLoss } from './ProfitAndLoss'
 import { BalanceSheet } from './BalanceSheet'
 import { TransactionTaxesDetail } from './TransactionTaxes'
+import { taxReportsMenuItems, TaxReportsRouter } from './TaxReports'
 
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
@@ -46,11 +47,11 @@ function App() {
     }, [])
 
     return <HashRouter>
-        <AppMenu open={open} hasFilename={hasFilename} mru={mru} onChange={refresh} />
+        <AppMenu open={open} hasFilename={hasFilename} mru={mru} refreshApp={refresh} />
         <div className='page'>
             {<Preamble />}
             {open && <NavBar />}
-            {open ? <Main /> : <About />}
+            {open ? <Main refreshApp={refresh} /> : <About />}
         </div>
     </HashRouter>
 }
@@ -144,7 +145,7 @@ type RedirectSpec = {
     push?: boolean
 }
 
-function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onChange: () => void}) {
+function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], refreshApp: () => void}) {
     const [redirect, setRedirect] = React.useState<RedirectSpec>({path: ''})
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
     const [nonce, setNonce] = React.useState<number>(0)
@@ -165,7 +166,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
                 if (path) {
                     setRedirect({path})
                 }
-                props.onChange()
+                props.refreshApp()
             })
         }
         else if (key.startsWith('/')) {
@@ -218,6 +219,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
             <MenuItem key='/reports/bs'>Balance Sheet</MenuItem>
             <MenuItem key='/reports/bs-log'>Balance Sheet: Log</MenuItem>
             <MenuItem key='/reports/tax-detail'>Transaction Tax: Detail</MenuItem>
+            {taxReportsMenuItems()}
         </SubMenu>}
         <SubMenu key='help' title="Help">
             <MenuItem key='/'>About</MenuItem>
@@ -225,8 +227,11 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onC
     </Menu>
 }
 
-function Main() {
+function Main({refreshApp}: {refreshApp: () => void}) {
     return <Switch>
+        <Route path='/reports/tax'>
+            <TaxReportsRouter />
+        </Route>
         <Route path='/reports/tax-detail'>
             <TransactionTaxesDetail />
         </Route>
@@ -279,7 +284,7 @@ function Main() {
             <AccountOverview />
         </Route>
         <Route path='/settings/tax'>
-            <TaxSettings />
+            <TaxSettings refreshApp={refreshApp} />
         </Route>
         <Route path='/settings'>
             <Settings />

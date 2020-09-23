@@ -5,7 +5,7 @@
 import * as React from 'react'
 import { MenuItem, SubMenu, Divider } from 'rc-menu'
 
-export default function fileMenu(props: {open: boolean, hasFilename: boolean, mru: string[], onChange: () => void}) {
+export default function fileMenu(props: {open: boolean, hasFilename: boolean, mru: string[], refreshApp: () => void}) {
     return <SubMenu key='file' title="File">
         <MenuItem key='new'>New</MenuItem>
         <MenuItem key='open'>Open</MenuItem>
