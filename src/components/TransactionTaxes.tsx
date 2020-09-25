@@ -5,9 +5,71 @@
 import * as React from 'react'
 import { Document, Page, View } from '@react-pdf/renderer'
 import { PDFView, Styles, T, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
-import { Transaction, formatDateOnly, toFormatted,
-    TransactionTaxes, transactionTaxesDetail, datePresetDates } from '../core'
+import { Transaction, formatDateOnly, toFormatted, datePresetDates, TaxAuthority, taxAuthorities, TaxItemGroup, taxItems } from '../core'
 import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
+import { orderByField } from '../util/util'
+
+type Division = {
+    authority: TaxAuthority
+    id: string
+    region: string
+    outputs: TaxItemGroup
+    inputs: TaxItemGroup
+}
+
+type TransactionTaxes = {
+    startDate: string
+    endDate: string
+    accrual: boolean
+    authorities: Division[]
+}
+
+export async function transactionTaxes(startDate: string, endDate: string, accrual = true) : Promise<TransactionTaxes> {
+    const items = await taxItems(startDate, endDate, accrual)
+    const result: TransactionTaxes = {
+        startDate,
+        endDate,
+        accrual,
+        authorities: []
+    }
+    const authorities: Record<string, Division> = {}
+
+    items.forEach(item => {
+        if (!authorities[item.taxInfo.authority]) {
+            authorities[item.taxInfo.authority] = {
+                authority: taxAuthorities[item.taxInfo.authority],
+                id: item.taxInfo.authority,
+                region: taxAuthorities[item.taxInfo.authority].regionName,
+                outputs: { items: [], taxTotals: [], totals: [] },
+                inputs: { items: [], taxTotals: [], totals: [] },
+            }
+        }
+
+        if (item.drcr == Transaction.Credit) {
+            authorities[item.taxInfo.authority].outputs.items.push(item)
+        }
+        else {
+            authorities[item.taxInfo.authority].inputs.items.push(item)
+        }
+    })
+
+    result.authorities = Object.keys(authorities).map(k => authorities[k])
+    result.authorities.sort(orderByField('region'))
+
+    result.authorities.forEach(division => {
+        division.outputs.taxTotals = Transaction.getSums(division.outputs.items)
+        division.inputs.taxTotals = Transaction.getSums(division.inputs.items)
+
+        division.outputs.totals = Transaction.getSums(division.outputs.items.map(item => {
+            return {...item, amount: item.parentAmount}
+        }))
+        division.inputs.totals = Transaction.getSums(division.inputs.items.map(item => {
+            return {...item, amount: item.parentAmount}
+        }))
+    })
+
+    return result
+}
 
 export function TransactionTaxesDetail() {
     const [preset, setPreset] = React.useState<string>('')
@@ -40,7 +102,7 @@ export function TransactionTaxesDetail() {
 
     React.useEffect(() => {
         if (startDate && endDate) {
-            transactionTaxesDetail(startDate, endDate, !cashBasis).then(data => {
+            transactionTaxes(startDate, endDate, !cashBasis).then(data => {
                 setInfo(data)
                 setError('')
                 setNonce(Date.now())
@@ -70,10 +132,16 @@ export function TransactionTaxesDetail() {
 
             {info.authorities.map(division => <React.Fragment key={division.authority.id}>
                 <Tr><Th width={100}>{division.authority.regionName}</Th></Tr>
-                {division.outputs.items.length > 0 && <Group label='Tax Payable' group={division.outputs} />}
-                {division.outputs.items.length > 0 && <GroupTotal label='Total Tax Payable' group={division.outputs} />}
-                {division.inputs.items.length > 0 && <Group label='Tax Receivable' group={division.inputs} />}
-                {division.inputs.items.length > 0 && <GroupTotal label='Total Tax Receivable' group={division.inputs} />}
+                {division.outputs.items.length > 0 && <>
+                    <Tr><Th width={98} indent={2}>Tax Payable</Th></Tr>
+                    <GroupItems group={division.outputs} />
+                    <GroupTotal group={division.outputs} />
+                </>}
+                {division.inputs.items.length > 0 && <>
+                    <Tr><Th width={98} indent={2}>Tax Receivable</Th></Tr>
+                    <GroupItems group={division.inputs} />
+                    <GroupTotal group={division.inputs} />
+                </>}
             </React.Fragment>)}
         </Page></Document> : null
     }, [info && nonce ? nonce : 0])
@@ -109,47 +177,39 @@ export function TransactionTaxesDetail() {
     </div>
 }
 
-function Group({label, group}: {label: string | false, group: TransactionTaxes['authorities'][0]['inputs']}) {
-    return <>
-        <Tr key={label}>
-            <Th width={98} indent={2}>{label}</Th>
-        </Tr>
-
-        {group.items.map((item, index) => {
-            return <Tr key={item.id}>
-                <TdLeft width={10} indent={4}>{Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}</TdLeft>
-                <Td width={10} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
-                <TdLeft width={15} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
-                <TdLeft width={24} innerStyle={{maxLines: 2}}>{
-                        !item.txnDescription ? item.parentDescription :
-                        !item.parentDescription ? item.txnDescription :
-                        `${item.txnDescription}: ${item.parentDescription}`
-                }</TdLeft>
-                <Td width={8} innerStyle={{maxLines: 2}}>{item.taxInfo.reportLabel}</Td>
-                <TdRight width={7}>{item.taxInfo.rate}%</TdRight>
-                <TdRight width={8} innerStyle={index == group.items.length - 1 ? {
-                    marginBottom: 3,
-                    paddingBottom: 3,
-                    borderBottomWidth: 1,
-                } : {}}>{toFormatted(item.amount, item.currency)}</TdRight>
-                <TdRight width={14} innerStyle={index == group.items.length - 1 ? {
-                    marginBottom: 3,
-                    paddingBottom: 3,
-                    borderBottomWidth: 1,
-                } : {}}>{toFormatted(item.parentAmount, item.currency)} {item.currency}</TdRight>
-            </Tr>
-        })}
-    </>
+export function GroupItems({group, indent = 4}: {group: TaxItemGroup, indent?: number}) {
+    return group.items.map((item, index) => <Tr key={item.id}>
+        <TdLeft width={14 - indent} indent={indent}>{Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}</TdLeft>
+        <Td width={10} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
+        <TdLeft width={15} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
+        <TdLeft width={24} innerStyle={{maxLines: 2}}>{
+                !item.txnDescription ? item.parentDescription :
+                !item.parentDescription ? item.txnDescription :
+                `${item.txnDescription}: ${item.parentDescription}`
+        }</TdLeft>
+        <Td width={8} innerStyle={{maxLines: 2}}>{item.taxInfo.reportLabel}</Td>
+        <TdRight width={7}>{item.taxInfo.rate}%</TdRight>
+        <TdRight width={8} innerStyle={index == group.items.length - 1 ? {
+            marginBottom: 3,
+            paddingBottom: 3,
+            borderBottomWidth: 1,
+        } : {}}>{toFormatted(item.amount, item.currency)}</TdRight>
+        <TdRight width={14} innerStyle={index == group.items.length - 1 ? {
+            marginBottom: 3,
+            paddingBottom: 3,
+            borderBottomWidth: 1,
+        } : {}}>{toFormatted(item.parentAmount, item.currency)} {item.currency}</TdRight>
+    </Tr>) as any
 }
 
-function GroupTotal({label, group}: {label: string | false, group: TransactionTaxes['authorities'][0]['inputs']}) {
+export function GroupTotal({label, group, indent = 2}: {label?: string, group: TaxItemGroup, indent?: number}) {
     return <View wrap={group.totals.length > CURRENCY_TOTALS_WRAP}>
     {group.totals.map((money, index) => {
         const taxMoney = group.taxTotals[index]
         return <Tr key={money.currency} style={index == group.totals.length-1 ? {
             marginBottom: 12,
         } : {}}>
-            <ThLeft width={76} indent={2}>{index == 0 ? label : ''}</ThLeft>
+            <ThLeft width={78 - indent} indent={indent}>{index == 0 && label ? label : ''}</ThLeft>
             <ThRight width={8}>{toFormatted(taxMoney.amount, taxMoney.currency)}</ThRight>
             <ThRight width={14}>
                 {toFormatted(money.amount, money.currency)} {money.currency}

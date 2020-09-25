@@ -3,13 +3,12 @@
  */
 
 import { Money } from './currency'
-import { TaxCodeInfo, TaxAuthority, taxAuthorities } from './tax'
+import { TaxCodeInfo } from './tax'
 import { Account, AccountType } from './Account'
 import { Element } from './Element'
 import { Transaction, TransactionType } from './Transaction'
-import { orderByField } from '../util/util'
 
-type Item = {
+export type TaxItem = {
     // parent transaction
     txnId: number
     txnType: TransactionType
@@ -40,28 +39,13 @@ type Item = {
     taxInfo: TaxCodeInfo
 }
 
-type Group = {
-    items: Item[]
+export type TaxItemGroup = {
+    items: TaxItem[]
     taxTotals: Money[]
     totals: Money[]
 }
 
-type Division = {
-    authority: TaxAuthority
-    id: string
-    region: string
-    outputs: Group
-    inputs: Group
-}
-
-export type TransactionTaxes = {
-    startDate: string
-    endDate: string
-    accrual: boolean
-    authorities: Division[]
-}
-
-export async function taxItems(startDate: string, endDate: string, accrual: boolean): Promise<Item[]> {
+export async function taxItems(startDate: string, endDate: string, accrual: boolean, prefixes: string[] = []): Promise<TaxItem[]> {
     const paid: Transaction[] = []  // Sparse array, only for non-accrual
     const query = Element.query()
         .leftJoin('txn', 'txnElement.transactionId', 'txn.id')
@@ -131,8 +115,18 @@ export async function taxItems(startDate: string, endDate: string, accrual: bool
         })
     }
 
-    query.where('txnElement.taxCode', '<>', '')
-    const elements: (Element & Item)[] = await query as any
+    if (prefixes && prefixes.length > 0) {
+        query.where(function () {
+            prefixes.forEach(prefix => {
+                this.orWhere('txnElement.taxCode', 'LIKE', `${prefix}%`)
+            })
+        })
+    }
+    else {
+        query.where('txnElement.taxCode', '<>', '')
+    }
+
+    const elements: (Element & TaxItem)[] = await query as any
 
     if (!accrual) {
         // Inject settlement date
@@ -143,7 +137,7 @@ export async function taxItems(startDate: string, endDate: string, accrual: bool
         })
     }
 
-    elements.sort(function (a: Item, b: Item) {
+    elements.sort(function (a: TaxItem, b: TaxItem) {
         if (a.txnDate == b.txnDate) {
             return a.txnId < b.txnId ? -1 : 1
         }
@@ -153,51 +147,4 @@ export async function taxItems(startDate: string, endDate: string, accrual: bool
         item.taxInfo = new TaxCodeInfo(item.taxCode)        
     })
     return elements
-}
-
-export async function transactionTaxesDetail(startDate: string, endDate: string, accrual = true) : Promise<TransactionTaxes> {
-    const items = await taxItems(startDate, endDate, accrual)
-    const result: TransactionTaxes = {
-        startDate,
-        endDate,
-        accrual,
-        authorities: []
-    }
-    const authorities: Record<string, Division> = {}
-
-    items.forEach(item => {
-        if (!authorities[item.taxInfo.authority]) {
-            authorities[item.taxInfo.authority] = {
-                authority: taxAuthorities[item.taxInfo.authority],
-                id: item.taxInfo.authority,
-                region: taxAuthorities[item.taxInfo.authority].regionName,
-                outputs: { items: [], taxTotals: [], totals: [] },
-                inputs: { items: [], taxTotals: [], totals: [] },
-            }
-        }
-
-        if (item.drcr == Transaction.Credit) {
-            authorities[item.taxInfo.authority].outputs.items.push(item)
-        }
-        else {
-            authorities[item.taxInfo.authority].inputs.items.push(item)
-        }
-    })
-
-    result.authorities = Object.keys(authorities).map(k => authorities[k])
-    result.authorities.sort(orderByField('region'))
-
-    result.authorities.forEach(division => {
-        division.outputs.taxTotals = Transaction.getSums(division.outputs.items)
-        division.inputs.taxTotals = Transaction.getSums(division.inputs.items)
-
-        division.outputs.totals = Transaction.getSums(division.outputs.items.map(item => {
-            return {...item, amount: item.parentAmount}
-        }))
-        division.inputs.totals = Transaction.getSums(division.inputs.items.map(item => {
-            return {...item, amount: item.parentAmount}
-        }))
-    })
-
-    return result
 }
