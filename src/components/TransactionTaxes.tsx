@@ -177,7 +177,7 @@ export function TransactionTaxesDetail() {
     </div>
 }
 
-export function GroupItems({group, indent = 4}: {group: TaxItemGroup, indent?: number}) {
+export function GroupItems({group, gross, indent = 4}: {group: TaxItemGroup, gross?: boolean, indent?: number}) {
     return group.items.map((item, index) => <Tr key={item.id}>
         <TdLeft width={14 - indent} indent={indent}>{Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}</TdLeft>
         <Td width={10} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
@@ -198,16 +198,16 @@ export function GroupItems({group, indent = 4}: {group: TaxItemGroup, indent?: n
             marginBottom: 3,
             paddingBottom: 3,
             borderBottomWidth: 1,
-        } : {}}>{toFormatted(item.parentAmount, item.currency)} {item.currency}</TdRight>
+        } : {}}>{toFormatted(gross ? item.grossAmount : item.parentAmount, item.currency)} {item.currency}</TdRight>
     </Tr>) as any
 }
 
-export function GroupTotal({label, group, indent = 2}: {label?: string, group: TaxItemGroup, indent?: number}) {
+export function GroupTotal({label, group, indent = 2, marginBottom = 12}: {label?: string, group: TaxItemGroup, indent?: number, marginBottom?: number}) {
     return <View wrap={group.totals.length > CURRENCY_TOTALS_WRAP}>
     {group.totals.map((money, index) => {
         const taxMoney = group.taxTotals[index]
         return <Tr key={money.currency} style={index == group.totals.length-1 ? {
-            marginBottom: 12,
+            marginBottom,
         } : {}}>
             <ThLeft width={78 - indent} indent={indent}>{index == 0 && label ? label : ''}</ThLeft>
             <ThRight width={8}>{toFormatted(taxMoney.amount, taxMoney.currency)}</ThRight>

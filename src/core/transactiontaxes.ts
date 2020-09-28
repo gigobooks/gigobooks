@@ -37,6 +37,7 @@ export type TaxItem = {
 
     // computed/derived fields
     taxInfo: TaxCodeInfo
+    grossAmount: number
 }
 
 export type TaxItemGroup = {
@@ -144,6 +145,7 @@ export async function taxItems(startDate: string, endDate: string, accrual: bool
         return a.txnDate < b.txnDate ? -1 : 1
     })
     elements.forEach(item => {
+        item.grossAmount = item.amount + item.parentAmount
         item.taxInfo = new TaxCodeInfo(item.taxCode)        
     })
     return elements
