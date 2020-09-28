@@ -2,7 +2,7 @@
  * Copyright (c) 2020-present Beng Tan
  */
 
-import { CurrencyConvertable, convertCurrency, Money, addSubtractMoney } from './currency'
+import { CurrencyConvertable, convertCurrency, exchangeRates, Money, addSubtractMoney } from './currency'
 import { Account, AccountType } from './Account'
 import { Element } from './Element'
 import { Transaction, TransactionType } from './Transaction'
@@ -134,9 +134,7 @@ export async function profitAndLoss(startDate: string, endDate: string, currency
             convertCurrency(element as CurrencyConvertable, currency)
         })
 
-        const primary: string = Project.variables.get('currency')
-        const rates: Record<string, Record<string, string>> = Project.variables.get('exchangeRates')
-        result.exchangeRates[primary] = rates[primary]
+        result.exchangeRates = exchangeRates()
     }
     
     // Allocate items to buckets

@@ -169,6 +169,15 @@ export function convertCurrency(item: CurrencyConvertable, dest: string) {
     return item
 }
 
+export function exchangeRates() {
+    const currency: string = Project.variables.get('currency')
+    const rates: Record<string, Record<string, string>> = Project.variables.get('exchangeRates')
+    // Only return rates for the main currency
+    return {
+        [currency]: rates[currency]
+    }
+}
+
 export type Money = {
     amount: number
     currency: string
