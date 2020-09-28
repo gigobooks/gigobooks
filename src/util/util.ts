@@ -167,3 +167,21 @@ export function validateElementTaxAmounts(form: any, data: any) {
 
     return true
 }
+
+// This one is different from those above.
+// It validates member variables instead of a list of elements.
+// It returns a list of error messages (ie. an intermediate result) rather than a single boolean.
+// It alters `data` (in-place) with the result(s) of the parse
+export function validateAmountFieldsHelper(fields: string[], currency: string, data: Record<string, string>): Record<string, string> {
+    const errors: Record<string, string> = {}
+    fields.forEach(field => {
+        try {
+            (data as any)[field] = parseFormatted(data[field], currency)
+        }
+        catch (e) {
+            errors[field] = 'Invalid amount'
+        }    
+    })
+
+    return errors
+}

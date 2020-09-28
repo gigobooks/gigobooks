@@ -6,6 +6,7 @@ import * as React from 'react'
 import { MenuItem } from 'rc-menu'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 import { Project, taxAuthorities } from '../core'
+import TaxReportsAU from './TaxReportAU'
 
 export type TaxReport = {
     id: string
@@ -28,6 +29,7 @@ function injectFields(reports0: Record<string, (TaxReport)[]>): Record<string, T
 }
 
 const Reports: Record<string, TaxReportInternal[]> = injectFields({
+    ...TaxReportsAU,
 })
 
 function taxReports() {

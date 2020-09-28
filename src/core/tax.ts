@@ -314,8 +314,8 @@ export class TaxAuthorityAU extends TaxAuthority {
     }
 
     taxes(homeAuthority: string, isSale: boolean) {
-        const common = ['GST:10', 'GST:zero:0']
-        const sale = ['GST:export:0', 'GST:input:0']
+        const common = ['GST:10', 'GST:zero:0', 'GST:input:0']
+        const sale = ['GST:export:0']
         const purchase = ['GST:capital:0', 'GST:capital:10']
 
         const items = homeAuthority == this.id ? common.concat(isSale ? sale : purchase) : common
