@@ -19,7 +19,7 @@ export class Variables {
     cache: Record<string, any>
 
     constructor (public knex: Knex, public defaults: Record<string, any> = {}) {
-        this.cache = defaults
+        this.cache = cloneDeep(defaults)
     }
 
     async init() {

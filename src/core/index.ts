@@ -16,7 +16,7 @@ export { dateFormatString, isDateOnly, toDateOnly, formatDateOnly,
 export { parseISO } from 'date-fns'
 export { getCurrencyInfo, toFormatted, toFormattedAbs, parseFormatted,
   CurrencyConvertable, convertCurrency, exchangeRates, Money, addSubtractMoney } from './currency'
-export { regionName, TaxCodeInfo, baseTaxCodes, TaxAuthority, taxAuthorities, TaxInputs, TaxOutputs, calculateTaxes } from './tax'
+export { regionName, TaxCodeInfo, TaxAuthority, taxAuthorities, activeTaxAuthorities, hasActiveTaxAuthority, baseTaxCodes, TaxInputs, TaxOutputs, calculateTaxes } from './tax'
 export { ProfitAndLoss, profitAndLoss } from './profitandloss'
 export { BalanceSheet, balanceSheet } from './balancesheet'
 export { TaxItem, TaxItemGroup, taxItems } from './transactiontaxes'

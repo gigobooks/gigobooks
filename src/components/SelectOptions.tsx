@@ -185,7 +185,7 @@ export function currencySelectOptions(currency?: string) {
 
 // Returns a list of enabled base tax code select options.
 // If the supplied base tax code is not in the list, it is added
-export function taxSelectOptions(isSale: boolean, info0?: TaxCodeInfo, optional = true) {
+export function taxSelectOptions(isSale: boolean, info0?: TaxCodeInfo) {
     const baseCodes = baseTaxCodes(isSale)
     if (info0) {
         const baseCode0 = info0.baseCode
@@ -227,7 +227,6 @@ export function taxSelectOptions(isSale: boolean, info0?: TaxCodeInfo, optional 
     })
 
     return <>
-        {optional && <option key='' value=''>None</option>}
         {other.map(info =>
             <option key={info.taxCode} value={info.taxCode}>{info.label}</option>
         )}

@@ -448,6 +448,18 @@ export const taxAuthorities: Record<string, TaxAuthority> = {
     'UK': new TaxAuthorityEU('UK', 'HM Revenue and Customs', true),
 }
 
+// Return a list of tax authority IDs which are selected/configured,
+// The home authority, if configured, appears first
+export function activeTaxAuthorities() {
+    return [Project.variables.get('taxAuthority'), ...Project.variables.get('otherTaxAuthorities')].filter(k => {
+        return taxAuthorities[k] && taxAuthorities[k].enable
+    })
+}
+
+export function hasActiveTaxAuthority() {
+    return activeTaxAuthorities().length > 0
+}
+
 export const taxRatesEU: Record<string, string[]> = {
     AT: ['20', 'reduced:10', 'reduced:13', 'parking:13'],
     BE: ['21', 'reduced:6', 'reduced:12', 'parking:12'],

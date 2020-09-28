@@ -9,7 +9,7 @@ import DatePicker from 'react-datepicker'
 import { TransactionOrKnex, Model,
     Project, Transaction, TransactionType, Account, Actor, IElement,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
-    toFormatted, parseFormatted, TaxCodeInfo } from '../core'
+    toFormatted, parseFormatted, TaxCodeInfo, hasActiveTaxAuthority } from '../core'
 import { validateElementAmounts, validateElementTaxAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, hashSelectOptions, flatSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
@@ -429,6 +429,8 @@ function ElementFamily(props: ElementFamilyProps) {
                     }}
                     ref={form.register()}
                 >
+                    {!subItem.baseCode && hasActiveTaxAuthority() && <option key='forbidden' value='forbidden'></option>}
+                    <option key='' value=''>None</option>
                     {taxSelectOptions(true, baseCodeInfo)}
                 </select>
             </label>
@@ -443,6 +445,10 @@ function ElementFamily(props: ElementFamilyProps) {
                     {hashSelectOptions(tagOptions)}
                 </select>
             </label>
+            {formErrors.elements && formErrors.elements[index] &&
+                formErrors.elements[index].taxes && formErrors.elements[index].taxes[subIndex] &&
+                formErrors.elements[index].taxes[subIndex].baseCode &&
+                <div className='error'>{formErrors.elements[index].taxes[subIndex].baseCode.message}</div>}
         </td><td className='child-tax-rate'>
             <label htmlFor={`elements[${index}].taxes[${subIndex}].rate`}>
                 Rate:<input
@@ -468,7 +474,7 @@ function ElementFamily(props: ElementFamilyProps) {
             {formErrors.elements && formErrors.elements[index] &&
                 formErrors.elements[index].taxes && formErrors.elements[index].taxes[subIndex] &&
                 formErrors.elements[index].taxes[subIndex].amount &&
-                <div>{formErrors.elements[index].taxes[subIndex].amount.message}</div>}
+                <div className='error'>{formErrors.elements[index].taxes[subIndex].amount.message}</div>}
         </td></tr>
     })}
     </tbody>
@@ -569,7 +575,26 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
     for (let index in data.elements) {
         if (!data.elements[index].accountId) {
             form.setError(`elements[${index}].accountId`, '', 'This is required')
-            return false    
+            return false
+        }
+
+        if (data.elements[index].taxes) {
+            const authorities: string[] = []
+            for (let subIndex in data.elements[index].taxes!) {
+                if (data.elements[index].taxes![subIndex].baseCode) {
+                    if (data.elements[index].taxes![subIndex].baseCode == 'forbidden') {
+                        form.setError(`elements[${index}].taxes[${subIndex}].baseCode`, '', 'Please select tax')
+                        return false
+                    }
+
+                    const info = new TaxCodeInfo(data.elements[index].taxes![subIndex].baseCode)
+                    if (authorities.indexOf(info.authority) >= 0) {
+                        form.setError(`elements[${index}].taxes[${subIndex}].baseCode`, '', 'Duplicated tax authority')
+                        return false
+                    }
+                    authorities.push(info.authority)
+                }
+            }
         }
     }
 
