@@ -4,6 +4,7 @@
 
 import { APP_NAME, Project } from '../core'
 import { parseFormatted } from '../core/currency'
+import { useDebounce } from 'use-debounce'
 
 // Given a positive integer, returns the smallest integer that is strictly larger
 // than n and also starts with the digit `prefix`.
@@ -98,6 +99,13 @@ export function refreshWindowTitle() {
     if (typeof native === 'object') {
         native.setTitle(title)
     }
+}
+
+// A convenience wrapper
+export function debounce(values: any[], delay: number = 500) {
+    return values.map(v => {
+        return useDebounce(v, delay)[0]
+    })
 }
 
 type ValidationOptions = {

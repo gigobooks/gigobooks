@@ -9,7 +9,7 @@ import { Project, Transaction, toFormatted,
     datePresetDates, convertCurrency, exchangeRates, TaxItemGroup, taxItems } from '../core'
 import { DateRange, ReportHeader, ExchangeRates } from './Reports'
 import { TaxReport } from './TaxReports'
-import { validateAmountFieldsHelper } from '../util/util'
+import { debounce, validateAmountFieldsHelper } from '../util/util'
 import { GroupItems, GroupTotal } from './TransactionTaxes'
 
 type ReportInfo = {
@@ -170,7 +170,7 @@ export function TaxReportGST() {
                 setError(e.toString())
             })
         }
-    }, [startDate, endDate, accrual, g7, g15, g18])
+    }, [startDate, endDate, accrual, ...debounce([g7, g15, g18])])
 
     const report = React.useMemo(() => {
         return info ? renderReport(info, abn, summary) : null
