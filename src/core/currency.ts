@@ -62,12 +62,19 @@ export function toFormatted(amount: number, currency: string, loc = locale): str
         throw new Error(`toFormatted: Unknown currency code: ${currency}`)
     }
 
+    // Ugh, info.formatter.format() can return strings like '-USD 1,234.00'.
+    // Only format positive amounts and then negate (if applicable) afterwards
+    const negative = amount < 0
+    const abs = negative ? -amount : amount
+
     // This is yucky. Render the number into something like '1,234 USD'
     // and then: delete the currency code (ie. uppercase letters),
     // replace the group separator with space, and then trim whitespace.
-    return info.formatter.format(amount / info.scale)
+    const formatted = info.formatter.format(abs / info.scale)
         .replace(new RegExp(`[A-Z]`, 'g'), '')
         .replace(new RegExp(`${info.grouper}`, 'g'), ' ').trim()
+
+    return negative ? `-${formatted}` : formatted
 
     // Convert `group` parts to space. Omit `currency` parts
     // This can't be used because `.formatToParts` seems to be missing from
@@ -101,10 +108,10 @@ export function parseFormatted(formatted: string | undefined, currency: string, 
         throw new Error(`parseFormatted: Unknown currency code: ${currency}`)
     }
 
-    // Validate the string only contains digits, space, grouper, separator (max 1)
+    // Validate the string only contains negative sign (optional), digits, space, grouper, separator (max 1)
     const pattern = info.separator ?
-        `^[0-9 \\${info.grouper}]*\\${info.separator}?[0-9 ]*$` :
-        `^[0-9 \\${info.grouper}]*$`
+        `^-?[0-9 \\${info.grouper}]*\\${info.separator}?[0-9 ]*$` :
+        `^-?[0-9 \\${info.grouper}]*$`
     if (new RegExp(pattern).test(formatted) == false) {
         throw new Error(`Invalid amount: ${formatted}`)
     }

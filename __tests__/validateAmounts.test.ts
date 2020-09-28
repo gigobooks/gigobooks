@@ -11,6 +11,10 @@ test('validateElementAmounts', () => {
     ]})).toBe(true)
 
     expect(validateElementAmounts(MockForm.clear(), {elements: [
+        {currency: 'USD', amount: '-100', grossAmount: ''},
+    ]})).toBe(true)
+
+    expect(validateElementAmounts(MockForm.clear(), {elements: [
         {currency: 'USD', amount: '', grossAmount: 'abc'},
     ]})).toBe(false)
     expect(MockForm.errorField).toBe('elements[0].grossAmount')
