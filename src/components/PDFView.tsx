@@ -91,6 +91,7 @@ export const Styles = StyleSheet.create({
     page: {
         fontFamily: 'Helvetica',
         padding: 56,        // approx 2cm
+        paddingBottom: 64,
     },
 })
 
