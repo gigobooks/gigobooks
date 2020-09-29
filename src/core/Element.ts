@@ -43,6 +43,9 @@ export class Element extends Base {
 
     // If gross != 0, then the user entered a gross amount instead of a net-tax amount
     useGross?: number
+    // Theoretically, grossAmount can be a derived field since it is the sum of `amount`
+    // and child tax `amount`s. However, calculating it this way may introduce loss
+    // of precision due to rounding errors. Hence, it remains a field, for now.
     grossAmount?: number
 
     static tableName = 'txnElement'
