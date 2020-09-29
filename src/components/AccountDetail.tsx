@@ -101,7 +101,7 @@ export default function AccountDetail(props: Props) {
                         </select>
                     </td>
                 </tr></tbody></table>
-                <div className='errors'>
+                <div className='error'>
                     {form.errors.submit && form.errors.submit.message}
                 </div><div className='buttons'>
                     <input type='submit' value='Save' disabled={account.isReserved} />

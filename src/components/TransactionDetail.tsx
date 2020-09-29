@@ -236,7 +236,7 @@ export default function TransactionDetail(props: Props) {
                     <button type='button' onClick={() => append({name: 'elements'})}>
                         More rows
                     </button>
-                </div><div className='errors'>
+                </div><div className='error'>
                     {form.errors.submit && <span className='error'>{form.errors.submit.message}</span>}
                 </div><div className='buttons'>
                     <input

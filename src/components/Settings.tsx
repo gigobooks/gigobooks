@@ -130,7 +130,7 @@ export default function Settings() {
             })}
 
             </tbody></table>
-            <div className='errors'>
+            <div className='error'>
                 {form.errors.submit && form.errors.submit.message}
             </div><div className='buttons'>
                 <input type='submit' value='Save' />
@@ -158,13 +158,15 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
         return false
     }
 
-    const currency = data['currency']
-    for (let k of Object.keys(data['exchangeRates'][currency])) {
-        const name = `exchangeRates[${currency}][${k}]`
+    if (data.exchangeRates) {
+        const currency = data.currency
+        for (let k of Object.keys(data.exchangeRates[currency])) {
+            const name = `exchangeRates[${currency}][${k}]`
 
-        if (/^[0-9]*\.?[0-9]*$/.test(data['exchangeRates'][currency][k]) == false) {
-            form.setError(name, '', 'Must be a number or decimal')
-            return false
+            if (/^[0-9]*\.?[0-9]*$/.test(data.exchangeRates[currency][k]) == false) {
+                form.setError(name, '', 'Must be a number or decimal')
+                return false
+            }
         }
     }
 
@@ -180,11 +182,12 @@ async function saveFormData(data: FormData) {
         return c != data.currency && c != 'none'
     }))].sort()
 
-    // Only the exchange rates for 'currency' are 'valid' (ie. visible to the user)
-    // so only merge those
-    const rates: Record<string, Record<string, string>> = Project.variables.get('exchangeRates')
-    rates[data.currency] = data.exchangeRates[data.currency]
-    data.exchangeRates = rates
-    
+    if (data.exchangeRates) {
+        // Only the exchange rates for 'currency' are 'valid' (ie. visible to the user)
+        // so only merge those
+        const rates: Record<string, Record<string, string>> = Project.variables.get('exchangeRates')
+        rates[data.currency] = data.exchangeRates[data.currency]
+        data.exchangeRates = rates
+    }
     await Project.variables.setMultiple(data)
 }
