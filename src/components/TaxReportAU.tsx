@@ -232,7 +232,7 @@ function renderReport(info: ReportInfo, abn: string, summary: boolean) {
     return <Document><Page size="A4" style={[Styles.page, {fontSize: summary ? 9 : 8}]}>
         <View fixed={true}>
             <ReportHeader startDate={info.startDate} endDate={info.endDate} title={`GST calculation for BAS${summary ? '' : ': Detail'}`}>
-                <T style={{fontSize: 10}}>(ABN {abn}, {info.accrual ? 'accrual' : 'cash'} accounting basis)</T>
+                <T style={{fontSize: 10}}>(ABN {abn}, {info.accrual ? 'accruals' : 'cash'} basis)</T>
             </ReportHeader>
             {!summary && <Tr key='header' style={{marginBottom: 6}}>
                 <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
