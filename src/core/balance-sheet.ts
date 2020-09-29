@@ -7,7 +7,7 @@ import { Account } from './Account'
 import { Element } from './Element'
 import { Transaction } from './Transaction'
 import { Project } from './Project'
-import { Item } from './profitandloss'
+import { Item } from './profit-and-loss'
 import { orderByField } from '../util/util'
 
 type Group = {
