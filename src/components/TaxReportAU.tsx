@@ -25,7 +25,7 @@ type ReportInfo = {
     inputTaxedPurchases: TaxItemGroup
     freePurchases: TaxItemGroup
     g: Record<number, number>
-    exchangeRates: {},
+    exchangeRates: {}
 }
 
 async function reportInfo(startDate: string, endDate: string, accrual: boolean, g7: number, g15: number, g18: number) : Promise<ReportInfo> {
@@ -356,11 +356,9 @@ function G({label, amount, comment}: {label: string, amount: number, comment?: s
 }
 
 function SummaryG({label, amount, comment, marginBottom = 12}: {label: string, amount: number, comment?: string, marginBottom?: number}) {
-    return <>
-        <Tr key={label} style={{marginBottom}}>
-            <ThLeft width={66}>{label}</ThLeft>
-            <ThRight width={14}>{toFormatted(amount, 'AUD')} AUD</ThRight>
-            <TdLeft width={20} innerStyle={{marginLeft: 16}}>{comment}</TdLeft>
-        </Tr>
-    </>
+    return <Tr key={label} style={{marginBottom}}>
+        <ThLeft width={66}>{label}</ThLeft>
+        <ThRight width={14}>{toFormatted(amount, 'AUD')} AUD</ThRight>
+        <TdLeft width={20} innerStyle={{marginLeft: 16}}>{comment}</TdLeft>
+    </Tr>
 }
