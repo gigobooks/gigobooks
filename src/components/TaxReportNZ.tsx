@@ -11,6 +11,7 @@ import { DateRange, ReportHeader, ExchangeRates } from './Reports'
 import { TaxReport } from './TaxReports'
 import { debounce, validateAmountFieldsHelper } from '../util/util'
 import { GroupItems, GroupTotal } from './TransactionTaxes'
+import { datePresetSelectOptions } from './SelectOptions'
 
 type ReportInfo = {
     startDate: string
@@ -160,13 +161,7 @@ export function TaxReportGST() {
             </th><td>
                 <select name='preset' value={preset} onChange={onPresetChange}>
                     {!preset && <option key='' value=''></option>}
-                    <option key='this-month' value='this-month'>This month</option>
-                    <option key='this-quarter' value='this-quarter'>This quarter</option>
-                    <option key='this-year' value='this-year'>This financial year</option>
-                    <option key='prev-month' value='prev-month'>Last month</option>
-                    <option key='prev-quarter' value='prev-quarter'>Last quarter</option>
-                    <option key='prev-year' value='prev-year'>Last financial year</option>
-                    <option key='custom' value='custom'>Custom date range</option>
+                    {datePresetSelectOptions()}
                 </select>
                 {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
             </td>

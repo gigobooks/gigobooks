@@ -8,6 +8,7 @@ import { PDFView, Styles, T, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from
 import { Transaction, formatDateOnly, toFormatted, datePresetDates, TaxAuthority, taxAuthorities, TaxItemGroup, taxItems } from '../core'
 import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
 import { orderByField } from '../util/util'
+import { datePresetSelectOptions } from './SelectOptions'
 
 type Division = {
     authority: TaxAuthority
@@ -154,13 +155,7 @@ export function TransactionTaxesDetail() {
             </th><td>
                 <select name='preset' value={preset} onChange={onPresetChange}>
                     {!preset && <option key='' value=''></option>}
-                    <option key='this-month' value='this-month'>This month</option>
-                    <option key='this-quarter' value='this-quarter'>This quarter</option>
-                    <option key='this-year' value='this-year'>This financial year</option>
-                    <option key='prev-month' value='prev-month'>Last month</option>
-                    <option key='prev-quarter' value='prev-quarter'>Last quarter</option>
-                    <option key='prev-year' value='prev-year'>Last financial year</option>
-                    <option key='custom' value='custom'>Custom date range</option>
+                    {datePresetSelectOptions()}
                 </select>
                 {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
             </td>

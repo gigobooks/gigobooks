@@ -2,7 +2,10 @@
  * Copyright (c) 2020-present Beng Tan
  */
 
-import { parseISO, addDays, subDays, endOfMonth, startOfMonth, subMonths, endOfQuarter, startOfQuarter, subQuarters, addYears, subYears } from 'date-fns'
+import { parseISO, addDays, subDays,
+    endOfMonth, startOfMonth, addMonths, subMonths,
+    endOfQuarter, startOfQuarter, addQuarters, subQuarters,
+    addYears, subYears } from 'date-fns'
 import { Project } from './Project'
 
 const cache: Record<string, string> = {}
@@ -68,20 +71,28 @@ export function lastSavedDate() {
     return dateOnly ? parseISO(dateOnly) : new Date()
 }
 
-export type DatePreset = 'this-month' | 'this-quarter' | 'this-year' | 'prev-month' | 'prev-quarter' | 'prev-year'
+export type DatePreset = 'this-month' | 'this-quarter' | 'this-year' |
+    'prev-1-month' | 'prev-2-month' | 'prev-3-month' | 'prev-6-month' |
+    'prev-1-quarter' | 'prev-2-quarter' |
+    'prev-1-year' | 'prev-2-year'
 
 // Converts from a date preset to a [startDate, endDate] pair of 'date-only' string values
 export function datePresetDates(preset: DatePreset, date0? : Date): string[] {    
     const yearStart = fiscalYearStart()
     const parts = preset.split('-')
-    const prev = parts[0] === 'prev'
-    const unit = parts[1]
+
+    let prevAndSize = 0
+    if (parts[0] === 'prev' && parts.length > 2) {
+        prevAndSize = Number(parts[1])
+    }
+    const unit = parts[parts.length - 1]
+
     let date = date0 ? date0 : new Date()
     let startDate = date, endDate = date
 
-    if (unit == 'month') {
-        startDate = subMonths(startOfMonth(date), prev ? 1 : 0)
-        endDate = endOfMonth(startDate)
+    if (unit == 'month') {        
+        startDate = subMonths(startOfMonth(date), prevAndSize)
+        endDate = endOfMonth(addMonths(startDate, prevAndSize == 0 ? 0 : prevAndSize - 1))
     }
     else if (unit == 'quarter') {
         // Handle UK special case where fiscal year starts on April 6th
@@ -90,14 +101,14 @@ export function datePresetDates(preset: DatePreset, date0? : Date): string[] {
             date = subDays(date, 5)
         }
 
-        startDate = subQuarters(startOfQuarter(date), prev ? 1 : 0)
+        startDate = subQuarters(startOfQuarter(date), prevAndSize)
 
         // Reverse the offset
         if (yearStart.month == 4 && yearStart.date == 6) {
             startDate = addDays(startDate, 5)
         }
 
-        endDate = endOfQuarter(startDate)
+        endDate = endOfQuarter(addQuarters(startDate, prevAndSize == 0 ? 0 : prevAndSize - 1))
 
         // Reverse the offset
         if (yearStart.month == 4 && yearStart.date == 6) {
@@ -124,10 +135,8 @@ export function datePresetDates(preset: DatePreset, date0? : Date): string[] {
             startDate = new Date(y, yearStart.month - 1, yearStart.date)
         }
 
-        if (prev) {
-            startDate = subYears(startDate, 1)
-        }
-        endDate = subDays(addYears(startDate, 1), 1)    
+        startDate = subYears(startDate, prevAndSize)
+        endDate = subDays(addYears(startDate, prevAndSize > 0 ? prevAndSize : 1), 1)
     }
 
     return [toDateOnly(startDate), toDateOnly(endDate)]

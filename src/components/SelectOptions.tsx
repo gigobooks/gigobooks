@@ -245,3 +245,18 @@ export function taxSelectOptions(isSale: boolean, info0?: TaxCodeInfo) {
         })}
     </>
 }
+
+export function datePresetSelectOptions() {
+    return <>
+        <option key='this-month' value='this-month'>This month</option>
+        <option key='this-quarter' value='this-quarter'>This quarter</option>
+        <option key='this-year' value='this-year'>This financial year</option>
+        <option key='prev-1-month' value='prev-1-month'>Last month</option>
+        <option key='prev-2-month' value='prev-2-month'>Last two months</option>
+        <option key='prev-3-month' value='prev-3-month'>Last three months</option>
+        <option key='prev-1-quarter' value='prev-1-quarter'>Last quarter</option>
+        <option key='prev-2-quarter' value='prev-2-quarter'>Last two quarters</option>
+        <option key='prev-1-year' value='prev-1-year'>Last financial year</option>
+        <option key='custom' value='custom'>Custom date range</option>
+    </>
+}
