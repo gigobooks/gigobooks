@@ -39,7 +39,7 @@
     "@types/react-dom": "^16.9.6",
     "@types/react-router-dom": "^5.1.4",
     "@types/react-table": "^7.0.16",
-    "@types/webpack-env": "^1.15.2",
+    "@types/webpack-env": "^1.15.3",
     "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^3.5.2",
     "husky": "^4.3.0",
