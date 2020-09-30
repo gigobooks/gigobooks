@@ -200,12 +200,12 @@ function renderReport(info: ReportInfo, registration: string, summary: boolean) 
             {!summary && <Tr key='header' style={{marginBottom: 6}}>
                 <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
                 <ThLeft width={10} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
-                <ThLeft width={15} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
-                <ThLeft width={24} innerStyle={{borderBottomWidth: 1}}>Description</ThLeft>
+                <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
+                <ThLeft width={22} innerStyle={{borderBottomWidth: 1}}>Description</ThLeft>
                 <Th width={8} innerStyle={{borderBottomWidth: 1}}>Tax Code</Th>
                 <ThRight width={7} innerStyle={{borderBottomWidth: 1}}>Rate</ThRight>
-                <ThRight width={8} innerStyle={{borderBottomWidth: 1}}>Tax</ThRight>
-                <ThRight width={14} innerStyle={{borderBottomWidth: 1}}>Amount + Tax</ThRight>
+                <ThRight width={10} innerStyle={{borderBottomWidth: 1}}>Tax</ThRight>
+                <ThRight width={15} innerStyle={{borderBottomWidth: 1}}>Amount + Tax</ThRight>
             </Tr>}
         </View>
 
@@ -262,16 +262,16 @@ function renderReport(info: ReportInfo, registration: string, summary: boolean) 
 
 function LineItem({label, amount, box, marginBottom = 12}: {label: string, amount: number, box: string, marginBottom?: number}) {
     return <Tr key={label} style={{marginBottom}}>
-        <ThLeft width={78}>{label}</ThLeft>
-        <ThRight width={8}>[ {box} ]</ThRight>
-        <ThRight width={14}>{toFormatted(amount, 'NZD')} NZD</ThRight>
+        <ThLeft width={75}>{label}</ThLeft>
+        <ThRight width={10}>[ {box} ]</ThRight>
+        <ThRight width={15}>{toFormatted(amount, 'NZD')} NZD</ThRight>
     </Tr>
 }
 
 function LineItemSummary({label, amount, box, marginBottom = 12}: {label: string, amount: number, box: string, marginBottom?: number}) {
     return <Tr key={label} style={{marginBottom}}>
-        <ThLeft width={58}>{label}</ThLeft>
-        <ThRight width={8}>[ {box} ]</ThRight>
-        <ThRight width={14}>{toFormatted(amount, 'NZD')} NZD</ThRight>
+        <ThLeft width={55}>{label}</ThLeft>
+        <ThRight width={10}>[ {box} ]</ThRight>
+        <ThRight width={15}>{toFormatted(amount, 'NZD')} NZD</ThRight>
     </Tr>
 }

@@ -237,12 +237,12 @@ function renderReport(info: ReportInfo, abn: string, summary: boolean) {
             {!summary && <Tr key='header' style={{marginBottom: 6}}>
                 <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
                 <ThLeft width={10} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
-                <ThLeft width={15} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
-                <ThLeft width={24} innerStyle={{borderBottomWidth: 1}}>Description</ThLeft>
+                <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
+                <ThLeft width={22} innerStyle={{borderBottomWidth: 1}}>Description</ThLeft>
                 <Th width={8} innerStyle={{borderBottomWidth: 1}}>Tax Code</Th>
                 <ThRight width={7} innerStyle={{borderBottomWidth: 1}}>Rate</ThRight>
-                <ThRight width={8} innerStyle={{borderBottomWidth: 1}}>Tax</ThRight>
-                <ThRight width={14} innerStyle={{borderBottomWidth: 1}}>Amount + Tax</ThRight>
+                <ThRight width={10} innerStyle={{borderBottomWidth: 1}}>Tax</ThRight>
+                <ThRight width={15} innerStyle={{borderBottomWidth: 1}}>Amount + Tax</ThRight>
             </Tr>}
         </View>
 
@@ -348,8 +348,8 @@ function renderReport(info: ReportInfo, abn: string, summary: boolean) {
 function G({label, amount, comment}: {label: string, amount: number, comment?: string}) {
     return <>
         <Tr key={label} style={comment ? {} : {marginBottom: 12}}>
-            <ThLeft width={86}>{label}</ThLeft>
-            <ThRight width={14}>{toFormatted(amount, 'AUD')} AUD</ThRight>
+            <ThLeft width={85}>{label}</ThLeft>
+            <ThRight width={15}>{toFormatted(amount, 'AUD')} AUD</ThRight>
         </Tr>
         {comment && <Tr style={{marginBottom: 12}}><TdRight width={100}>({comment})</TdRight></Tr>}
     </>
@@ -357,8 +357,8 @@ function G({label, amount, comment}: {label: string, amount: number, comment?: s
 
 function SummaryG({label, amount, comment, marginBottom = 12}: {label: string, amount: number, comment?: string, marginBottom?: number}) {
     return <Tr key={label} style={{marginBottom}}>
-        <ThLeft width={66}>{label}</ThLeft>
-        <ThRight width={14}>{toFormatted(amount, 'AUD')} AUD</ThRight>
+        <ThLeft width={65}>{label}</ThLeft>
+        <ThRight width={15}>{toFormatted(amount, 'AUD')} AUD</ThRight>
         <TdLeft width={20} innerStyle={{marginLeft: 16}}>{comment}</TdLeft>
     </Tr>
 }

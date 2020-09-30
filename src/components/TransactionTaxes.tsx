@@ -121,12 +121,12 @@ export function TransactionTaxesDetail() {
                 <Tr key='header' style={{marginBottom: 6}}>
                     <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
                     <ThLeft width={10} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
-                    <ThLeft width={15} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
-                    <ThLeft width={24} innerStyle={{borderBottomWidth: 1}}>Description</ThLeft>
+                    <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Name</ThLeft>
+                    <ThLeft width={22} innerStyle={{borderBottomWidth: 1}}>Description</ThLeft>
                     <Th width={8} innerStyle={{borderBottomWidth: 1}}>Tax Code</Th>
                     <ThRight width={7} innerStyle={{borderBottomWidth: 1}}>Rate</ThRight>
-                    <ThRight width={8} innerStyle={{borderBottomWidth: 1}}>Tax</ThRight>
-                    <ThRight width={14} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
+                    <ThRight width={10} innerStyle={{borderBottomWidth: 1}}>Tax</ThRight>
+                    <ThRight width={15} innerStyle={{borderBottomWidth: 1}}>Amount</ThRight>
                 </Tr>
             </View>
 
@@ -181,20 +181,20 @@ export function GroupItems({group, gross, indent = 4}: {group: TaxItemGroup, gro
     return group.items.map((item, index) => <Tr key={item.id}>
         <TdLeft width={14 - indent} indent={indent}>{Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}</TdLeft>
         <Td width={10} innerStyle={{marginRight: 6, textAlign: 'right'}}>{formatDateOnly(item.txnDate)}</Td>
-        <TdLeft width={15} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
-        <TdLeft width={24} innerStyle={{maxLines: 2}}>{
+        <TdLeft width={14} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
+        <TdLeft width={22} innerStyle={{maxLines: 2}}>{
                 !item.txnDescription ? item.parentDescription :
                 !item.parentDescription ? item.txnDescription :
                 `${item.txnDescription}: ${item.parentDescription}`
         }</TdLeft>
         <Td width={8} innerStyle={{maxLines: 2}}>{item.taxInfo.reportLabel}</Td>
         <TdRight width={7}>{item.taxInfo.rate}%</TdRight>
-        <TdRight width={8} innerStyle={index == group.items.length - 1 ? {
+        <TdRight width={10} innerStyle={index == group.items.length - 1 ? {
             marginBottom: 3,
             paddingBottom: 3,
             borderBottomWidth: 1,
         } : {}}>{toFormatted(item.amount, item.currency)}</TdRight>
-        <TdRight width={14} innerStyle={index == group.items.length - 1 ? {
+        <TdRight width={15} innerStyle={index == group.items.length - 1 ? {
             marginBottom: 3,
             paddingBottom: 3,
             borderBottomWidth: 1,
@@ -209,9 +209,9 @@ export function GroupTotal({label, group, indent = 2, marginBottom = 12}: {label
         return <Tr key={money.currency} style={index == group.totals.length-1 ? {
             marginBottom,
         } : {}}>
-            <ThLeft width={78 - indent} indent={indent}>{index == 0 && label ? label : ''}</ThLeft>
-            <ThRight width={8}>{toFormatted(taxMoney.amount, taxMoney.currency)}</ThRight>
-            <ThRight width={14}>
+            <ThLeft width={75 - indent} indent={indent}>{index == 0 && label ? label : ''}</ThLeft>
+            <ThRight width={10}>{toFormatted(taxMoney.amount, taxMoney.currency)}</ThRight>
+            <ThRight width={15}>
                 {toFormatted(money.amount, money.currency)} {money.currency}
             </ThRight>
         </Tr>
