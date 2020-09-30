@@ -324,19 +324,22 @@ export class TaxAuthorityAU extends TaxAuthority {
 }
 
 export class TaxAuthorityNZ extends TaxAuthority {
+    settings(homeAuthority: string) {
+        return {
+            'nz:registration': { type: 'text', label: 'GST registration number' },
+            'nz:accrual': { type: 'select', label: 'Accounting basis', options: { '': 'Payments basis', 'accrual': 'Invoice basis' } },
+        }
+    }
+
     taxesInfo() {
         return {
             'GST': { label: 'GST', shortLabel: 'GST', weight: 0 },
             'GST:zero': { label: 'GST (zero-rated)', shortLabel: '0-rated', weight: 1 },
-            'GST:import': { label: 'Imported goods', shortLabel: 'Import', weight: 2 },
         }
     }
 
     taxes(homeAuthority: string, isSale: boolean) {
-        const common = ['GST:15', 'GST:zero:0']
-        const purchase = ['GST:import:0']
-
-        const items = homeAuthority == this.id && !isSale ? common.concat(purchase) : common
+        const items = ['GST:15', 'GST:zero:0']
         return items.map(s => `${this.id}:${s}`)
     }
 }
