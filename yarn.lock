@@ -558,11 +558,6 @@
   dependencies:
     unicode-trie "^0.3.0"
 
-"@scarf/scarf@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@scarf/scarf/-/scarf-0.1.5.tgz#fc4cc88294eca336eed9a91549180346de5e6946"
-  integrity sha512-Fx6atDc7JM1r0WkPCDhNetVZNp+DO21q/HGlomAKBG+k8vb1B8fg8Yige4oCf1P9OWTZWm5tM5i3jlXhrSbNOg==
-
 "@sinonjs/commons@^1.7.0":
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.7.2.tgz#505f55c74e0272b43f6c52d81946bed7058fc0e2"
@@ -5533,12 +5528,10 @@ react-sidebar@^3.0.2:
     "@babel/runtime" ">=7.0.0-beta.56"
     prop-types "^15.6.2"
 
-react-table@^7.0.4:
-  version "7.0.4"
-  resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.0.4.tgz#456838661982c83c3682f156c59a41b4339a2120"
-  integrity sha512-Uqpj+VnUIvsNWNtNFD1z2i7OCHdlhoJtQt0DWx3XOkZnvDyI/eCghK8YBfA9mY4TW7vEgCDLaRCcREC/fmcx6Q==
-  dependencies:
-    "@scarf/scarf" "^0.1.5"
+react-table@^7.5.1:
+  version "7.5.1"
+  resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.5.1.tgz#b6a9b46e52c0f37ff91717ac478f430c6a357e41"
+  integrity sha512-rprrUElCqvj79lyY2XbUoYLzwA5Mm4CGS8ElQ8OyzocvmkvCcmunvvfbpIg9Jm9HnMBjVZcVyPFPZ1BFelIBKw==
 
 react@^16.13.1:
   version "16.13.1"
