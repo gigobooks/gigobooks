@@ -167,16 +167,16 @@ export function TaxReportGST() {
             </td>
         </tr><tr className='row row-line9'>
             <th scope='row'>
-                <label htmlFor='line9'>Adjustments from your calculation sheet:</label>
+                <label htmlFor='line9'>[ &nbsp;&nbsp;9 ] Adjustments from your calculation sheet:</label>
             </th><td>
-                [ &nbsp;9&nbsp; ] <input name='line9' onChange={e => {setLine9(e.target.value)}}></input> NZD
+                <input name='line9' onChange={e => {setLine9(e.target.value)}}></input> NZD
                 {formErrors['line9'] && <div className='error'>{formErrors['line9']}</div>}
             </td>
         </tr><tr className='row row-line13'>
             <th scope='row'>
-                <label htmlFor='line13'>Credit adjustments from your calculation sheet:</label>
+                <label htmlFor='line13'>[ 13 ] Credit adjustments from your calculation sheet:</label>
             </th><td>
-                [ 13 ] <input name='line13' onChange={e => {setLine13(e.target.value)}}></input> NZD
+                <input name='line13' onChange={e => {setLine13(e.target.value)}}></input> NZD
                 {formErrors['line13'] && <div className='error'>{formErrors['line13']}</div>}
             </td>
         </tr></tbody></table>
@@ -205,68 +205,71 @@ function renderReport(info: ReportInfo, registration: string, summary: boolean) 
         </View>
 
         {summary ? <>
-            <LineItemSummary label='Total sales and income (including GST)' box='5' amount={info.lines[5]} />
-            <LineItemSummary label='Zero-rated supplies' box='6' amount={info.lines[6]} />
-            <LineItemSummary label='Subtract Box 6 from Box 5' box='7' amount={info.lines[7]} />
-            <LineItemSummary label='Multiply Box 7 by three and then divide by twenty-three' box='8' amount={info.lines[8]} />
-            <LineItemSummary label='Adjustments from your calculation sheet' box='9' amount={info.lines[9]} />
-            <LineItemSummary label='Total GST collected (Add Box 8 and Box 9)' box='10' amount={info.lines[10]} />
-            <LineItemSummary label='Total purchases and expenses (including GST)' box='11' amount={info.lines[11]} />
-            <LineItemSummary label='Multiply Box 11 by three and then divide by twenty-three' box='12' amount={info.lines[12]} />
-            <LineItemSummary label='Credit adjustments from your calculation sheet' box='13' amount={info.lines[13]} />
-            <LineItemSummary label='Total GST credit (Add Box 12 and Box 13)' box='14' amount={info.lines[14]} />
-            <LineItemSummary label='Difference between Box 10 and Box 14' box='15' amount={info.lines[15]} marginBottom={3} />
-            <Tr style={{marginBottom: 12}}><ThRight width={80}>({info.refund ? 'Refund' : 'GST to pay'})</ThRight></Tr>
+            <LineItemSummary label='[  5 ]    Total sales and income (including GST)' amount={info.lines[5]} />
+            <LineItemSummary label='[  6 ]    Zero-rated supplies' amount={info.lines[6]} />
+            <LineItemSummary label='[  7 ]    Subtract Box 6 from Box 5' amount={info.lines[7]} />
+            <LineItemSummary label='[  8 ]    Multiply Box 7 by three and then divide by twenty-three' amount={info.lines[8]} />
+            <LineItemSummary label='[  9 ]    Adjustments from your calculation sheet' amount={info.lines[9]} />
+            <LineItemSummary label='[ 10 ]    Total GST collected (Add Box 8 and Box 9)' amount={info.lines[10]} />
+            <LineItemSummary label='[ 11 ]    Total purchases and expenses (including GST)' amount={info.lines[11]} />
+            <LineItemSummary label='[ 12 ]    Multiply Box 11 by three and then divide by twenty-three' amount={info.lines[12]} />
+            <LineItemSummary label='[ 13 ]    Credit adjustments from your calculation sheet' amount={info.lines[13]} />
+            <LineItemSummary label='[ 14 ]    Total GST credit (Add Box 12 and Box 13)' amount={info.lines[14]} />
+            <LineItemSummary label='[ 15 ]    Difference between Box 10 and Box 14' amount={info.lines[15]} marginBottom={3} />
+            <Tr><ThRight width={80}>({info.refund ? 'Refund' : 'GST to pay'})</ThRight></Tr>
         </> : <>
-            {info.sales.items.length > 0 && <>
-                <Tr><Th width={100}>Sales</Th></Tr>
+            {info.sales.items.length > 0 ? <>
+                <Tr><Th width={100}>[  5 ]    Total sales and income (including GST)</Th></Tr>
                 <GroupItems group={info.sales} gross={true} />
-                <GroupTotal group={info.sales} marginBottom={3} />
-            </>}
-            <LineItem label='Total sales and income (including GST)' box='5' amount={info.lines[5]} />
+                <GroupTotal group={info.sales} />
+            </> :
+                <LineItem label='[  5 ]    Total sales and income (including GST)' amount={info.lines[5]} />
+            }
 
-            {info.zeroSales.items.length > 0 && <>
-                <Tr><Th width={100}>Zero-rated supplies</Th></Tr>
+            {info.zeroSales.items.length > 0 ? <>
+                <Tr><Th width={100}>[  6 ]    Zero-rated supplies</Th></Tr>
                 <GroupItems group={info.zeroSales} gross={true} />
-                <GroupTotal group={info.zeroSales} marginBottom={3} />
-            </>}
-            <LineItem label='Zero-rated supplies' box='6' amount={info.lines[6]} />
+                <GroupTotal group={info.zeroSales} />
+            </> :
+                <LineItem label='[  6 ]    Zero-rated supplies' amount={info.lines[6]} />
+            }
 
-            <LineItem label='Subtract Box 6 from Box 5' box='7' amount={info.lines[7]} />
-            <LineItem label='Multiply Box 7 by three and then divide by twenty-three' box='8' amount={info.lines[8]} />
-            <LineItem label='Adjustments from your calculation sheet' box='9' amount={info.lines[9]} />
-            <LineItem label='Total GST collected (Add Box 8 and Box 9)' box='10' amount={info.lines[10]} />
+            <LineItem label='[  7 ]    Subtract Box 6 from Box 5' amount={info.lines[7]} />
+            <LineItem label='[  8 ]    Multiply Box 7 by three and then divide by twenty-three' amount={info.lines[8]} />
+            <LineItem label='[  9 ]    Adjustments from your calculation sheet' amount={info.lines[9]} />
+            <LineItem label='[ 10 ]    Total GST collected (Add Box 8 and Box 9)' amount={info.lines[10]} />
 
-            {info.purchases.items.length > 0 && <>
-                <Tr><Th width={100}>Total purchases and expenses (including GST)</Th></Tr>
+            {info.purchases.items.length > 0 ? <>
+                <Tr><Th width={100}>[ 11 ]    Total purchases and expenses (including GST)</Th></Tr>
                 <GroupItems group={info.purchases} gross={true} />
-                <GroupTotal group={info.purchases} marginBottom={3} />
-            </>}
-            <LineItem label='Total purchases and expenses (including GST)' box='11' amount={info.lines[11]} />
+                <GroupTotal group={info.purchases} />
+            </> :
+                <LineItem label='[ 11 ]    Total purchases and expenses (including GST)' amount={info.lines[11]} />
+            }
 
-            <LineItem label='Multiply Box 11 by three and then divide by twenty-three' box='12' amount={info.lines[12]} />
-            <LineItem label='Credit adjustments from your calculation sheet' box='13' amount={info.lines[13]} />
-            <LineItem label='Total GST credit (Add Box 12 and Box 13)' box='14' amount={info.lines[14]} />
-            <LineItem label='Difference between Box 10 and Box 14' box='15' amount={info.lines[15]} marginBottom={3} />
-            <Tr style={{marginBottom: 12}}><ThRight width={100}>({info.refund ? 'Refund' : 'GST to pay'})</ThRight></Tr>
+            <LineItem label='[ 12 ]    Multiply Box 11 by three and then divide by twenty-three' amount={info.lines[12]} />
+            <LineItem label='[ 13 ]    Credit adjustments from your calculation sheet' amount={info.lines[13]} />
+            <LineItem label='[ 14 ]    Total GST credit (Add Box 12 and Box 13)' amount={info.lines[14]} />
+            <View wrap={false}>
+                <LineItem label='[ 15 ]    Difference between Box 10 and Box 14' amount={info.lines[15]} marginBottom={3} />
+                <Tr><ThRight width={100}>({info.refund ? 'Refund' : 'GST to pay'})</ThRight></Tr>
+            </View>
         </>}
 
         <ExchangeRates rates={info.exchangeRates} />
     </Page></Document>
 }
 
-function LineItem({label, amount, box, marginBottom = 12}: {label: string, amount: number, box: string, marginBottom?: number}) {
+function LineItem({label, amount, marginBottom = 12}: {label: string, amount: number, marginBottom?: number}) {
     return <Tr key={label} style={{marginBottom}}>
-        <ThLeft width={75}>{label}</ThLeft>
-        <ThRight width={10}>[ {box} ]</ThRight>
+        <ThLeft width={85}>{label}</ThLeft>
         <ThRight width={15}>{toFormatted(amount, 'NZD')} NZD</ThRight>
     </Tr>
 }
 
-function LineItemSummary({label, amount, box, marginBottom = 12}: {label: string, amount: number, box: string, marginBottom?: number}) {
+function LineItemSummary({label, amount, marginBottom = 12}: {label: string, amount: number, marginBottom?: number}) {
     return <Tr key={label} style={{marginBottom}}>
-        <ThLeft width={55}>{label}</ThLeft>
-        <ThRight width={10}>[ {box} ]</ThRight>
+        <ThLeft width={65}>{label}</ThLeft>
         <ThRight width={15}>{toFormatted(amount, 'NZD')} NZD</ThRight>
     </Tr>
 }

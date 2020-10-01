@@ -264,89 +264,103 @@ function renderReport(info: ReportInfo, abn: string, summary: boolean) {
             <SummaryG label='G19   Total purchases subject to GST after adjustments (G7+G18)' amount={info.g[19]} />
             <SummaryG label='G20   GST on purchases (G19 divided by eleven)' amount={info.g[20]} comment='1B in the Summary section of the BAS' />
         </> : <>
-            {info.sales.items.length > 0 && <>
-                <Tr><Th width={100}>Sales</Th></Tr>
+            {info.sales.items.length > 0 ? <>
+                <Tr><Th width={100}>G1    Total sales (including any GST)</Th></Tr>
                 <GroupItems group={info.sales} gross={true} />
-                <GroupTotal group={info.sales} marginBottom={3} />
-            </>}
-            <G label='G1    Total sales (including any GST)' amount={info.g[1]} comment='G1 on the BAS' />
+                <GroupTotal group={info.sales} marginBottom={0} />
+            </> :
+                <G label='G1    Total sales (including any GST)' amount={info.g[1]} marginBottom={0} />
+            }
+            <Tr style={{marginBottom: 12}}><TdRight width={100}>(G1 on the BAS)</TdRight></Tr>
 
-            {info.exportSales.items.length > 0 && <>
-                <Tr><Th width={100}>Export sales</Th></Tr>
+            {info.exportSales.items.length > 0 ? <>
+                <Tr><Th width={100}>G2    Export sales</Th></Tr>
                 <GroupItems group={info.exportSales} gross={true} />
-                <GroupTotal group={info.exportSales} marginBottom={3} />
-            </>}
-            <G label='G2    Export sales' amount={info.g[2]} comment='G2 on the BAS' />
+                <GroupTotal group={info.exportSales} marginBottom={0} />
+            </> :
+                <G label='G2    Export sales' amount={info.g[2]} marginBottom={0} />
+            }
+            <Tr style={{marginBottom: 12}}><TdRight width={100}>(G2 on the BAS)</TdRight></Tr>
 
-            {info.otherFreeSales.items.length > 0 && <>
-                <Tr><Th width={100}>Other GST-free sales</Th></Tr>
+            {info.otherFreeSales.items.length > 0 ? <>
+                <Tr><Th width={100}>G3    Other GST-free sales</Th></Tr>
                 <GroupItems group={info.otherFreeSales} gross={true} />
-                <GroupTotal group={info.otherFreeSales} marginBottom={3} />
-            </>}
-            <G label='G3    Other GST-free sales' amount={info.g[3]} comment='G3 on the BAS' />
+                <GroupTotal group={info.otherFreeSales} marginBottom={0} />
+            </> : 
+                <G label='G3    Other GST-free sales' amount={info.g[3]} marginBottom={0} />
+            }
+            <Tr style={{marginBottom: 12}}><TdRight width={100}>(G3 on the BAS)</TdRight></Tr>
 
-            {info.inputTaxedSales.items.length > 0 && <>
-                <Tr><Th width={100}>Input taxed sales</Th></Tr>
+            {info.inputTaxedSales.items.length > 0 ? <>
+                <Tr><Th width={100}>G4    Input taxed sales</Th></Tr>
                 <GroupItems group={info.inputTaxedSales} gross={true} />
-                <GroupTotal group={info.inputTaxedSales} marginBottom={3} />
-            </>}
-            <G label='G4    Input taxed sales' amount={info.g[3]} />
+                <GroupTotal group={info.inputTaxedSales} />
+            </> :
+                <G label='G4    Input taxed sales' amount={info.g[3]} />
+            }
 
             <G label='G5    G2+G3+G4' amount={info.g[5]} />
             <G label='G6    Total sales subject to GST (G1 minus G5)' amount={info.g[6]} />
             <G label='G7    Adjustments (if applicable)' amount={info.g[7]} />
             <G label='G8    Total sales subject to GST after adjustments (G6+G7)' amount={info.g[8]} />
-            <G label='G9    GST on sales (G8 divided by eleven)' amount={info.g[9]} comment='1A in the Summary section of the BAS' />
+            <G label='G9    GST on sales (G8 divided by eleven)' amount={info.g[9]} marginBottom={0} />
+            <Tr style={{marginBottom: 12}}><TdRight width={100}>(1A in the Summary section of the BAS)</TdRight></Tr>
 
-            {info.capitalPurchases.items.length > 0 && <>
-                <Tr><Th width={100}>Capital purchases</Th></Tr>
+            {info.capitalPurchases.items.length > 0 ? <>
+                <Tr><Th width={100}>G10   Capital purchases (including any GST)</Th></Tr>
                 <GroupItems group={info.capitalPurchases} gross={true} />
-                <GroupTotal group={info.capitalPurchases} marginBottom={3} />
-            </>}
-            <G label='G10   Capital purchases (including any GST)' amount={info.g[10]} comment='G10 on the BAS' />
+                <GroupTotal group={info.capitalPurchases} marginBottom={0} />
+            </> :
+                <G label='G10   Capital purchases (including any GST)' amount={info.g[10]} marginBottom={0} />
+            }
+            <Tr style={{marginBottom: 12}}><TdRight width={100}>(G10 on the BAS)</TdRight></Tr>
 
-            {info.purchases.items.length > 0 && <>
-                <Tr><Th width={100}>Non-capital purchases</Th></Tr>
+            {info.purchases.items.length > 0 ? <>
+                <Tr><Th width={100}>G11   Non-capital purchases (including any GST)</Th></Tr>
                 <GroupItems group={info.purchases} gross={true} />
-                <GroupTotal group={info.purchases} marginBottom={3} />
-            </>}
-            <G label='G11   Non-capital purchases (including any GST)' amount={info.g[11]} comment='G11 on the BAS' />
+                <GroupTotal group={info.purchases} marginBottom={0} />
+            </> :
+                <G label='G11   Non-capital purchases (including any GST)' amount={info.g[11]} marginBottom={0} />
+            }
+            <Tr style={{marginBottom: 12}}><TdRight width={100}>(G11 on the BAS)</TdRight></Tr>
 
             <G label='G12   G10+G11' amount={info.g[12]} />
 
-            {info.inputTaxedPurchases.items.length > 0 && <>
-                <Tr><Th width={100}>Purchases for making input taxed sales</Th></Tr>
+            {info.inputTaxedPurchases.items.length > 0 ? <>
+                <Tr><Th width={100}>G13   Purchases for making input taxed sales</Th></Tr>
                 <GroupItems group={info.inputTaxedPurchases} gross={true} />
-                <GroupTotal group={info.inputTaxedPurchases} marginBottom={3} />
-            </>}
-            <G label='G13   Purchases for making input taxed sales' amount={info.g[13]} />
+                <GroupTotal group={info.inputTaxedPurchases} />
+            </> :
+                <G label='G13   Purchases for making input taxed sales' amount={info.g[13]} />
+            }
 
-            {info.freePurchases.items.length > 0 && <>
-                <Tr><Th width={100}>Purchases without GST in the price</Th></Tr>
+            {info.freePurchases.items.length > 0 ? <>
+                <Tr><Th width={100}>G14   Purchases without GST in the price</Th></Tr>
                 <GroupItems group={info.freePurchases} gross={true} />
-                <GroupTotal group={info.freePurchases} marginBottom={3} />
-            </>}
-            <G label='G14   Purchases without GST in the price' amount={info.g[14]} />
+                <GroupTotal group={info.freePurchases} />
+            </> :
+                <G label='G14   Purchases without GST in the price' amount={info.g[14]} />
+            }
 
             <G label='G15   Estimated purchases for private use or not income tax deductible' amount={info.g[15]} />
             <G label='G16   G13+G14+G15' amount={info.g[16]} />
             <G label='G17   Total purchases subject to GST (G12 minus G16)' amount={info.g[17]} />
             <G label='G18   Adjustments (if applicable)' amount={info.g[18]} />
             <G label='G19   Total purchases subject to GST after adjustments (G7+G18)' amount={info.g[19]} />
-            <G label='G20   GST on purchases (G19 divided by eleven)' amount={info.g[20]} comment='1B in the Summary section of the BAS' />
+            <G label='G20   GST on purchases (G19 divided by eleven)' amount={info.g[20]} marginBottom={0} />
+            <Tr style={{marginBottom: 12}}><TdRight width={100}>(1B in the Summary section of the BAS)</TdRight></Tr>
         </>}
 
         <ExchangeRates rates={info.exchangeRates} />
     </Page></Document>
 }
 
-function G({label, amount, comment}: {label: string, amount: number, comment?: string}) {
+function G({label, amount, marginBottom = 12}: {label: string, amount: number, marginBottom?: number}) {
     return <>
-        <Tr key={label} style={comment ? {} : {marginBottom: 12}}>
+        <Tr key={label} style={{marginBottom}}>
             <ThLeft width={85}>{label}</ThLeft>
             <ThRight width={15}>{toFormatted(amount, 'AUD')} AUD</ThRight>
         </Tr>
-        {comment && <Tr style={{marginBottom: 12}}><TdRight width={100}>({comment})</TdRight></Tr>}
     </>
 }
 
