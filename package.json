@@ -43,7 +43,7 @@
     "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^3.5.2",
     "husky": "^4.3.0",
-    "jest": "^25.4.0",
+    "jest": "^25.5.4",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
     "source-map-loader": "^0.2.4",
