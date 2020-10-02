@@ -300,14 +300,14 @@ export class Transaction extends Base {
         }
     }
 
-    // SQL WHERE condition to retrieve invoices which settle this.
+    // SQL WHERE condition to retrieve Transactions which settle this.
     // Call like this: `.where(object.settlements())`
     settlements() {
         const self = this
         return function (builder: QueryBuilder<Transaction, Transaction[]>) {
             builder.whereIn('id', 
                 function (builder: QueryBuilder<Transaction, Transaction[]>) {
-                builder.select('transactionId').from('txnElement').where('settleId', self.id)
+                    (builder as any).select('transactionId').from('txnElement').where('settleId', self.id)
             })
         }
     }
