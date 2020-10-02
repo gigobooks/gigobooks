@@ -73,7 +73,7 @@ function makeKnex(filename, preExistingConnection, onChange = undefined) {
             }
 
             const callObj = connection.txConnection ? connection.txConnection : connection.mainConnection
-            const callMethod = ((!obj.method && obj.sql.toLowerCase().startsWith('select')) || obj.method == 'select') ? 'query' : 'exec'
+            const callMethod = ['insert', 'update', 'counter', 'del'].indexOf(obj.method) >= 0 ? 'exec' : 'query'
             return new Promise(function(resolver, rejecter) {
                 if (!callObj || !callObj[callMethod]) {
                     return rejecter(
@@ -88,6 +88,7 @@ function makeKnex(filename, preExistingConnection, onChange = undefined) {
             });
         },
         processResponse: function (obj, runner) {
+            // console.log('k-i.js processResponse obj:', obj)            
             let { response } = obj;
 
             // Notify upstream if any rows were changed
