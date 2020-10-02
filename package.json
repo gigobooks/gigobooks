@@ -50,7 +50,7 @@
     "style-loader": "^1.1.4",
     "ts-jest": "^25.4.0",
     "ts-loader": "^6.2.2",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.7",
     "url-loader": "^4.1.0",
     "vatrates": "^2.0.2",
     "webpack": "^4.44.2",
