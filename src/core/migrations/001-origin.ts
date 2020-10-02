@@ -52,7 +52,6 @@ export async function up(knex: Knex): Promise<any> {
         t.text('taxCode')
         t.integer('parentId').index().defaultTo(0)
         t.integer('useGross').defaultTo(0)
-        t.integer('grossAmount')
         t.text('updatedAt')
         t.text('createdAt')
     })

@@ -31,6 +31,7 @@ export type FormData = {
         eId?: number
         accountId: number
         amount: string
+        _amount?: number        // Needed for calculation. Not a form element
         currency: string
         useGross: number
         grossAmount: string
@@ -41,6 +42,7 @@ export type FormData = {
             tag: string
             rate: string
             amount: string
+            _amount?: number        // Needed for calculation. Not a form element
         }[]
     }[]
     submit?: string    // Only for displaying general submit error messages
@@ -500,9 +502,10 @@ export function extractFormValues(t: Transaction): FormData {
                         eId: e.id,
                         accountId: e.accountId!,
                         amount: toFormatted(e.amount!, e.currency!),
+                        _amount: e.amount!,
                         currency: e.currency!,
                         useGross: e.useGross!,
-                        grossAmount: toFormatted(e.grossAmount!, e.currency!),
+                        grossAmount: '',
                         description: e.description,
                         taxes: [],
                     })
@@ -525,6 +528,7 @@ export function extractFormValues(t: Transaction): FormData {
                         tag: e.taxCode ? info.tag : '',
                         rate: e.taxCode ? info.rate : '',
                         amount: toFormatted(e.amount!, e.currency!),
+                        _amount: e.amount!,
                     })
 
                     orphan = false
@@ -537,12 +541,22 @@ export function extractFormValues(t: Transaction): FormData {
                     eId: e.id,
                     accountId: e.accountId!,
                     amount: toFormatted(e.amount!, e.currency!),
+                    _amount: e.amount!,
                     currency: e.currency!,
                     useGross: e.useGross!,
-                    grossAmount: toFormatted(e.grossAmount!, e.currency!),
+                    grossAmount: '',
                     description: e.description,
                 })
             }
+        }
+
+        // Now calculate grossAmount
+        for (let e of values.elements) {
+            let amount = e._amount!
+            for (let t of e.taxes!) {
+                amount += t._amount!
+            }
+            e.grossAmount = toFormatted(amount, e.currency)
         }
     }
 
@@ -630,7 +644,6 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
             amount: parseFormatted(e0.amount, data.elements[0].currency),
             currency: data.elements[0].currency,
             useGross: e0.useGross,
-            grossAmount: parseFormatted(e0.grossAmount, data.elements[0].currency),
             description: e0.description,
             settleId: 0,
             taxCode: '',
@@ -656,7 +669,6 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                     amount: parseFormatted(sub.amount, data.elements[0].currency),
                     currency: data.elements[0].currency,
                     useGross: 0,
-                    grossAmount: 0,
                     description: '',
                     settleId: 0,
                     taxCode,
@@ -675,7 +687,6 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
             amount: money.amount,
             currency: money.currency,
             useGross: 0,
-            grossAmount: 0,
             description: '',
             settleId: 0,
             taxCode: '',
