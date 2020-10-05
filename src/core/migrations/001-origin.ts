@@ -38,6 +38,7 @@ export async function up(knex: Knex): Promise<any> {
         t.integer('actorId').index().defaultTo(0)
         t.text('updatedAt')
         t.text('createdAt')
+        // t.text('due')    // 003-add-txn-due
     })
 
     await knex.schema.createTable('txn_element', t => {

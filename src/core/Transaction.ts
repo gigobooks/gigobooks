@@ -58,6 +58,7 @@ export class Transaction extends Base {
     type?: TransactionType
     // Date is stored as a ten character string ie. '2020-01-01' 
     date?: string
+    due?: string
     actorId?: number
     elements?: TElement[]
 

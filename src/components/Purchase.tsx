@@ -25,6 +25,7 @@ export type FormData = {
     actorId: number
     actorTitle?: string
     date: Date
+    due?: Date | ''
     description?: string
     elements: {
         // `.id` is used by the form system so we have eId to store 'our' id
@@ -60,6 +61,7 @@ export default function Purchase(props: Props) {
     let action = ''
 
     const form = useForm<FormData>()
+    const type = form.watch('type')
     const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
 
     function clearForm() {
@@ -232,7 +234,24 @@ export default function Purchase(props: Props) {
                             {form.errors.date.message}
                         </span>}
                     </td>
-                </tr><tr className='row row-description'>
+                </tr>{type == TransactionType.Bill && <tr className='row row-due'>
+                    <th scope='row'>
+                        <label htmlFor='due'>Due date:</label>
+                    </th><td>
+                        <Controller
+                            // No-op for DatePicker.onChange()
+                            as={<DatePicker dateFormat={dfs()} onChange={() => {}} />}
+                            control={form.control}
+                            register={form.register()}
+                            name='due'
+                            valueName='selected'
+                            onChange={([selected]) => selected}
+                        />
+                        {form.errors.due && <span className='error'>
+                            {form.errors.due.message}
+                        </span>}
+                    </td>
+                </tr>}<tr className='row row-description'>
                     <th scope='row'>
                         <label htmlFor='description'>Description:</label>
                     </th><td>
@@ -492,6 +511,7 @@ export function extractFormValues(t: Transaction): FormData {
     const values: FormData = {
         type: t.type!,
         date: parseISO(t.date!),
+        due: t.due ? parseISO(t.due) : undefined,
         description: t.description,
         actorId: t.actorId!,
         actorTitle: '',
@@ -636,6 +656,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
         description: data.description,
         type: data.type,
         date: toDateOnly(data.date),
+        due: data.due ? toDateOnly(data.due) : '',
         actorId: data.actorId,
     })
 
