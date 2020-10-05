@@ -45,7 +45,7 @@
     "jest": "^25.5.4",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
-    "source-map-loader": "^0.2.4",
+    "source-map-loader": "^1.1.0",
     "sqlite3": "^4.1.1",
     "style-loader": "^1.1.4",
     "ts-jest": "^25.4.0",
