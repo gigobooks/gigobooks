@@ -73,13 +73,12 @@ export default function AccountDetail(props: Props) {
     }
     else if (account) {
         return <div>
-            <h1>
-                <span className='breadcrumb'>
-                    <Link to='/accounts'>Accounts</Link> » </span>
-                <span className='title'>
+            <div className='title-pane'>
+                <span className='breadcrumb'><Link to='/accounts'>Accounts</Link> » </span>
+                <h1 className='title inline'>
                     {account.id ? `Account ${account.id}` : 'New account'}
-                </span>
-            </h1>
+                </h1>
+            </div>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <table className='horizontal-table-form'><tbody><tr className='row row-title'>
                     <th scope='row'>

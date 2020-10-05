@@ -148,7 +148,7 @@ export function TaxReportGST() {
     }, [info && nonce ? nonce : 0, registration, summary])
 
     return <div>
-        <h1><span className='title'>GST101A helper</span></h1>
+        <h1 className='title'>GST101A helper</h1>
         <table className='horizontal-table-form'><tbody><tr className='row row-summary'>
             <th scope='row'>
                 <label htmlFor='summary'>Summary:</label>

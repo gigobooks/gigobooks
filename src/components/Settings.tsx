@@ -45,11 +45,7 @@ export default function Settings() {
     }
 
     return <div>
-        <h1>
-            <span className='title'>
-                Settings
-            </span>
-        </h1>
+        <h1 className='title'>Settings</h1>
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <table className='horizontal-table-form'><tbody><tr className='row row-title'>
                 <th scope='row'>

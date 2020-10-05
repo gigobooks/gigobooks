@@ -175,7 +175,7 @@ function TransactionTable({types, typesFilter, viewRaw = false, actorHeading = '
 
 export function TransactionOverview() {
     return <div>
-        <h1><span className='title'>Journal of transactions</span></h1>
+        <h1 className='title'>Journal of transactions</h1>
         <TransactionTable
             types={[]}
             viewRaw={true}
@@ -204,7 +204,7 @@ function paymentsFilterProcess(q: QueryBuilder<any>, f:Filter) {
 
 export function SalesOverview() {
     return <div>
-        <h1><span className='title'>List of sales</span></h1>
+        <h1 className='title'>List of sales</h1>
         <TransactionTable
             types={[Transaction.Sale, Transaction.Invoice]}
             actorHeading='Customer'
@@ -219,7 +219,7 @@ export function SalesOverview() {
 
 export function PurchasesOverview() {
     return <div>
-        <h1><span className='title'>List of purchases</span></h1>
+        <h1 className='title'>List of purchases</h1>
         <TransactionTable
             types={[Transaction.Purchase, Transaction.Bill]}
             actorHeading='Supplier'

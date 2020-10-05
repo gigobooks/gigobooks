@@ -7,11 +7,7 @@ import { APP_NAME, Project } from '../core'
 
 export default function About() {
     return <div>
-        <h1>
-            <span className='title'>
-                {APP_NAME}
-            </span>
-        </h1>
+        <h1 className='title'>{APP_NAME}</h1>
         <div>
             <ul><li>
                 <label>Version:</label> not-yet-released

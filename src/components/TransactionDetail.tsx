@@ -116,13 +116,12 @@ export default function TransactionDetail(props: Props) {
     }
     else if (transaction && accountOptions && actorOptions) {
         return <div>
-            <h1>
-                <span className='breadcrumb'>
-                    <Link to='/transactions'>Journal</Link> » </span>
-                <span className='title'>
+            <div className='title-pane'>
+                <span className='breadcrumb'><Link to='/transactions'>Journal</Link> » </span>
+                <h1 className='title inline'>
                     {transaction.id ? `Raw journal entry ${transaction.id}` : 'New raw journal entry'}
-                </span>
-            </h1>
+                </h1>
+            </div>
             <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
                 <table className='horizontal-table-form transaction-fields'><tbody>{!!transaction.id && <tr className='row row-type'>
                     <th scope='row'>

@@ -45,11 +45,7 @@ export default function AccountOverview() {
     }, [])
 
     return <div>
-        <h1>
-            <span className='title'>
-                List of accounts
-            </span>
-        </h1>
+        <h1 className='title'>List of accounts</h1>
         <ReactTable className='data-table' {...{columns, data, fetchData, pageCount, initialState}} />
     </div>
 }

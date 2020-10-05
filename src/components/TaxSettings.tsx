@@ -51,13 +51,12 @@ export default function SettingsTax({refreshApp}: {refreshApp: () => void}) {
     }
 
     return <div>
-        <h1>
-            <span className='breadcrumb'>
-                <Link to='/settings'>Settings</Link> » </span>
-            <span className='title'>
+        <div className='title-pane'>
+            <span className='breadcrumb'><Link to='/settings'>Settings</Link> » </span>
+            <h1 className='title inline'>
                 Tax Settings
-            </span>
-        </h1>
+            </h1>
+        </div>
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <table className='horizontal-table-form'><tbody><tr className='row row-tax-authority'>
                 <th scope='row'>

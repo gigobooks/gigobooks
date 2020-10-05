@@ -84,13 +84,12 @@ export default function ActorDetail(props: Props) {
     }
     else if (actor) {
         return <div>
-            <h1>
-                <span className='breadcrumb'>
-                    <Link to='/actors'>Customers and Suppliers</Link> » </span>
-                <span className='title'>
+            <div className='title-pane'>
+                <span className='breadcrumb'><Link to='/actors'>Customers and Suppliers</Link> » </span>
+                <h1 className='title inline'>
                     {actor.id ? actor.title : `New ${isCustomer ? 'customer' : 'supplier'}`}
-                </span>
-            </h1>
+                </h1>
+            </div>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <table className='horizontal-table-form'><tbody><tr className='row row-title'>
                     <th scope='row'>

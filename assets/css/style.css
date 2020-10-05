@@ -13,11 +13,14 @@ body {
 a { text-decoration: none; color: darkblue; }
 a:hover { text-decoration: underline; }
 
-h1, h2 { font-size: 1.5em; color: #222; }
+h1, h2 { font-size: 1.5em; color: #222; margin-top: 0.75em; }
+h1 { margin-bottom: 0.75em; }
+h2 { margin-bottom: 0.25em; }
+h1.inline { display: inline-block; }
 
 .page { padding: 0.5em 0.5em 2em; }
 
-.breadcrumb { font-size: 0.66667em; }
+.breadcrumb { font-weight: bold; }
 
 .error { color: red; }
 

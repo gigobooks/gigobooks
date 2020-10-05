@@ -120,7 +120,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
     }, [summary, info && nonce ? nonce : 0])
 
     return <div>
-        <h1><span className='title'>Profit and Loss: {summary ? 'Summary' : 'Detail'}</span></h1>
+        <h1 className='title'>Profit and Loss: {summary ? 'Summary' : 'Detail'}</h1>
         <table className='horizontal-table-form'><tbody><tr className='row row-date-preset'>
             <th scope='row'>
                 <label htmlFor='preset'>Date:</label>
