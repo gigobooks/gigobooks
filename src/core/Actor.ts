@@ -31,3 +31,5 @@ export class Actor extends Base {
 
     static tableName = 'actor'
 }
+
+export default Actor

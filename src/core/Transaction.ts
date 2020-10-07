@@ -10,6 +10,7 @@ import { orderByField } from '../util/util'
 import { Money } from './currency'
 import { Project } from './Project'
 import Account from './Account'
+import Actor from './Actor'
 
 // Add a `_parent` reference to Element. For internal use
 type TElement = Element & { _parent?: TElement }
@@ -339,6 +340,14 @@ export class Transaction extends Base {
                         .orderBy(['date', 'id'])
                 },
             },
+            actor: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: Actor,
+                join: {
+                    from: 'txn.actorId',
+                    to: 'actor.id'
+                }
+            }
         }
     }
 
