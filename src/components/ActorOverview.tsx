@@ -22,13 +22,21 @@ function RenderType(data: any) {
     return info ? info.label : data.cell.value
 }
 
+function RenderTaxId(data: any) {
+    if (data.cell.value) {
+        const a = data.row.original
+        return <Link to={`/${data.row.values.type}s/${data.cell.row.id}`}>{a.taxIdLabel} {data.cell.value}</Link>
+    }
+    return data.cell.value
+}
+
 export default function ActorOverview() {
     const columns = React.useMemo<Column<Actor>[]>(() => [
         { Header: 'ID', accessor: 'id', disableFilters: false, Cell: LinkToItem },
         { Header: 'Name', accessor: 'title', disableFilters: false, Cell: LinkToItem },
         { Header: 'Type', accessor: 'type', disableFilters: false,
             Filter: SelectFilter, FilterOptions: ActorTypeOptions, Cell: RenderType },
-        { Header: 'Tax id', accessor: 'taxId', Cell: LinkToItem },
+        { Header: 'Tax id', accessor: 'taxId', Cell: RenderTaxId },
     ], [])
     const initialState = React.useMemo(() => ({
         pageIndex: 0, pageSize: 10, sortBy: [{id: 'id', desc: false}],

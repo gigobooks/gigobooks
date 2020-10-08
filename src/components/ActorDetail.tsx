@@ -5,8 +5,10 @@
 import * as React from 'react'
 import { useForm, FormContextValues as FCV } from 'react-hook-form'
 import { Link, Redirect } from 'react-router-dom'
-import { Actor } from '../core'
+import { Project, Actor } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
+
+const taxIdLabelOptions0 = ['ABN', 'GST No.', 'VAT ID']
 
 type Props = {
     arg1?: string
@@ -18,6 +20,8 @@ type FormData = {
     title: string
     type: string
     taxId: string
+    taxIdLabel: string
+    taxIdLabelCustom?: string
     address: string
     submit?: string    // Only for displaying general submit error messages
 }
@@ -33,14 +37,21 @@ export default function ActorDetail(props: Props) {
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
     const [actor, setActor] = React.useState<Actor>()
+    const [taxIdLabelOptions, setTaxIdLabelOptions] = React.useState<string[] | undefined>()
     const [redirectId, setRedirectId] = React.useState<number>(-1)
 
     const form = useForm<FormData>()
+    const taxIdLabel = form.watch('taxIdLabel')
 
     // Initialise a lot of stuff
     React.useEffect(() => {
         // Clear redirectId
         setRedirectId(-1)
+
+        Project.knex('actor').distinct('taxIdLabel').where('taxIdLabel', '<>', "''").then(labels => {
+            const values = [...taxIdLabelOptions0, ...labels.map(i => i.taxIdLabel)]
+            setTaxIdLabelOptions([...new Set(values.sort())])
+        })
 
         // Load object (if exists) and initialise form accordingly
         if (argId > 0) {
@@ -59,7 +70,7 @@ export default function ActorDetail(props: Props) {
                 title: '',
             })
         }
-    }, [props.arg1])
+    }, [props.arg1, actor && actor.id && actor.updatedAt ? actor.updatedAt.toString() : 0])
 
     const onSubmit = async (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -82,7 +93,7 @@ export default function ActorDetail(props: Props) {
     if (redirectId >= 0 && redirectId != argId) {
         return <Redirect to={`/${isCustomer ? 'customer' : 'supplier'}s/${redirectId ? redirectId : 'new'}`} />
     }
-    else if (actor) {
+    else if (actor && taxIdLabelOptions) {
         return <div>
             <div className='title-pane'>
                 <span className='breadcrumb'><Link to='/actors'>Customers and Suppliers</Link> » </span>
@@ -104,7 +115,17 @@ export default function ActorDetail(props: Props) {
                     <th scope='row'>
                         <label htmlFor='taxId'>Tax registration:</label>
                     </th><td>
+                        <select name='taxIdLabel' ref={form.register}>
+                            <option key='' value=''></option>
+                            {taxIdLabelOptions.map(v => <option key={v} value={v}>{v}</option>)}
+                            <option key='custom' value='custom'>{'<custom>'}</option>
+                        </select>
+                        {taxIdLabel == 'custom' && <input name='taxIdLabelCustom' ref={form.register} placeholder='example: VAT ID' />}
+
                         <input name='taxId' ref={form.register} />
+                        {form.errors.taxIdLabel && <span className='error'>
+                            {form.errors.taxIdLabel.message}
+                        </span>}
                         {form.errors.taxId && <span className='error'>
                             {form.errors.taxId.message}
                         </span>}
@@ -146,6 +167,7 @@ function extractFormValues(a: Actor): FormData {
         title: a.title!,
         type: a.type!,
         taxId: a.taxId!,
+        taxIdLabel: a.taxIdLabel!,
         address: a.address!,
     }
 }
@@ -161,6 +183,11 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
 
 // Returns: id of the object that was saved/created, 0 otherwise
 async function saveFormData(actor: Actor, data: FormData): Promise<number> {
+    if (data.taxIdLabel == 'custom') {
+        data.taxIdLabel = data.taxIdLabelCustom!
+    }
+    delete data.taxIdLabelCustom
+
     Object.assign(actor, data)
     await actor.save()
     return actor.id!
