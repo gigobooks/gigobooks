@@ -122,7 +122,7 @@ export default function InvoicePayment(props: Props) {
                             name={`payments[${index}].currency`}
                             defaultValue={item.currency}
                             forwardRef={form.register()}>
-                            {currencySelectOptions(item.currency)}
+                            <option key={item.currency} value={item.currency}>{item.currency}</option>
                         </MaybeSelect>
                         <input
                             name={`payments[${index}].amount`}
