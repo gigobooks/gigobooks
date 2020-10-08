@@ -90,6 +90,11 @@ import { Project } from './Project'
 
 // Since some tax rates have three decimal places, scale up by 1000 before calculating
 const TaxRateScale = 1000
+const TaxTypeLabel: Record<string, string> = {
+    GST: 'GST',
+    VAT: 'VAT',
+    ST: 'Sales Tax'
+}
 
 export const euCountryCodes = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK',
     'EE', 'DE', 'EL', 'FI', 'FR', 'HU', 'IE', 'IT', 'LV', 'LT',
@@ -221,6 +226,14 @@ export class TaxCodeInfo {
 
     get regionName() {
         return regionName(this.authority)
+    }
+
+    get typeLabel() {
+        return TaxTypeLabel[this.type] || this.type
+    }
+
+    get typeAndRateLabel() {
+        return `${this.typeLabel} (${this.rate}%)`
     }
 
     get label() {

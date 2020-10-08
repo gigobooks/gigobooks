@@ -21,6 +21,7 @@ import { TransactionOverview, SalesOverview, PurchasesOverview } from './Transac
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
+import SalePDF from './SalePDF'
 import Purchase from './Purchase'
 import { refreshWindowTitle } from '../util/util'
 import { mruList, mruInsert, mruClear, mruDir } from '../util/mru'
@@ -252,6 +253,9 @@ function Main({refreshApp}: {refreshApp: () => void}) {
         </Route>
         <Route path='/purchases'>
             <PurchasesOverview />
+        </Route>
+        <Route path='/sales/:arg1/pdf'>
+            <DispatchWithParams element={SalePDF} />
         </Route>
         <Route path='/sales/:arg1'>
             <DispatchWithParams element={Sale} />

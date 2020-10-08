@@ -167,6 +167,7 @@ export default function Sale(props: Props) {
                 <h1 className='title inline'>
                     {transaction.id ? `${Transaction.TypeInfo[transaction.type!].label} ${transaction.id}` : 'New sale'}
                 </h1>
+                {transaction.id && <span className='tasks'><Link to={`/sales/${transaction.id}/pdf`}>PDF</Link></span>}
             </div>
             <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
                 <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-type'>
