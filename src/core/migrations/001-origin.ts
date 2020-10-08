@@ -28,6 +28,7 @@ export async function up(knex: Knex): Promise<any> {
         t.text('address')
         t.text('updatedAt')
         t.text('createdAt')
+        // t.text('taxIdLabel')    // 003-add-txn-due-actor-label
     })
 
     await knex.schema.createTable('txn', t => {
@@ -38,7 +39,7 @@ export async function up(knex: Knex): Promise<any> {
         t.integer('actorId').index().defaultTo(0)
         t.text('updatedAt')
         t.text('createdAt')
-        // t.text('due')    // 003-add-txn-due
+        // t.text('due')    // 003-add-txn-due-actor-label
     })
 
     await knex.schema.createTable('txn_element', t => {

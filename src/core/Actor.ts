@@ -26,6 +26,7 @@ export class Actor extends Base {
     id?: number
     title?: string
     type?: ActorType
+    taxIdLabel?: string
     taxId?: string
     address?: string
 
