@@ -8,7 +8,7 @@ import { Link, Redirect } from 'react-router-dom'
 import { Project, Actor } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 
-const taxIdLabelOptions0 = ['ABN', 'GST No.', 'VAT ID']
+const taxIdLabelOptions0 = ['ABN', 'GST', 'VAT ID']
 
 type Props = {
     arg1?: string
@@ -113,7 +113,7 @@ export default function ActorDetail(props: Props) {
                     </td>
                 </tr><tr className='row row-tax-id'>
                     <th scope='row'>
-                        <label htmlFor='taxId'>Tax registration:</label>
+                        <label htmlFor='taxId'>Tax Id:</label>
                     </th><td>
                         <select name='taxIdLabel' ref={form.register}>
                             <option key='' value=''></option>

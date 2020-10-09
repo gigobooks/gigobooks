@@ -135,7 +135,7 @@ export function TaxReportGST() {
     const [error, setError] = React.useState<string>('')
     const [nonce, setNonce] = React.useState<number>(0)
     const accrual: boolean = Project.variables.get('au:accrual')
-    const abn: string = Project.variables.get('au:abn')
+    const taxId: string = Project.variables.get('au:taxId')
 
     function onPresetChange(e: any) {
         const value = e.target.value
@@ -174,8 +174,8 @@ export function TaxReportGST() {
     }, [startDate, endDate, accrual, ...debounce([g7, g15, g18])])
 
     const report = React.useMemo(() => {
-        return info ? renderReport(info, abn, summary) : null
-    }, [info && nonce ? nonce : 0, abn, summary])
+        return info ? renderReport(info, taxId, summary) : null
+    }, [info && nonce ? nonce : 0, taxId, summary])
 
     return <div>
         <h1 className='title'>GST calculation for BAS</h1>
@@ -223,11 +223,11 @@ export function TaxReportGST() {
     </div>
 }
 
-function renderReport(info: ReportInfo, abn: string, summary: boolean) {
+function renderReport(info: ReportInfo, taxId: string, summary: boolean) {
     return <Document><Page size="A4" style={[Styles.page, {fontSize: summary ? 9 : 8}]}>
         <View fixed={true}>
             <ReportHeader startDate={info.startDate} endDate={info.endDate} title={`GST calculation for BAS${summary ? '' : ': Detail'}`}>
-                <T style={{fontSize: 10}}>(ABN {abn}, {info.accrual ? 'accruals' : 'cash'} basis)</T>
+                <T style={{fontSize: 10}}>(ABN {taxId}, {info.accrual ? 'accruals' : 'cash'} basis)</T>
             </ReportHeader>
             {!summary && <Tr key='header' style={{marginBottom: 6}}>
                 <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>

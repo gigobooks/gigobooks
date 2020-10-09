@@ -316,8 +316,8 @@ export class TaxAuthority {
 export class TaxAuthorityAU extends TaxAuthority {
     settings(homeAuthority: string) {
         return {
-            'au:abn': { type: 'text', label: 'ABN' },
-            'au:accrual': { type: 'select', label: 'Accounting method', options: { '': 'Cash', 'accrual': 'Non-cash' } },
+            [`${this.id.toLowerCase()}:taxId`]: { type: 'text', label: 'ABN' },
+            [`${this.id.toLowerCase()}:accrual`]: { type: 'select', label: 'Accounting method', options: { '': 'Cash', 'accrual': 'Non-cash' } },
         }
     }
 
@@ -344,8 +344,8 @@ export class TaxAuthorityAU extends TaxAuthority {
 export class TaxAuthorityNZ extends TaxAuthority {
     settings(homeAuthority: string) {
         return {
-            'nz:registration': { type: 'text', label: 'GST registration number' },
-            'nz:accrual': { type: 'select', label: 'Accounting basis', options: { '': 'Payments basis', 'accrual': 'Invoice basis' } },
+            [`${this.id.toLowerCase()}:taxId`]: { type: 'text', label: 'GST' },
+            [`${this.id.toLowerCase()}:accrual`]: { type: 'select', label: 'Accounting basis', options: { '': 'Payments basis', 'accrual': 'Invoice basis' } },
         }
     }
 
@@ -366,10 +366,10 @@ export class TaxAuthorityEU extends TaxAuthority {
     /*
     settings(homeAuthority: string) {
         const fields: Record<string, TaxSetting> = {}
-        fields[`${this.id}:vatId`] = { type: 'text', label: 'VAT ID' }
+        fields[`${this.id.toLowerCase()}:taxId`] = { type: 'text', label: 'VAT ID' }
 
         if (this.id == 'IE') {
-            fields[`${this.id}:cash`] = { type: 'checkbox', label: 'Cash receipts basis of accounting' }
+            fields[`${this.id.toLowerCase()}:cash`] = { type: 'checkbox', label: 'Cash receipts basis of accounting' }
         }
 
         return fields
