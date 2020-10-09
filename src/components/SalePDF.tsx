@@ -5,8 +5,8 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { Document, Page, View } from '@react-pdf/renderer'
-import { PDFView, Styles, T, B, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
-import { Project, Transaction, TransactionType, Actor,
+import { PDFView, Styles, T, B, Tr, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
+import { CREDITS, Project, Element, Transaction, TransactionType, Actor,
     toFormatted, TaxCodeInfo, formatDateOnly, addSubtractMoney } from '../core'
 import { orderByField } from '../util/util'
 
@@ -53,20 +53,24 @@ type ReportInfo = {
 
     total: number
 
-    /*
-    // payment: number
-    // dueAmount: number
-    */
+    payments: {
+        id: number
+        amount: number
+        currency: string
+    }[]
+    paidAmount: number
+    dueAmount: number
 
-    // 'eu reverse charge'? (near buyer vat number?)
-    // intra-community-supply of goods?
+    euReverseChargeSale?: boolean
+    euCommunityGoods?: boolean
 }
 
 async function reportInfo(id: number) : Promise<ReportInfo> {
     const transaction = await Transaction.query().findById(id)
         .whereIn('type', [Transaction.Sale, Transaction.Invoice])
         .withGraphJoined('actor')
-        .withGraphFetched('elements') as Transaction & { actor: Actor }
+        .withGraphFetched('elements')
+        .withGraphFetched('settledBy') as Transaction & { actor: Actor, settledBy: Element[] }
 
     if (!transaction) {
         return Promise.reject('Not found')
@@ -90,6 +94,9 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
         subTotal: 0,
         taxes: [],
         total: 0,
+        payments: [],
+        paidAmount: 0,
+        dueAmount: 0,
     }
 
     if (transaction.elements && transaction.elements.length > 0) {
@@ -97,8 +104,12 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
 
         const children = []
         for (let e of transaction.elements) {
+            // Only populate credit elements
             if (e.drcr == Transaction.Credit) {
-                // Only populate credit elements
+                if (e.currency != result.currency) {
+                    return Promise.reject(`Must be single currency: ${e.currency}, ${result.currency}`)
+                }
+
                 if (e.parentId == 0) {
                     result.elements.push({
                         id: e.id!,
@@ -134,13 +145,31 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
                     currency: e.currency!,
                 }
 
-                parent.taxes.push(item)
+                let push = true
+                // Some special processing for EU VAT
+                if (info.isEU) {
+                    if (info.variant == 'reverse') {
+                        result.euReverseChargeSale = true
+        
+                        // Reverse charges are omitted (BUT they should also be zero)
+                        if (item.amount == 0) {
+                            push = false
+                        }
+                    }
 
-                const baseCode = info.baseCode
-                if (!brackets[baseCode]) {
-                    brackets[baseCode] = []
+                    if (info.tag == 'eu-goods') {
+                        result.euCommunityGoods = true
+                    }
                 }
-                brackets[baseCode].push(item)
+
+                if (push) {
+                    const baseCode = info.baseCode
+                    if (!brackets[baseCode]) {
+                        brackets[baseCode] = []
+                    }
+                    brackets[baseCode].push(item)
+                    parent.taxes.push(item)
+                }
             }
             else {
                 result.elements.push({
@@ -154,7 +183,7 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
         }
     }
 
-    result.subTotal = addSubtractMoney(result.elements)[0].amount
+    result.subTotal = result.elements.length > 0 ? addSubtractMoney(result.elements)[0].amount : 0
 
     // Process taxes
     Object.keys(brackets).forEach(baseCode => {
@@ -170,6 +199,26 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
         {amount: result.subTotal, currency: result.currency},
         ...result.taxes.map(b => ({amount: b.total, currency: result.currency}))
     ])[0].amount
+
+    if (transaction.settledBy && transaction.settledBy.length > 0) {
+        for (let e of transaction.settledBy) {
+            if (e.currency != result.currency) {
+                return Promise.reject(`Must be single currency: ${e.currency}, ${result.currency}`)
+            }
+
+            result.payments.push({
+                id: e.id!,
+                amount: e.amount!,
+                currency: e.currency!,
+            })
+        }
+    }
+
+    result.paidAmount = result.payments.length > 0 ? addSubtractMoney(result.payments)[0].amount : 0
+    result.dueAmount = addSubtractMoney(
+        [{amount: result.total, currency: result.currency}],
+        [{amount: result.paidAmount, currency: result.currency}],
+    )[0].amount
 
     return result
 }
@@ -206,19 +255,19 @@ export default function SalePrint(props: Props) {
         return info ? renderReport(info) : null
     }, [info && nonce ? nonce : 0])
 
-    if (info) {
+    if (info || error) {
         return <div>
             <div className='title-pane'>
                 <span className='breadcrumb'><Link to='/sales'>
                     Sales
-                </Link> » <Link to={`/sales/${info.id}`}>
-                    {Transaction.TypeInfo[info.type].label} {info.id}
+                </Link> » <Link to={`/sales/${argId}`}>
+                    {info ? Transaction.TypeInfo[info.type].label : 'Sale'} {argId}
                 </Link> » </span>
                 <h1 className='title inline'>Print</h1>
             </div>
 
             {error && <div className='error'>{error}</div>}
-            {report && <PDFView _key={nonce} filename={`invoice-${info.id}.pdf`}>{report}</PDFView>}
+            {info && report && <PDFView _key={nonce} filename={`invoice-${info.id}.pdf`}>{report}</PDFView>}
         </div>
     }
 
@@ -231,6 +280,14 @@ function renderReport(info: ReportInfo) {
         paddingBottom: 3,
         borderStyle: 'solid',
         borderColor: '#e0e0e0',
+    }
+
+    const notes: string[] = []
+    if (info.euReverseChargeSale) {
+        notes.push('EU VAT reverse charged')
+    }
+    if (info.euCommunityGoods) {
+        notes.push('Intra-Community supply of goods')
     }
 
     return <Document><Page size="A4" style={[Styles.page, {fontSize: 10}]}>
@@ -270,7 +327,7 @@ function renderReport(info: ReportInfo) {
             </Tr>}</View>
         </View>
 
-        <Tr style={[rowStyle, {marginTop: 36, borderBottomWidth: 1}]}>
+        <Tr style={[rowStyle, {marginTop: 24, borderBottomWidth: 1}]}>
             <ThLeft width={65}>Description</ThLeft>
             <ThRight width={15}>Tax</ThRight>
             <ThRight width={20}>Amount ({info.currency})</ThRight>
@@ -300,10 +357,39 @@ function renderReport(info: ReportInfo) {
             </Tr>
         </React.Fragment>)}
 
-        <Tr style={{marginTop: 12, marginBottom: 3}}>
+        <Tr style={{marginTop: 12, marginBottom: 3 + 12}}>
             <ThRight width={80}>Total</ThRight>
             <TdRight width={20}>{toFormatted(info.total, info.currency)}</TdRight>
         </Tr>
 
+        {info.paidAmount > 0 && <Tr style={{marginBottom: 3}}>
+            <TdRight width={80}>Previous payments</TdRight>
+            <TdRight width={20}>{toFormatted(info.paidAmount, info.currency)}</TdRight>
+        </Tr>}
+
+        <Tr style={{marginBottom: 3}}>
+            <ThRight width={80}>Amount Due</ThRight>
+            <TdRight width={20}>{toFormatted(info.dueAmount, info.currency)}</TdRight>
+        </Tr>
+
+        {info.dueAmount == 0 && <Tr style={{marginBottom: 3}}>
+            <ThRight width={100}>PAID</ThRight>
+        </Tr>}
+
+        {notes.length > 0 && <View style={{marginTop: 24, marginBottom: 3}}>
+            <B>NOTES</B>
+        </View>}
+        {notes.map((line, index) => <View key={index} style={{marginBottom: 3}}>
+            <T>{line}</T>
+        </View>)}
+
+        {!!CREDITS && <View style={{
+            position: 'absolute',
+            bottom: 56, left: 56, right: 56,
+            borderStyle: 'solid', borderColor: '#333', borderTopWidth: 1,
+            paddingTop: 1,
+        }}>
+            <T style={{fontSize: 8}}>{CREDITS}</T>
+        </View>}
     </Page></Document>
 }

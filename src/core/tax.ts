@@ -128,7 +128,8 @@ export function regionName(code: string) {
 }
 
 export function isEUAuthority(authority: string) {
-    return euCountryCodes.indexOf(authority.substring(0, 2)) >= 0
+    const root = authority.substring(0, 2)
+    return root == 'EU' || euCountryCodes.indexOf(root) >= 0
 }
 
 export class TaxCodeInfo {
@@ -226,6 +227,10 @@ export class TaxCodeInfo {
 
     get regionName() {
         return regionName(this.authority)
+    }
+
+    get isEU() {
+        return isEUAuthority(this.authority)
     }
 
     get typeLabel() {
