@@ -403,23 +403,16 @@ export class TaxAuthorityEU extends TaxAuthority {
         items.push(`${this.id}:VAT:zero:0`)
 
         // reverse charges
-        if (homeAuthority == this.id) {
-            if (isSale) {
-                // reverse charge sale
-                items.push(`${this.id}:VAT:reverse:0`)
-            }
-            else {
-                // reverse charge purchase
-                rates.forEach(s => {
-                    items.push(`${this.id}:VAT;r:${s}`)
-                })
-                items.push(`${this.id}:VAT;r:zero:0`)
-            }
+        if (isSale) {
+            // reverse charge sale
+            items.push(`${this.id}:VAT:reverse:0`)
         }
-        else if (isSale) {
-            // Special case: If the home authority is non-EU but an EU authority
-            // is selected, then include a generic EU reverse charge (for sales)
-            items.push(`EU:VAT:reverse:0`)
+        else if (homeAuthority == this.id) {
+            // reverse charge purchase
+            rates.forEach(s => {
+                items.push(`${this.id}:VAT;r:${s}`)
+            })
+            items.push(`${this.id}:VAT;r:zero:0`)
         }
         return items
     }
@@ -436,7 +429,6 @@ export class TaxAuthorityEU extends TaxAuthority {
 const fallbackTaxAuthority = new TaxAuthority('', '', false)
 
 export const taxAuthorities: Record<string, TaxAuthority> = {
-    'EU': new TaxAuthorityEU('EU', '', false),      // For definitions only
     'AT': new TaxAuthorityEU('AT', 'Federal Ministry of Finance'),
     'AU': new TaxAuthorityAU('AU', 'Australian Tax Office', true),
     'BE': new TaxAuthorityEU('BE', 'Ministry of Finance'),
