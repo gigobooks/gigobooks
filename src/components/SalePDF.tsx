@@ -29,7 +29,10 @@ type ReportInfo = {
 
     ownTitle: string
     ownAddress: string
-    // ownTaxIds: [] ??
+    ownTaxIds: {
+        label: string
+        taxId: string
+    }[]
 
     date: string
     due?: string
@@ -77,6 +80,7 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
     }
 
     const brackets: Record<string, TaxItem[]> = {}
+    const taxIds: Record<string, {label: string, taxId: string}> = {}
     const result: ReportInfo = {
         type: transaction.type!,
         id: transaction.id!,
@@ -86,7 +90,7 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
         customerTaxId: transaction.actor.taxId!,
         ownTitle: Project.variables.get('title'),
         ownAddress: Project.variables.get('address'),
-        // ownTaxIds ??
+        ownTaxIds: [],
         date: transaction.date!,
         due: transaction.due,
         currency: '',
@@ -145,6 +149,13 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
                     currency: e.currency!,
                 }
 
+                if (!taxIds[info.authority]) {
+                    taxIds[info.authority] = {
+                        label: info.taxAuthority.taxIdLabel,
+                        taxId: Project.variables.get(info.taxAuthority.taxIdVariableName),
+                    }
+                }
+
                 let push = true
                 // Some special processing for EU VAT
                 if (info.isEU) {
@@ -185,6 +196,14 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
 
     result.subTotal = result.elements.length > 0 ? addSubtractMoney(result.elements)[0].amount : 0
 
+    // Process taxIds
+    Object.keys(taxIds).forEach(k => {
+        if (taxIds[k].taxId) {
+            result.ownTaxIds.push(taxIds[k])
+        }
+    })
+    result.ownTaxIds.sort(orderByField('label'))
+    
     // Process taxes
     Object.keys(brackets).forEach(baseCode => {
         result.taxes.push({
@@ -319,12 +338,15 @@ function renderReport(info: ReportInfo) {
             </Tr>}</View>
 
             <View style={{width: '35%', marginLeft: '15%'}}><Tr style={{marginBottom: 3}}>
-                <ThLeft width={20}>From:</ThLeft>
-                <TdLeft width={80}>{info.ownTitle}</TdLeft>
+                <ThLeft width={30}>From:</ThLeft>
+                <TdLeft width={70}>{info.ownTitle}</TdLeft>
             </Tr>{info.ownAddress && <Tr style={{marginBottom: 3}}>
-                <ThLeft width={20}></ThLeft>
-                <Td width={80}>{info.ownAddress}</Td>
-            </Tr>}</View>
+                <ThLeft width={30}></ThLeft>
+                <Td width={70}>{info.ownAddress}</Td>
+            </Tr>}{info.ownTaxIds.map((a, index) => <Tr key={index} style={{marginBottom: 3}}>
+                <ThLeft width={30}>{a.label}:</ThLeft>
+                <TdLeft width={70}>{a.taxId}</TdLeft>
+            </Tr>)}</View>
         </View>
 
         <Tr style={[rowStyle, {marginTop: 24, borderBottomWidth: 1}]}>

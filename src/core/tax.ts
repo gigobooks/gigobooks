@@ -291,15 +291,16 @@ export class TaxAuthority {
         this.enable = enable
     }
 
-    get regionName() {
-        return regionName(this.id)
-    }
+    get regionName() { return regionName(this.id) }
 
     // These are stubs that should be overridden by subclasses
+    get taxIdLabel() { return 'Tax Id' }
+    get taxIdVariableName() { return `${this.id.toLowerCase()}:taxId` }
     settings(homeAuthority: string): Record<string, TaxSetting> { return {} }
     taxesInfo(): Record<string, TaxInfo> { return {} }
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
     tagOptions(homeAuthority: string, isSale: boolean, info: TaxCodeInfo): Record<string, string> { return {} }
+    // End stubs
 
     taxInfo(info: TaxCodeInfo) {
         let k = info.type
@@ -314,9 +315,10 @@ export class TaxAuthority {
 }
 
 export class TaxAuthorityAU extends TaxAuthority {
+    get taxIdLabel() { return 'ABN' }
     settings(homeAuthority: string) {
         return {
-            [`${this.id.toLowerCase()}:taxId`]: { type: 'text', label: 'ABN' },
+            [this.taxIdVariableName]: { type: 'text', label: this.taxIdLabel },
             [`${this.id.toLowerCase()}:accrual`]: { type: 'select', label: 'Accounting method', options: { '': 'Cash', 'accrual': 'Non-cash' } },
         }
     }
@@ -342,9 +344,10 @@ export class TaxAuthorityAU extends TaxAuthority {
 }
 
 export class TaxAuthorityNZ extends TaxAuthority {
+    get taxIdLabel() { return 'GST' }
     settings(homeAuthority: string) {
         return {
-            [`${this.id.toLowerCase()}:taxId`]: { type: 'text', label: 'GST' },
+            [this.taxIdVariableName]: { type: 'text', label: this.taxIdLabel },
             [`${this.id.toLowerCase()}:accrual`]: { type: 'select', label: 'Accounting basis', options: { '': 'Payments basis', 'accrual': 'Invoice basis' } },
         }
     }
@@ -363,6 +366,7 @@ export class TaxAuthorityNZ extends TaxAuthority {
 }
 
 export class TaxAuthorityEU extends TaxAuthority {
+    get taxIdLabel() { return 'VAT ID' }
     /*
     settings(homeAuthority: string) {
         const fields: Record<string, TaxSetting> = {}
