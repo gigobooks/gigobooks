@@ -72,11 +72,14 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
     const transaction = await Transaction.query().findById(id)
         .whereIn('type', [Transaction.Sale, Transaction.Invoice])
         .withGraphJoined('actor')
-        .withGraphFetched('elements')
-        .withGraphFetched('settledBy') as Transaction & { actor: Actor, settledBy: Element[] }
+        .withGraphFetched('elements') as Transaction & { actor: Actor, settledBy?: Element[] }
 
     if (!transaction) {
         return Promise.reject('Not found')
+    }
+
+    if (transaction.type == Transaction.Invoice) {
+        await transaction.$fetchGraph('settledBy')
     }
 
     const brackets: Record<string, TaxItem[]> = {}
@@ -93,7 +96,7 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
         ownTaxIds: [],
         date: transaction.date!,
         due: transaction.due,
-        currency: '',
+        currency: Project.variables.get('currency'),
         elements: [],
         subTotal: 0,
         taxes: [],
@@ -233,7 +236,10 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
         }
     }
 
-    result.paidAmount = result.payments.length > 0 ? addSubtractMoney(result.payments)[0].amount : 0
+    result.paidAmount = transaction.type == Transaction.Sale ? result.total :
+        // Transaction.Invoice
+        result.payments.length > 0 ? addSubtractMoney(result.payments)[0].amount : 0
+
     result.dueAmount = addSubtractMoney(
         [{amount: result.total, currency: result.currency}],
         [{amount: result.paidAmount, currency: result.currency}],
@@ -318,10 +324,10 @@ function renderReport(info: ReportInfo) {
             <View style={{width: '50%'}}><Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}>To:</ThLeft>
                 <TdLeft width={70}>{info.customerTitle}</TdLeft>
-            </Tr>{info.customerAddress && <Tr style={{marginBottom: 3}}>
+            </Tr>{!!info.customerAddress && <Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}></ThLeft>
                 <Td width={70}>{info.customerAddress}</Td>
-            </Tr>}{info.customerTaxId && <Tr style={{marginBottom: 3}}>
+            </Tr>}{!!info.customerTaxId && <Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}>{info.customerTaxIdLabel}:</ThLeft>
                 <Td width={70}>{info.customerTaxId}</Td>
             </Tr>}<Tr style={{marginBottom: 3}}>
@@ -332,7 +338,7 @@ function renderReport(info: ReportInfo) {
             </Tr><Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}>Issue Date:</ThLeft>
                 <Td width={70}>{formatDateOnly(info.date)}</Td>
-            </Tr>{info.due && <Tr style={{marginBottom: 3}}>
+            </Tr>{!!info.due && <Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}>Due Date:</ThLeft>
                 <Td width={70}>{formatDateOnly(info.due)}</Td>
             </Tr>}</View>
@@ -340,7 +346,7 @@ function renderReport(info: ReportInfo) {
             <View style={{width: '35%', marginLeft: '15%'}}><Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}>From:</ThLeft>
                 <TdLeft width={70}>{info.ownTitle}</TdLeft>
-            </Tr>{info.ownAddress && <Tr style={{marginBottom: 3}}>
+            </Tr>{!!info.ownAddress && <Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}></ThLeft>
                 <Td width={70}>{info.ownAddress}</Td>
             </Tr>}{info.ownTaxIds.map((a, index) => <Tr key={index} style={{marginBottom: 3}}>
@@ -384,15 +390,15 @@ function renderReport(info: ReportInfo) {
             <TdRight width={20}>{toFormatted(info.total, info.currency)}</TdRight>
         </Tr>
 
-        {info.paidAmount > 0 && <Tr style={{marginBottom: 3}}>
+        {info.type == Transaction.Invoice && info.paidAmount > 0 && <Tr style={{marginBottom: 3}}>
             <TdRight width={80}>Previous payments</TdRight>
             <TdRight width={20}>{toFormatted(info.paidAmount, info.currency)}</TdRight>
         </Tr>}
 
-        <Tr style={{marginBottom: 3}}>
+        {info.type == Transaction.Invoice && <Tr style={{marginBottom: 3}}>
             <ThRight width={80}>Amount Due</ThRight>
             <TdRight width={20}>{toFormatted(info.dueAmount, info.currency)}</TdRight>
-        </Tr>
+        </Tr>}
 
         {info.dueAmount == 0 && <Tr style={{marginBottom: 3}}>
             <ThRight width={100}>PAID</ThRight>
