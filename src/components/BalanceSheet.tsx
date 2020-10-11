@@ -170,9 +170,9 @@ function SubdivisionLog({label, subdivision, drcr}: {label: string | false, subd
                 const amount = drcr == item.drcr ? item.amount : -item.amount
                 return <Tr key={item.id}>
                     <TdLeft width={14} indent={4}>
-                        {item.txnType && Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}
+                        {!!item.txnType && Transaction.TypeInfo[item.txnType].shortLabel} {item.txnId}
                     </TdLeft>
-                    <Td width={11} innerStyle={{marginRight: 6, textAlign: 'right'}}>{item.txnDate && formatDateOnly(item.txnDate)}</Td>
+                    <Td width={11} innerStyle={{marginRight: 6, textAlign: 'right'}}>{!!item.txnDate && formatDateOnly(item.txnDate)}</Td>
                     <TdLeft width={17} innerStyle={{maxLines: 1}}>{item.actorTitle}</TdLeft>
                     <Td width={20} innerStyle={{maxLines: 2}}>{
                         !item.txnDescription ? item.description :
