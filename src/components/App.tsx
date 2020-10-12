@@ -45,6 +45,14 @@ function App() {
         setMru(mruList())
     }
 
+    function beforeUnloadListener(e: BeforeUnloadEvent) {
+        if (Project.isOpen() && Project.project!.isModified) {
+            e.preventDefault()
+            e.returnValue = 'You have unsaved changes'
+            return e.returnValue
+        }
+    }
+    
     // Logs both handled and unhandled rejections
     function rejectionLogger(e: PromiseRejectionEvent) {
         setError(error => `${error}\n${e.reason}`)
@@ -59,11 +67,13 @@ function App() {
         newHistorySegment()
         refresh()
 
+        window.addEventListener('beforeunload', beforeUnloadListener)
         window.addEventListener('rejectionhandled', rejectionLogger)
         window.addEventListener('unhandledrejection', rejectionLogger)
         window.addEventListener('popstate', popStateListener)
 
         return () => {
+            window.removeEventListener('beforeunload', beforeUnloadListener)
             window.removeEventListener('rejectionhandled', rejectionLogger)
             window.removeEventListener('unhandledrejection', rejectionLogger)
             window.removeEventListener('popstate', popStateListener)
