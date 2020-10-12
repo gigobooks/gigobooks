@@ -23,6 +23,7 @@
     "react": "^16.13.1",
     "react-datepicker": "^2.14.1",
     "react-dom": "^16.13.1",
+    "react-error-boundary": "^3.0.2",
     "react-hook-form": "^5.5.1",
     "react-router-dom": "^5.1.2",
     "react-table": "^7.5.1",
