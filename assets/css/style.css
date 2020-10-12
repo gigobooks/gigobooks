@@ -27,7 +27,7 @@ h1.inline { display: inline-block; }
 .tasks:after { content: ' ]'; }
 
 .error { color: red; }
-
+.page > .error { margin-top: 1em; margin-bottom: 1em; }
 
 /***********************************************************
 * rc-menu                                                  *

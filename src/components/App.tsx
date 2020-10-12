@@ -5,6 +5,7 @@
 import * as React from 'react'
 import Menu, { MenuItem, SubMenu, Divider } from 'rc-menu'
 import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom'
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary'
 import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
 import fileMenu from './FileMenu'
@@ -34,6 +35,8 @@ function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
     const [hasFilename, setHasFilename] = React.useState<boolean>(false)
     const [mru, setMru] = React.useState<string[]>(mruList())
+    const [error, setError] = React.useState<string>('')
+    const [componentStack, setComponentStack] = React.useState<string>('')
 
     function refresh() {
         refreshWindowTitle()
@@ -42,9 +45,29 @@ function App() {
         setMru(mruList())
     }
 
+    // Logs both handled and unhandled rejections
+    function rejectionLogger(e: PromiseRejectionEvent) {
+        setError(error => `${error}\n${e.reason}`)
+    }
+
+    // Auto-reset error if the path changes
+    function popStateListener() {
+        setError('')
+    }
+
     React.useEffect(() => {
         newHistorySegment()
         refresh()
+
+        window.addEventListener('rejectionhandled', rejectionLogger)
+        window.addEventListener('unhandledrejection', rejectionLogger)
+        window.addEventListener('popstate', popStateListener)
+
+        return () => {
+            window.removeEventListener('rejectionhandled', rejectionLogger)
+            window.removeEventListener('unhandledrejection', rejectionLogger)
+            window.removeEventListener('popstate', popStateListener)
+        }
     }, [])
 
     return <HashRouter>
@@ -52,9 +75,41 @@ function App() {
         <div className='page'>
             {<Preamble />}
             {open && <NavBar />}
-            {open ? <Main refreshApp={refresh} /> : <About />}
+
+            {error && <div className='error'>{error}</div>}
+            <ErrorBoundary
+                onError={(error: Error, info: { componentStack: string }) => {
+                    setComponentStack(info.componentStack)
+                }}
+                fallbackRender={(props: FallbackProps) => {
+                    return <ErrorFallback stack={componentStack} {...props} />
+                }}
+            >
+                {open ? <Main refreshApp={refresh} /> : <About />}
+            </ErrorBoundary>
         </div>
     </HashRouter>
+}
+
+function ErrorFallback({error, resetErrorBoundary, stack}: FallbackProps & {stack?: string}) {
+    // Auto-reset ErrorBoundary if the path changes
+    function popStateListener() {
+        if (resetErrorBoundary) {
+            resetErrorBoundary()
+        }
+    }
+
+    React.useEffect(() => {
+        window.addEventListener('popstate', popStateListener)
+        return () => {
+            window.removeEventListener('popstate', popStateListener)
+        }
+    }, [])
+
+    return <div className='error'>
+        {error!.toString()}
+        {stack && <pre>{stack}</pre>}
+    </div>
 }
 
 async function action(op: string, extra?: string): Promise<string | undefined> {

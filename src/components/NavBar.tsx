@@ -21,7 +21,10 @@ export function NavBar() {
     }
 
     React.useEffect(() => {
-        window.onpopstate = popStateListener
+        window.addEventListener('popstate', popStateListener)
+        return () => {
+            window.removeEventListener('popstate', popStateListener)
+        }
     }, [])
 
     return <div>
