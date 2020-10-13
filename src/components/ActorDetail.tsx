@@ -48,7 +48,7 @@ export default function ActorDetail(props: Props) {
         // Clear redirectId
         setRedirectId(-1)
 
-        Project.knex('actor').distinct('taxIdLabel').where('taxIdLabel', '<>', "''").then(labels => {
+        Project.knex('actor').distinct('taxIdLabel').where('taxIdLabel', '<>', '').then(labels => {
             const values = [...taxIdLabelOptions0, ...labels.map(i => i.taxIdLabel)]
             setTaxIdLabelOptions([...new Set(values.sort())])
         })
