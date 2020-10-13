@@ -52,7 +52,7 @@
     "ts-jest": "^25.4.0",
     "ts-loader": "^8.0.5",
     "typescript": "^3.9.7",
-    "url-loader": "^4.1.0",
+    "url-loader": "^4.1.1",
     "vatrates": "^2.0.2",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.11",
