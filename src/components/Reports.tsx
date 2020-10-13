@@ -29,7 +29,7 @@ export function DateRange(props: DateRangeSelectProps) {
             <DatePicker
                 name='startDate'
                 selected={parsedStartDate}
-                onChange={date => {
+                onChange={(date: Date) => {
                     const dateOnly = date ? toDateOnly(date) : ''
                     if (props.onChange) {
                         props.onChange(dateOnly, endDate)
@@ -45,7 +45,7 @@ export function DateRange(props: DateRangeSelectProps) {
             <DatePicker
                 name='endDate'
                 selected={parsedEndDate}
-                onChange={date => {
+                onChange={(date: Date) => {
                     const dateOnly = date ? toDateOnly(date) : ''
                     if (props.onChange) {
                         props.onChange(startDate, dateOnly)

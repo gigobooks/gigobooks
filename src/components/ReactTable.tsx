@@ -188,7 +188,7 @@ export function DateRangeFilter(table: {column: {filterValue: string, setFilter:
         <div>
             <DatePicker
                 selected={parsedStartDate}
-                onChange={date => {
+                onChange={(date: Date) => {
                     const dateOnly = date ? toDateOnly(date) : ''
                     setStartDate(dateOnly)
                     table.column.setFilter([dateOnly, endDate])
@@ -203,7 +203,7 @@ export function DateRangeFilter(table: {column: {filterValue: string, setFilter:
         </div><div>
             <DatePicker
                 selected={parsedEndDate}
-                onChange={date => {
+                onChange={(date: Date) => {
                     const dateOnly = date ? toDateOnly(date) : ''
                     setEndDate(dateOnly)
                     table.column.setFilter([startDate, dateOnly])
