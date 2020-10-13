@@ -152,23 +152,14 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
                     currency: e.currency!,
                 }
 
-                if (!taxIds[info.authority]) {
-                    taxIds[info.authority] = {
-                        label: info.taxAuthority.taxIdLabel,
-                        taxId: Project.variables.get(info.taxAuthority.taxIdVariableName),
-                    }
-                }
+                let showLine = (info.rate && info.rate != '0') || item.amount != 0
+                let showTaxId = showLine
 
-                let push = true
                 // Some special processing for EU VAT
                 if (info.isEU) {
                     if (info.variant == 'reverse') {
                         result.euReverseChargeSale = true
-        
-                        // Reverse charges are omitted (BUT they should also be zero)
-                        if (item.amount == 0) {
-                            push = false
-                        }
+                        showTaxId = true
                     }
 
                     if (info.tag == 'eu-goods') {
@@ -176,7 +167,7 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
                     }
                 }
 
-                if (push) {
+                if (showLine) {
                     const baseCode = info.baseCode
                     if (!brackets[baseCode]) {
                         brackets[baseCode] = []
@@ -184,8 +175,16 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
                     brackets[baseCode].push(item)
                     parent.taxes.push(item)
                 }
+
+                if (showTaxId && !taxIds[info.authority]) {
+                    taxIds[info.authority] = {
+                        label: info.taxAuthority.taxIdLabel,
+                        taxId: Project.variables.get(info.taxAuthority.taxIdVariableName),
+                    }
+                }
             }
             else {
+                // Promote to parent
                 result.elements.push({
                     id: e.id!,
                     amount: e.amount!,
