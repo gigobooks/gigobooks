@@ -33,6 +33,13 @@ module.exports = (env, argv) => {
           use: ['url-loader'],
         },
         {
+          test: /\.(db)$/i,
+          loader: 'file-loader',
+          options: {
+            name: '[path][name].[ext]',
+          },      
+        },
+        {
           test: /\.worker\.(.*)js$/,
           use: { loader: "worker-loader", options: { inline: true } },
         },
