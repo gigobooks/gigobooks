@@ -42,7 +42,7 @@
     "@types/react-table": "^7.0.24",
     "@types/webpack-env": "^1.15.3",
     "copy-webpack-plugin": "^6.0.3",
-    "css-loader": "^4.3.0",
+    "css-loader": "^5.0.0",
     "husky": "^4.3.0",
     "jest": "^25.5.4",
     "patch-package": "^6.2.2",
