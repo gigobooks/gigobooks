@@ -13,7 +13,7 @@
   "license": "Proprietary",
   "private": true,
   "dependencies": {
-    "@react-pdf/renderer": "^1.6.10",
+    "@react-pdf/renderer": "^1.6.11",
     "currency-codes": "^2.1.0",
     "file-loader": "^6.1.1",
     "iso-3166-2": "^1.0.0",
