@@ -78,7 +78,7 @@ export class Project {
         }
     }
 
-    static async open(filename: string): Promise<void> {        
+    static async open(filename: string): Promise<void> {
         const srcDb = new gosqlite.Database(`file:${filename}?mode=ro`)
         await srcDb.open()
         try {

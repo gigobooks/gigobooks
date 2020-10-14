@@ -6,16 +6,16 @@ class WebpackMigrationSource {
     constructor(migrationContext) {
         this.migrationContext = migrationContext;
     }
-  
+
     getMigrations() {
         // Omit the './' prefix
         return Promise.resolve(this.migrationContext.keys().map(s => s.substring(2)).sort())
     }
-  
+
     getMigrationName(migration) {
         return migration
     }
-  
+
     getMigration(migration) {
         return this.migrationContext('./' + migration)
     }

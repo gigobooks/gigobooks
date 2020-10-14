@@ -60,7 +60,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
             {info.hasOperations ? <DivisionSummary
                 label='Ordinary revenue / expense'
                 netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
-                division={info.operations} 
+                division={info.operations}
             /> : <>
                 <Tr key='label' style={{marginBottom: 3}}><Th width={60}>Ordinary revenue / expense</Th></Tr>
                 <Tr key='none'><Td indent={2} width={58}>No items</Td></Tr>
@@ -69,14 +69,14 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
             {info.hasDepreciation && <DivisionSummary
                 label='Depreciation and amortisation'
                 netLabel='Net depreciation and amortisation'
-                division={info.depreciation} 
+                division={info.depreciation}
             />}
             <Totals key='ebit' totals={info.ebit} width={60} label='Earnings before interest and tax (EBIT)' />
 
             {info.hasInterestTax && <DivisionSummary
                 label='Interest and tax'
                 netLabel='Net interest and tax'
-                division={info.interestTax} 
+                division={info.interestTax}
             />}
             <Totals key='netProfit' totals={info.netProfit} width={60} label='Net profit' />
             <ExchangeRates rates={info.exchangeRates} />
@@ -96,7 +96,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
             {info.hasOperations ? <DivisionDetail
                 label='Ordinary revenue / expense'
                 netLabel='Earnings before interest, tax, depreciation and amortisation (EBITDA)'
-                division={info.operations} 
+                division={info.operations}
             /> : <>
                 <Tr key='label' style={{marginBottom: 3}}><Th width={100}>Ordinary revenue / expense</Th></Tr>
                 <Tr key='none'><Td indent={2} width={98}>No items</Td></Tr>
@@ -105,14 +105,14 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
             {info.hasDepreciation && <DivisionDetail
                 label='Depreciation and amortisation'
                 netLabel='Net depreciation and amortisation'
-                division={info.depreciation} 
+                division={info.depreciation}
             />}
             <Totals key='ebit' totals={info.ebit} label='Earnings before interest and tax (EBIT)' />
 
             {info.hasInterestTax && <DivisionDetail
                 label='Interest and tax'
                 netLabel='Net interest and tax'
-                division={info.interestTax} 
+                division={info.interestTax}
             />}
             <Totals key='netProfit' totals={info.netProfit} label='Net profit' />
             <ExchangeRates rates={info.exchangeRates} />
@@ -156,7 +156,7 @@ type DivisionProps = {
 function DivisionDetail({label, netLabel, division}: DivisionProps) {
     return <>
         <Tr key='label' style={{marginBottom: 3}}><Th width={100}>{label}</Th></Tr>
- 
+
         {division.revenues.groups.length > 0 && <Tr key='revenue' style={{marginBottom: 3}}><Th indent={2} width={98}>Revenue</Th></Tr>}
         {division.revenues.groups.map(group => <React.Fragment key={`group-${group.accountId}`}>
             <Tr key='group-title' style={{marginBottom: 3}}><Th indent={4} width={96}>{group.accountTitle}</Th></Tr>
@@ -308,7 +308,7 @@ function Totals({label, totals, width = 100}: TotalsProps) {
 function DivisionSummary({label, netLabel, division}: DivisionProps) {
     return <>
         <Tr key='label' style={{marginBottom: 3}}><Th width={60}>{label}</Th></Tr>
- 
+
         {division.revenues.groups.length > 0 && <Tr key='revenue' style={{marginBottom: 3}}><Th indent={2} width={58}>Revenue</Th></Tr>}
         {division.revenues.groups.map(group => <React.Fragment key={`group-${group.accountId}`}>
             {group.totals.map((money, index) => {

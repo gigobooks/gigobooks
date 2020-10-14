@@ -24,7 +24,7 @@ The first part, `type`, is one of the following: `GST`, `VAT`, `ST` (sales tax) 
 
 `flags-and-tags` is a (semi-colon delimited) list of strings. Single character strings are flags and four-or-more character strings are tags. (Two or three character strings are reserved.)
 
-To ensure a consistent canonical representation, the strings in `flags-and-tags`  are ordered as followed: 
+To ensure a consistent canonical representation, the strings in `flags-and-tags`  are ordered as followed:
 
 * Single character strings first (in lexicographical order), then
 * Multiple characters strings last (in lexicographical order)
@@ -113,7 +113,7 @@ export function regionName(code: string) {
         parts[0] = 'GR'
     }
     else if (parts[0] == 'UK') {
-        parts[0] = 'GB'        
+        parts[0] = 'GB'
     }
 
     if (parts.length == 1 || parts[1] == '') {
@@ -284,7 +284,7 @@ export class TaxAuthority {
     readonly id: string
     readonly title: string
     readonly enable: boolean
-    
+
     constructor(id: string, title: string, enable = false) {
         this.id = id
         this.title = title
@@ -515,8 +515,8 @@ export function taxCodesUS() {
         AL: '4', AZ: '5.6', AR: '6.5', CA: '7.25', CO: '2.9', CT: '6.35',
         FL: '6', GA: '4', HI: '4.166', ID: '6', IL: '6.25', IN: '7',
         IA: '6', KS: '6.5', KY: '6', LA: '4.45', ME: '5.5', MD: '6',
-        MA: '6.25', MI: '6', MN: '6.875', MS: '7', MO: '4.225', NE: '5.5', 
-        NV: '6.85', NJ: '6.625', NM: '5.125', NY: '4', NC: '4.75', ND: '5', 
+        MA: '6.25', MI: '6', MN: '6.875', MS: '7', MO: '4.225', NE: '5.5',
+        NV: '6.85', NJ: '6.625', NM: '5.125', NY: '4', NC: '4.75', ND: '5',
         OH: '5.75', OK: '4.5', PA: '6', RI: '7', SC: '6', SD: '4',
         TN: '7', TX: '6.25', UT: '5.95', VT: '6', VA: '5.3', WA: '6.5',
         WV: '6', WI: '5', WY: '4', DC: '5.75',

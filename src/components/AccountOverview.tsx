@@ -33,7 +33,7 @@ export default function AccountOverview() {
         if (state.filters) {
             state.filters.forEach((f: Filter) => filterQuery(q, f))
         }
-    
+
         q.clone().resultSize().then(total => {
             setPageCount(Math.ceil(total / state.pageSize))
         })

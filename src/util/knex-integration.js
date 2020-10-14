@@ -88,7 +88,7 @@ function makeKnex(filename, preExistingConnection, onChange = undefined) {
             });
         },
         processResponse: function (obj, runner) {
-            // console.log('k-i.js processResponse obj:', obj)            
+            // console.log('k-i.js processResponse obj:', obj)
             let { response } = obj;
 
             // Notify upstream if any rows were changed

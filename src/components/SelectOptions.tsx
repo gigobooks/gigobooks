@@ -44,17 +44,17 @@ export class MaybeSelect extends React.Component<any> {
 
 export function hashSelectOptions(obj: Record<string, string>) {
     return <>
-    {Object.keys(obj).map(k => 
+    {Object.keys(obj).map(k =>
         <option key={k} value={k}>{obj[k]}</option>
-    )}        
+    )}
     </>
 }
 
 export function flatSelectOptions(items: any[]) {
     return <>
-    {items.map(a => 
+    {items.map(a =>
         <option key={a.id} value={a.id}>{a.title}</option>
-    )}        
+    )}
     </>
 }
 
@@ -68,13 +68,13 @@ function groupedSelectOptions(groups: {[key: string]: any[]}, groupInfo: {[key: 
         }
         else {
             return null
-        }        
+        }
     })}
     </>
 }
 
 // Given a list of accounts, constructs a nested list of select options
-export function accountSelectOptions(accounts: Account[], 
+export function accountSelectOptions(accounts: Account[],
     groupInfo: {[key: string]: {label: string}} = Account.TypeGroupInfo) {
     const groups: {[key: string]: Account[]} = {}
     for (let k in groupInfo) {

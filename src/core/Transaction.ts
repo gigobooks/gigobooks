@@ -57,7 +57,7 @@ export class Transaction extends Base {
     id?: number
     description?: string
     type?: TransactionType
-    // Date is stored as a ten character string ie. '2020-01-01' 
+    // Date is stored as a ten character string ie. '2020-01-01'
     date?: string
     due?: string
     actorId?: number
@@ -69,7 +69,7 @@ export class Transaction extends Base {
     //   If id is not supplied, append a new element
     //   If id is supplied, replace an existing element
     //   If id is supplied and an existing element is not found: error
-    // 
+    //
     // If there are any child elements, then there are additional requirements:
     //   Non-child elements are indicated by parentId being false-ish
     //   Child elements are indicated by putting parentId = -1
@@ -118,7 +118,7 @@ export class Transaction extends Base {
                         break
                     }
                 }
-    
+
                 if (!matched) {
                     return Promise.reject(`Id ${e.id} of item ${i} not found.`)
                 }
@@ -198,7 +198,7 @@ export class Transaction extends Base {
     }
 
     // There is no explicit way to removes elements.
-    // To remove an element: 
+    // To remove an element:
     //   o Set amount to zero. Set tax code to an empty string.
     //   o `.save()` to the database
     //   o If the save is succesful, call `.condenseElements()`
@@ -262,7 +262,7 @@ export class Transaction extends Base {
                 // Indicate to any children that their parent has been deleted
                 e.id = 0
             }
-            
+
             // Save parents
             for (let e of parents) {
                 await e.save(trx)
@@ -271,7 +271,7 @@ export class Transaction extends Base {
             // Fill in parentId of children and save
             // However, if the parent has been deleted, then maybe delete the child
             for (let e of children) {
-                // We only care about children which have `._parent`, assigned 
+                // We only care about children which have `._parent`, assigned
                 // either from `.mergeElements()`, or from the deletion of the parent.
                 if (e._parent) {
                     e.parentId = e._parent.id ? e._parent.id : 0
@@ -307,7 +307,7 @@ export class Transaction extends Base {
     settlements() {
         const self = this
         return function (builder: QueryBuilder<Transaction, Transaction[]>) {
-            builder.whereIn('id', 
+            builder.whereIn('id',
                 function (builder: QueryBuilder<Transaction, Transaction[]>) {
                     (builder as any).select('transactionId').from('txnElement').where('settleId', self.id)
             })
@@ -353,7 +353,7 @@ export class Transaction extends Base {
 
     // Helper function to insert an SQL WHERE condition to retrieve unpaid invoices.
     // However, this will also retrieve overpaid invoices too.
-    // Call like this: `.where(Transaction.unpaidInvoices)` 
+    // Call like this: `.where(Transaction.unpaidInvoices)`
     static unpaidInvoices(builder: QueryBuilder<Transaction, Transaction[]>,
                           type = Transaction.Invoice, accountId = Account.Reserved.AccountsReceivable) {
         builder.where('type', type)

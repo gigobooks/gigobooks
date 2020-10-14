@@ -123,7 +123,7 @@ export async function profitAndLoss(startDate: string, endDate: string, currency
                 accountTitle: item.accountTitle,
                 items: [],
                 totals: []
-            }    
+            }
         }
         map[item.accountId].items.push(item)
     }
@@ -136,7 +136,7 @@ export async function profitAndLoss(startDate: string, endDate: string, currency
 
         result.exchangeRates = exchangeRates()
     }
-    
+
     // Allocate items to buckets
     elements.forEach(element => {
         const item: Item = element as any

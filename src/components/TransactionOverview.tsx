@@ -113,7 +113,7 @@ function TransactionTable({types, typesFilter, viewRaw = false, actorHeading = '
             { Header: 'Date', accessor: 'date', disableFilters: false,
                 Filter: DateRangeFilter, Cell: renderDate },
             { Header: 'Description', accessor: 'description', disableFilters: false, Cell: renderDescription },
-            { Header: 'Type', accessor: 'type', disableFilters: !typesFilter, 
+            { Header: 'Type', accessor: 'type', disableFilters: !typesFilter,
                 Filter: typesFilter && typesFilter.filter, FilterOptions: typesFilter && typesFilter.options, Cell: renderType },
             { Header: actorHeading, accessor: 'actorTitle', disableFilters: false, Cell: renderActor },
             { Header: 'Amount', id: 'debit-sum', Cell: renderDebitSum },

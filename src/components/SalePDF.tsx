@@ -131,7 +131,7 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
                 }
             }
         }
-        
+
         // Now populate child elements. Any orphans are promoted.
         for (let e of children) {
             let parent: typeof result.elements[0] | false = false
@@ -205,7 +205,7 @@ async function reportInfo(id: number) : Promise<ReportInfo> {
         }
     })
     result.ownTaxIds.sort(orderByField('label'))
-    
+
     // Process taxes
     Object.keys(brackets).forEach(baseCode => {
         result.taxes.push({

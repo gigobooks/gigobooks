@@ -98,7 +98,7 @@ export async function balanceSheet(startDate: string, endDate: string, currency?
                 openingBalance: [money0],
                 items: [],
                 closingBalance: []
-            }    
+            }
         }
 
         if (item.txnDate < startDate) {

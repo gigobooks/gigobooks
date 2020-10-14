@@ -105,7 +105,7 @@ export default function Purchase(props: Props) {
                 setSupplierOptions(flatSelectOptions(rows))
             }
         })
-        
+
         // Load transaction (if exists) and initialise form accordingly
         if (argId > 0) {
             Transaction.query().findById(argId).whereIn('type', [Transaction.Purchase, Transaction.Bill])
@@ -153,7 +153,7 @@ export default function Purchase(props: Props) {
                     clearForm()
                     if (argId != 0) {
                         setRedirectId(0)
-                    }        
+                    }
                 }
             }
         }).catch(e => {
@@ -343,7 +343,7 @@ function ElementFamily(props: ElementFamilyProps) {
 
     return <tbody className='element-family'>
     <tr className={`element element-${index}`} key={item.id}><td className='account' rowSpan={65534}>
-        {!!item.eId && 
+        {!!item.eId &&
         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
         <select
             name={`elements[${index}].accountId`}
@@ -429,7 +429,7 @@ function ElementFamily(props: ElementFamilyProps) {
 
         return <tr className={`child child-${subIndex}${subIndex == fields.length-1 ? ' child-last' : ''}`} key={subItem.id}>
         <td className='child-tax-code' colSpan={3}>
-            {!!subItem.eId && 
+            {!!subItem.eId &&
             <input
                 type='hidden'
                 name={`elements[${index}].taxes[${subIndex}].eId`}
@@ -619,7 +619,7 @@ export function validateFormData(form: FCV<FormData>, data: FormData) {
 
         if (data.elements[index].taxes) {
             const authorities: string[] = []
-            for (let subIndex in data.elements[index].taxes!) {                
+            for (let subIndex in data.elements[index].taxes!) {
                 if (data.elements[index].taxes![subIndex].baseCode) {
                     if (data.elements[index].taxes![subIndex].baseCode == 'forbidden') {
                         form.setError(`elements[${index}].taxes[${subIndex}].baseCode`, '', 'Please select tax')
@@ -717,7 +717,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                         settleId: 0,
                         taxCode,
                         parentId: -1,
-                    })    
+                    })
                 }
             })
         }

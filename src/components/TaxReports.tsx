@@ -19,7 +19,7 @@ type TaxReportInternal = TaxReport & { authority: string, path: string }
 
 function injectFields(reports0: Record<string, (TaxReport)[]>): Record<string, TaxReportInternal[]> {
     // typecast
-    const reports: Record<string, TaxReportInternal[]> = reports0 as any    
+    const reports: Record<string, TaxReportInternal[]> = reports0 as any
     Object.keys(reports).forEach(authority => {
         reports[authority].forEach(report => {
             report.authority = authority

@@ -172,7 +172,7 @@ export class Account extends Base {
                 // Wrap with our own transaction
                 return Base.transaction(async trx => {
                     return this._insert(trx)
-                })    
+                })
             }
         }
         else {

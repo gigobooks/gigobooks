@@ -110,7 +110,7 @@ form textarea { width: 20em; height: 5em; }
 .transaction-elements .account select { max-width: 12em; }
 
 .transaction-elements .description, .transaction-elements .child-description { width: 75%; }
-.transaction-elements .description input, .transaction-elements .child-description input { 
+.transaction-elements .description input, .transaction-elements .child-description input {
     box-sizing: border-box;
     width: 100%;
 }

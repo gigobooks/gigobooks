@@ -188,7 +188,7 @@ export function validateAmountFieldsHelper(fields: string[], currency: string, d
         }
         catch (e) {
             errors[field] = 'Invalid amount'
-        }    
+        }
     })
 
     return errors

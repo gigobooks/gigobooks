@@ -171,7 +171,7 @@ type ElementFamilyProps = {
 function ElementFamily(props: ElementFamilyProps) {
     const {form, item, index, assetOptions} = props
     return <tr className={`element element-${index}`} key={item.id}><td className='account'>
-        {!!item.eId && 
+        {!!item.eId &&
         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
         <select
             name={`elements[${index}].accountId`}

@@ -286,7 +286,7 @@ function renderReport(info: ReportInfo, taxId: string, summary: boolean) {
                 <Tr><Th width={100}>G3    Other GST-free sales</Th></Tr>
                 <GroupItems group={info.otherFreeSales} gross={true} />
                 <GroupTotal group={info.otherFreeSales} marginBottom={0} />
-            </> : 
+            </> :
                 <G label='G3    Other GST-free sales' amount={info.g[3]} marginBottom={0} />
             }
             <Tr style={{marginBottom: 12}}><TdRight width={100}>(G3 on the BAS)</TdRight></Tr>

@@ -52,7 +52,7 @@ function App() {
             return e.returnValue
         }
     }
-    
+
     // Logs both handled and unhandled rejections
     function rejectionLogger(e: PromiseRejectionEvent) {
         setError(error => `${error}\n${e.reason}`)
@@ -164,7 +164,7 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
             await Project.save()
             break
 
-        case 'save-as': 
+        case 'save-as':
             try {
                 filename = await dialog.File({type: 'save', startDir: mruDir()})
             }

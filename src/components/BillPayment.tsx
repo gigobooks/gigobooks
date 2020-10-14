@@ -45,7 +45,7 @@ export default function BillPayment(props: Props) {
         .then(rows => {
             if (mounted) {
                 setSettlements(rows)
-                form.reset(extractFormValues(transaction, rows))    
+                form.reset(extractFormValues(transaction, rows))
             }
         })
 
@@ -90,7 +90,7 @@ export default function BillPayment(props: Props) {
                     function keyboardSubmit(e: React.KeyboardEvent) {
                         if (e.key == 'Enter') {
                             form.setValue('index', index)
-                            form.handleSubmit(onSubmit)()    
+                            form.handleSubmit(onSubmit)()
                         }
                     }
 
@@ -107,7 +107,7 @@ export default function BillPayment(props: Props) {
                             valueName='selected'
                             onChange={([selected]) => selected}
                         />
-                        {form.errors.payments && form.errors.payments[index] && 
+                        {form.errors.payments && form.errors.payments[index] &&
                             form.errors.payments[index].date &&
                             <div className='error'>{form.errors.payments[index].date!.message}</div>}
                     </td><td className='description'>
@@ -130,7 +130,7 @@ export default function BillPayment(props: Props) {
                             ref={form.register()}
                             onKeyPress={keyboardSubmit}
                         />
-                        {form.errors.payments && form.errors.payments[index] && 
+                        {form.errors.payments && form.errors.payments[index] &&
                             form.errors.payments[index].amount &&
                             <div className='error'>{form.errors.payments[index].amount!.message}</div>}
                     </td><td className='button'>
@@ -143,7 +143,7 @@ export default function BillPayment(props: Props) {
                                 form.handleSubmit(onSubmit)()
                             }}
                         />
-                        {form.errors.payments && form.errors.payments[index] && 
+                        {form.errors.payments && form.errors.payments[index] &&
                             form.errors.payments[index].submit &&
                             <div className='error'>{form.errors.payments[index].submit!.message}</div>}
                     </td></tr>
@@ -203,7 +203,7 @@ function extractFormValues(transaction: Transaction, settlements: Transaction[])
                     description: s.description,
                     amount: toFormatted(e.amount!, e.currency!),
                     currency: e.currency!,
-                })    
+                })
             }
         })
     })
@@ -237,7 +237,7 @@ function validateFormData(form: FCV<FormData>, data: FormData) {
 
 // Returns: id of the payment/transaction that was saved/created, 0 otherwise
 async function saveFormData(
-    transaction: Transaction, 
+    transaction: Transaction,
     settlements: Transaction[],
     data: FormData,
     trx?: TransactionOrKnex): Promise<number> {
@@ -263,7 +263,7 @@ async function saveFormData(
             drcr: Transaction.Credit,
             amount,
             currency: item.currency,
-            // no settleid needed here 
+            // no settleid needed here
         }]
 
         // Merge and save.
@@ -293,7 +293,7 @@ async function saveFormData(
             drcr: Transaction.Credit,
             amount,
             currency: item.currency,
-            // no settleid needed here 
+            // no settleid needed here
         }]
 
         // Merge and save.

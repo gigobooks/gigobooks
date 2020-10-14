@@ -62,7 +62,7 @@ export function ReactTable<D extends object>(props: Props<D>) {
         getRowId: getRowId,
     } as any, useFilters, useSortBy, usePagination)
     const { canPreviousPage, canNextPage, pageOptions, pageCount, gotoPage,
-        nextPage, previousPage, setPageSize, 
+        nextPage, previousPage, setPageSize,
         state: { pageIndex, pageSize, sortBy, filters },
     } = table as any
 
@@ -246,7 +246,7 @@ export function filterQuery(q: QueryBuilder<any>, f: Filter, table?: string) {
             break
         default:
             q.where(field, 'like', `%${f.value}%`)
-            break    
+            break
     }
 }
 

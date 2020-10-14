@@ -189,7 +189,7 @@ export default function TransactionDetail(props: Props) {
                 </tr></thead><tbody>
                 {fields.map((item, index) =>
                     <tr className={`element element-${index}`} key={item.id}><td className='account'>
-                        {!!item.eId && 
+                        {!!item.eId &&
                         <input type='hidden' name={`elements[${index}].eId`} value={item.eId} ref={form.register()} />}
                         <select
                             name={`elements[${index}].accountId`}

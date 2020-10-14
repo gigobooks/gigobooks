@@ -51,7 +51,7 @@ export function Viewer(props: BlobParamsAndFilename) {
             eventBus.on('pagesinit', (e: any) => {
                 setScale(e.source.currentScale)
             })
-          
+
             const pdfViewer = new pdfjsWebViewer.PDFViewer({
                 container: container.current,
                 eventBus,

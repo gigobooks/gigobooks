@@ -39,7 +39,7 @@ export function isDateOnly(s: string): boolean {
     return /^\d{4}-\d{2}-\d{2}$/.test(s)
 }
 
-// Converts the supplied date into an iSO-8601-ish 'date-only' string according 
+// Converts the supplied date into an iSO-8601-ish 'date-only' string according
 // to local time
 export function toDateOnly(date: Date): string {
     const m = date.getMonth() + 1
@@ -77,7 +77,7 @@ export type DatePreset = 'this-month' | 'this-quarter' | 'this-year' |
     'prev-1-year' | 'prev-2-year'
 
 // Converts from a date preset to a [startDate, endDate] pair of 'date-only' string values
-export function datePresetDates(preset: DatePreset, date0? : Date): string[] {    
+export function datePresetDates(preset: DatePreset, date0? : Date): string[] {
     const yearStart = fiscalYearStart()
     const parts = preset.split('-')
 
@@ -90,7 +90,7 @@ export function datePresetDates(preset: DatePreset, date0? : Date): string[] {
     let date = date0 ? date0 : new Date()
     let startDate = date, endDate = date
 
-    if (unit == 'month') {        
+    if (unit == 'month') {
         startDate = subMonths(startOfMonth(date), prevAndSize)
         endDate = endOfMonth(addMonths(startDate, prevAndSize == 0 ? 0 : prevAndSize - 1))
     }

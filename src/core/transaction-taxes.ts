@@ -146,7 +146,7 @@ export async function taxItems(startDate: string, endDate: string, accrual: bool
     })
     elements.forEach(item => {
         item.grossAmount = item.amount + item.parentAmount
-        item.taxInfo = new TaxCodeInfo(item.taxCode)        
+        item.taxInfo = new TaxCodeInfo(item.taxCode)
     })
     return elements
 }

@@ -19,7 +19,7 @@ function taxAuthorityOptions() {
     return <>
         {Object.keys(taxAuthorities).filter(k => {
             return taxAuthorities[k].enable
-        }).map(k => 
+        }).map(k =>
             <option key={k} value={k}>{taxAuthorities[k].regionName}: {taxAuthorities[k].title}</option>
         )}
     </>
@@ -76,7 +76,7 @@ export default function SettingsTax({refreshApp}: {refreshApp: () => void}) {
                 <tr key={item.id} className='row row-other-tax-authority'><th scope='row'>
                     {index == 0
                     ? <label htmlFor='otherTaxAuthorities[0]'>Other tax authorities:</label>
-                    : <>&nbsp;</>}                        
+                    : <>&nbsp;</>}
                 </th><td>
                     <select
                         name={`otherTaxAuthorities[${index}]`}
@@ -87,7 +87,7 @@ export default function SettingsTax({refreshApp}: {refreshApp: () => void}) {
                         {taxAuthorityOptions()}
                     </select>
                 </td></tr>
-            )}            
+            )}
 
             {[homeAuthority, ...Project.variables.get('otherTaxAuthorities')].map(k => {
                 if (taxAuthorities[k] && taxAuthorities[k].enable) {

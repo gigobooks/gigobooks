@@ -270,7 +270,7 @@ test('invoice form actors', async done => {
     const data2 = {type: Transaction.Invoice, actorId: Actor.NewCustomer, actorTitle: 'Discarded', date: now, description: 'invalid, discard new customer', elements: []}
     const p2 = Model.transaction(trx => saveFormData(t2, data2, trx))
     await expect(p2).rejects.toMatch(/No items/)
-    
+
     expect(t2.actorId! > 0).toBeTruthy()
     const c2 = await Actor.query().findById(t2.actorId!)
     expect(c2).toBeUndefined()

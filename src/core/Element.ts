@@ -11,7 +11,7 @@ export interface IElement {
     description?: string
     accountId?: number
     drcr?: number
-    amount?: number        
+    amount?: number
     currency?: string
     settleId?: number
     taxCode?: string

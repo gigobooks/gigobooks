@@ -19,7 +19,7 @@ test('create bare transaction', async done => {
     const t0 = Transaction.construct({date, description: 'This has no elements'})
     await t0.save()
 
-    const t1 = await Transaction.query().findById(t0.id!)    
+    const t1 = await Transaction.query().findById(t0.id!)
     expect(t1).toMatchObject(t0)
 
     done()

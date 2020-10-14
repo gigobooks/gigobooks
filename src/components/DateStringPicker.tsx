@@ -5,7 +5,7 @@
 /**
  * This is a shim/wrapper around react-datepicker to return date as a string
  * instead of a Date() object
- * 
+ *
  */
 
 import * as React from 'react'
@@ -27,7 +27,7 @@ export class DateStringPicker extends React.Component<Partial<ReactDatePickerPro
         const {onChange} = props
         this.parentChangeHandler = onChange
         this.child = React.createRef()
-        
+
         this.handleSelect = this.handleSelect.bind(this)
         this.handleCalendarClose = this.handleCalendarClose.bind(this)
 
@@ -48,7 +48,7 @@ export class DateStringPicker extends React.Component<Partial<ReactDatePickerPro
     // * Also notify on onCalendarClose().
     //   Although sometimes onCalendarClose() is called a bit late, at least
     //   this.child.current.input.value is updated by then.
-    // * For those cases when onSelect() has stale this.child.current.input.value, 
+    // * For those cases when onSelect() has stale this.child.current.input.value,
     //   onCalendarClose() fires soon after with the new value.
     // * And we just finish off with some debouncing
     notifyParent() {

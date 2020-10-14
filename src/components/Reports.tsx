@@ -131,7 +131,7 @@ export function ExchangeRates({rates}: {rates: Record<string, Record<string, str
             if (rates[primary][other]) {
                 parts.push(`${rates[primary][other]} ${other}`)
             }
-        })            
+        })
 
         if (parts.length > 1) {
             lines.push(parts.join(' = '))

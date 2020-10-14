@@ -58,7 +58,7 @@ export function formCalculateTaxes(
 
             form.setValue(`${prefix}.${outField}`, toFormatted(outputs.amount, state.currency))
             for (let i in state.rates) {
-                form.setValue(`${prefix}.taxes[${i}].amount`, 
+                form.setValue(`${prefix}.taxes[${i}].amount`,
                     (state.rates[i] != '' && outputs.taxes[i] != undefined) ?
                     toFormatted(outputs.taxes[i], state.currency) : '')
             }

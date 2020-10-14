@@ -59,7 +59,7 @@ export class Variables {
                     name,
                     value: JSON.stringify(obj[name]),
                     updatedAt: now,
-                    createdAt: now,    
+                    createdAt: now,
                 })
             }
 

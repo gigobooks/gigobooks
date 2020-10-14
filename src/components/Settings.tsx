@@ -78,7 +78,7 @@ export default function Settings() {
                     </select>
                 </td>
             </tr>
-            
+
             <tr><th colSpan={2}><h2>Currency</h2></th></tr>
             <tr className='row row-currency'>
                 <th scope='row'>
@@ -97,7 +97,7 @@ export default function Settings() {
                 <tr key={item.id} className='row row-other-currency'><th scope='row'>
                     {index == 0
                     ? <label htmlFor='otherCurrencies[0]'>Other currencies:</label>
-                    : <>&nbsp;</>}                        
+                    : <>&nbsp;</>}
                 </th><td>
                     <select
                         name={`otherCurrencies[${index}]`}
@@ -115,7 +115,7 @@ export default function Settings() {
                 return <tr key={other} className='row row-exchange-rate'><th scope='row'>
                     {index == 0
                     ? <label htmlFor={name}>Exchange rates:</label>
-                    : <>&nbsp;</>}                        
+                    : <>&nbsp;</>}
                 </th><td>
                     {`1 ${currency} = `} <input key={name} name={name} ref={form.register()} size={10} /> {other}
                     {form.errors.exchangeRates && form.errors.exchangeRates[currency] &&
