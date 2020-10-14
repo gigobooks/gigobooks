@@ -15,6 +15,8 @@ export default function About() {
                 <label>Sqlite driver:</label> {Project.driver}
             </li><li>
                 <label>User agent:</label> {window.navigator.userAgent}
+            </li><li>
+                <label>Locale:</label> {navigator.languages ? `[ "${(navigator.languages).join('", "')}" ]` : navigator.language}
             </li></ul>
         </div>
     </div>
