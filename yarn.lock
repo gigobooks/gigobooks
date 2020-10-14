@@ -7034,10 +7034,10 @@ value-equal@^1.0.1:
   resolved "https://registry.yarnpkg.com/value-equal/-/value-equal-1.0.1.tgz#1e0b794c734c5c0cade179c437d356d931a34d6c"
   integrity sha512-NOJ6JZCAWr0zlxZt+xqCHNTEKOsrks2HQd4MqhP1qy4z1SkbEP467eNx6TgDKXMvUOb+OENfJCZwM+16n7fRfw==
 
-vatrates@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/vatrates/-/vatrates-2.0.2.tgz#6423ec9da659bc12833e77b7a5d69fc0c1992db7"
-  integrity sha512-gtcFOcS1DCypDXm39Eq4rqGx49JF/Pu49dojcBAJDzxX8fmLPcPU2fVk4Fi0yjdi+vAUuNOfBotY3X3V0PGTzg==
+vatrates@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/vatrates/-/vatrates-2.0.3.tgz#f8005924dcc8abfd05ac99e2303707c2dabc9aa2"
+  integrity sha512-G5v9wKLWZHcDXQER5ap0dFHtQDQVLhFq3lQHWqNQ/JAg6PETFtieNg8CVHJw4VHXrkH4Mq1pQbncMMkcL+zj0w==
 
 verror@1.10.0:
   version "1.10.0"
