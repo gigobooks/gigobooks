@@ -367,18 +367,19 @@ export class TaxAuthorityNZ extends TaxAuthority {
 
 export class TaxAuthorityEU extends TaxAuthority {
     get taxIdLabel() { return 'VAT ID' }
-    /*
     settings(homeAuthority: string) {
-        const fields: Record<string, TaxSetting> = {}
-        fields[`${this.id.toLowerCase()}:taxId`] = { type: 'text', label: 'VAT ID' }
+        const fields: Record<string, TaxSetting> = {
+            [this.taxIdVariableName]: { type: 'text', label: this.taxIdLabel }
+        }
 
+        /*
         if (this.id == 'IE') {
             fields[`${this.id.toLowerCase()}:cash`] = { type: 'checkbox', label: 'Cash receipts basis of accounting' }
         }
+        */
 
         return fields
     }
-    */
 
     taxesInfo() {
         return {
