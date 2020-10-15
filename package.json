@@ -56,7 +56,7 @@
     "url-loader": "^4.1.1",
     "vatrates": "^2.0.2",
     "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.11",
+    "webpack-cli": "^4.0.0",
     "worker-loader": "^2.0.0"
   },
   "husky": {
