@@ -251,7 +251,7 @@ type Props = {
     arg1?: string
 }
 
-export default function SalePrint(props: Props) {
+export default function SalePDF(props: Props) {
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
     const [info, setInfo] = React.useState<ReportInfo>()
     const [error, setError] = React.useState<string>('')
