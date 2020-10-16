@@ -8,7 +8,7 @@ import { HashRouter, Route, Switch, useParams, Redirect } from 'react-router-dom
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary'
 import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
-import fileMenu from './FileMenu'
+import { fileMenu, fileMenuAction } from './FileMenu'
 import Preamble from './Preamble'
 import About from './About'
 import Settings from './Settings'
@@ -122,7 +122,7 @@ function ErrorFallback({error, resetErrorBoundary, stack}: FallbackProps & {stac
     </div>
 }
 
-async function action(op: string, extra?: string): Promise<string | undefined> {
+export async function fileMenuAction0(op: string, extra: string, done: (path?: string) => void) {
     let filename = ''
     let redirect = ''
 
@@ -135,9 +135,9 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
             break
 
         case 'open':
-        case 'recent':
-            if (op == 'recent') {
-                filename = extra!
+        case 'mru':
+            if (op == 'mru') {
+                filename = extra
             }
             else {
                 try {
@@ -191,12 +191,12 @@ async function action(op: string, extra?: string): Promise<string | undefined> {
             native.exit(0)
             break
 
-        case 'clear-recents':
+        case 'clear-mru':
             mruClear()
             break
     }
 
-    return redirect
+    done(redirect)
 }
 
 interface MenuInfo {
@@ -226,9 +226,9 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], ref
         const key = info.key as string
         if (info.keyPath.length > 1 && info.keyPath[info.keyPath.length - 1] == 'file') {
             const keyParts = key.split(':')
-            const extra = keyParts[0] == 'recent' ? props.mru[Number(keyParts[1])] : undefined
+            const extra = keyParts[0] == 'mru' ? props.mru[Number(keyParts[1])] : ''
 
-            action(keyParts[0], extra).then(path => {
+            fileMenuAction(keyParts[0], extra, function (path) {
                 if (path) {
                     setRedirect({path})
                 }
