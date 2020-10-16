@@ -74,7 +74,6 @@ module.exports = (env, argv) => {
       new webpack.NormalModuleReplacementPlugin(/^fs$/, 'knex/lib/util/noop'),
 
       new CopyPlugin({patterns: [
-        {from: 'index.html'},
         {from: 'assets/css'},
       ]}),
     ],
