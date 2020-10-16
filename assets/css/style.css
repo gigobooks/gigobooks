@@ -26,8 +26,15 @@ h1.inline { display: inline-block; }
 .tasks:before { content: '[ '; }
 .tasks:after { content: ' ]'; }
 
+
+/***********************************************************
+* error-handling                                           *
+************************************************************/
+
+.error-pane { margin: 1em 0; padding: 0.5em; background-color: #ffebeb; color: red; border: 1px solid red; }
+.error-pane-dismiss { text-align: right; }
+
 .error { color: red; }
-.page > .error { margin-top: 1em; margin-bottom: 1em; }
 
 /***********************************************************
 * rc-menu                                                  *

@@ -9,6 +9,7 @@ import { ErrorBoundary, FallbackProps } from 'react-error-boundary'
 import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
 import { fileMenu, fileMenuAction } from './FileMenu'
+import ErrorPane from './ErrorPane'
 import Preamble from './Preamble'
 import About from './About'
 import Settings from './Settings'
@@ -70,11 +71,6 @@ function App() {
         setError(error => `${error}\n${text}`)
     }
 
-    // Auto-reset error if the path changes
-    function popStateListener() {
-        setError('')
-    }
-
     React.useEffect(() => {
         newHistorySegment()
         refresh()
@@ -82,13 +78,11 @@ function App() {
         window.addEventListener('beforeunload', beforeUnloadListener)
         window.addEventListener('rejectionhandled', rejectionLogger)
         window.addEventListener('unhandledrejection', rejectionLogger)
-        window.addEventListener('popstate', popStateListener)
 
         return () => {
             window.removeEventListener('beforeunload', beforeUnloadListener)
             window.removeEventListener('rejectionhandled', rejectionLogger)
             window.removeEventListener('unhandledrejection', rejectionLogger)
-            window.removeEventListener('popstate', popStateListener)
         }
     }, [])
 
@@ -98,7 +92,9 @@ function App() {
             {<Preamble />}
             {open && <NavBar />}
 
-            {error && <div className='error'><pre>{error}</pre></div>}
+            {error && <ErrorPane onDismiss={() => setError('')}>
+                <pre>{error}</pre>
+            </ErrorPane>}
             <ErrorBoundary
                 onError={(error: Error, info: { componentStack: string }) => {
                     setComponentStack(info.componentStack)
@@ -115,23 +111,23 @@ function App() {
 
 function ErrorFallback({error, resetErrorBoundary, stack}: FallbackProps & {stack?: string}) {
     // Auto-reset ErrorBoundary if the path changes
-    function popStateListener() {
+    function clearError() {
         if (resetErrorBoundary) {
             resetErrorBoundary()
         }
     }
 
     React.useEffect(() => {
-        window.addEventListener('popstate', popStateListener)
+        window.addEventListener('popstate', clearError)
         return () => {
-            window.removeEventListener('popstate', popStateListener)
+            window.removeEventListener('popstate', clearError)
         }
     }, [])
 
-    return <div className='error'>
+    return <ErrorPane onDismiss={clearError}>
         {error!.toString()}
         {stack && <pre>{stack}</pre>}
-    </div>
+    </ErrorPane>
 }
 
 export async function fileMenuAction0(op: string, extra: string, done: (path?: string) => void) {
