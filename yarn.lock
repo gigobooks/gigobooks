@@ -1488,6 +1488,11 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
+"@types/emscripten@*":
+  version "1.39.4"
+  resolved "https://registry.yarnpkg.com/@types/emscripten/-/emscripten-1.39.4.tgz#d61990c0cee72c4e475de737a140b51fe925a2c8"
+  integrity sha512-k3LLVMFrdNA9UCvMDPWMbFrGPNb+GcPyw29ktJTo1RCN7RmxFG5XzPZcPKRlnLuLT/FRm8wp4ohvDwNY7GlROQ==
+
 "@types/glob@^7.1.1":
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.1.3.tgz#e6ba80f36b7daad2c685acd9266382e68985c183"
@@ -1646,6 +1651,14 @@
   resolved "https://registry.yarnpkg.com/@types/responselike/-/responselike-1.0.0.tgz#251f4fe7d154d2bad125abe1b429b23afd262e29"
   integrity sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==
   dependencies:
+    "@types/node" "*"
+
+"@types/sql.js@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@types/sql.js/-/sql.js-1.0.3.tgz#44a6734585da7d0d15c96cc5fe9ea545ed845df9"
+  integrity sha512-LVKYbcXRD+CneFqKVUHtSdVARo3DFn3JusZTV1CNkrg5i/rR1uGDcv0v6PrVgGtxTRdxI0FgL38QxgCQoVi/Aw==
+  dependencies:
+    "@types/emscripten" "*"
     "@types/node" "*"
 
 "@types/stack-utils@^1.0.1":
