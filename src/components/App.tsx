@@ -55,7 +55,19 @@ function App() {
 
     // Logs both handled and unhandled rejections
     function rejectionLogger(e: PromiseRejectionEvent) {
-        setError(error => `${error}\n${e.reason}`)
+        let text = e.reason.toString()
+
+        // PromiseRejectionEvent objects are weird
+        // ... and seem to be implementation dependent
+        if (typeof e.reason === 'object') {
+            const o: Record<any, any> = {}
+            Object.getOwnPropertyNames(e.reason).forEach((k: any) => {
+                o[k] = e.reason[k]
+            })
+            text = `${text}\n${JSON.stringify(o, null, 2)}`
+        }
+
+        setError(error => `${error}\n${text}`)
     }
 
     // Auto-reset error if the path changes
@@ -86,7 +98,7 @@ function App() {
             {<Preamble />}
             {open && <NavBar />}
 
-            {error && <div className='error'>{error}</div>}
+            {error && <div className='error'><pre>{error}</pre></div>}
             <ErrorBoundary
                 onError={(error: Error, info: { componentStack: string }) => {
                     setComponentStack(info.componentStack)
