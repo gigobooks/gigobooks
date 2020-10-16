@@ -72,8 +72,15 @@ function makeKnex(filename, preExistingConnection, onChange = undefined) {
                 }
             }
 
+            const lowerSql = obj.sql.trim().toLowerCase()
             const callObj = connection.txConnection ? connection.txConnection : connection.mainConnection
-            const callMethod = ['insert', 'update', 'counter', 'del'].indexOf(obj.method) >= 0 ? 'exec' : 'query'
+            let callMethod = 'query'
+            ;['insert', 'del', 'delete', 'update'].forEach(op => {
+                if (lowerSql.startsWith(`${op} `)) {
+                    callMethod = 'exec'
+                }
+            })
+
             return new Promise(function(resolver, rejecter) {
                 if (!callObj || !callObj[callMethod]) {
                     return rejecter(
