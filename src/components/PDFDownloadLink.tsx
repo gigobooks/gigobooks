@@ -18,9 +18,20 @@ function setPdfDir(directory: string) {
 
 export default function PDFDownloadLink(props: BlobParamsAndFilename) {
     async function saveBlob() {
-        const filename = await dialog.file({type: 'save', title: 'Save PDF as', startDir: pdfDir()})
-        await native.writeFile(filename, props.blob!)
-        setPdfDir(dirname(filename))
+        let filename
+        try {
+            filename = await dialog.file({type: 'save', title: 'Save PDF as', startDir: pdfDir()})
+        }
+        catch (e) {
+            if (e.toString() != 'Cancelled') {
+                throw e
+            }
+        }
+
+        if (filename) {
+            await native.writeFile(filename, props.blob!)
+            setPdfDir(dirname(filename))
+        }
     }
 
     function onClick(e: any) {
