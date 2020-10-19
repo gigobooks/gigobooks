@@ -149,7 +149,7 @@ export async function fileMenuAction0(op: string, extra: string, done: (path?: s
             }
             else {
                 try {
-                    filename = await dialog.File({type: 'load', startDir: mruDir()})
+                    filename = await dialog.file({type: 'load', startDir: mruDir()})
                 }
                 catch (e) {
                     if (e.toString() != 'Cancelled') {
@@ -174,7 +174,7 @@ export async function fileMenuAction0(op: string, extra: string, done: (path?: s
 
         case 'save-as':
             try {
-                filename = await dialog.File({type: 'save', startDir: mruDir()})
+                filename = await dialog.file({type: 'save', startDir: mruDir()})
             }
             catch (e) {
                 if (e.toString() != 'Cancelled') {

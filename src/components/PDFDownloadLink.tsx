@@ -18,7 +18,7 @@ function setPdfDir(directory: string) {
 
 export default function PDFDownloadLink(props: BlobParamsAndFilename) {
     async function saveBlob() {
-        const filename = await dialog.File({type: 'save', title: 'Save PDF as', startDir: pdfDir()})
+        const filename = await dialog.file({type: 'save', title: 'Save PDF as', startDir: pdfDir()})
         await native.writeFile(filename, props.blob!)
         setPdfDir(dirname(filename))
     }

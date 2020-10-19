@@ -7,7 +7,7 @@ declare module native {
     function setTitle(title: string): Promise<void>
 
     /**
-     * Asks the native window to exit 
+     * Asks the native window to exit
      *
      * @param exitCode The (CLI) exit code to be returned to the operating system.
      */
@@ -15,14 +15,14 @@ declare module native {
 
     /**
      * Deletes a file
-     * 
+     *
      * @param filename pathname to delete
      */
     function remove(filename: string): Promise<void>
 
     /**
      * Writes to a file
-     * 
+     *
      * @param filename pathname to write to
      * @param data data to write
      */
@@ -46,7 +46,7 @@ declare module dialog {
 
     /**
      * Opens a file selection dialog and returns the selected filename
-     * 
+     *
      * @param config Example configuration:
      * ```
      * {
@@ -60,7 +60,7 @@ declare module dialog {
      * }
      * ```
      */
-    function File(config: FileDialogConfig): Promise<string>
+    function file(config: FileDialogConfig): Promise<string>
 
     interface DirectoryDialogConfig {
         // Title of dialog
@@ -69,7 +69,7 @@ declare module dialog {
 
     /**
      * Opens a directory selection dialog and returns the selected directory
-     * 
+     *
      * @param config Example configuration:
      * ```
      * {
@@ -77,14 +77,18 @@ declare module dialog {
      * }
      * ```
      */
-    function Directory(config: DirectoryDialogConfig): Promise<string>
+    function directory(config: DirectoryDialogConfig): Promise<string>
+
+    function alert(message: string, title?: string): void
+    function error(message: string, title?: string): void
+    function confirm(message: string, title?: string): Promise<boolean>
 }
 
 declare module gosqlite {
     class Database {
         /**
          * Construct a new database object. The object must be `open()`-ed before it can be used.
-         * 
+         *
          * @param filename pathname of database, or `:memory:`
          */
         constructor(filename: string)
@@ -101,7 +105,7 @@ declare module gosqlite {
 
         /**
          * Executes a SQL query that does not retrieve any results
-         * 
+         *
          * @param query Query string. Use `?` for parameter placeholders
          * @param params Optional parameters
          */
@@ -109,7 +113,7 @@ declare module gosqlite {
 
         /**
          * Executes a SQL SELECT query and returns an array of objects
-         * 
+         *
          * @param query Query string. Use `?` for parameter placeholders
          * @param params Optional parameters
          */
@@ -117,7 +121,7 @@ declare module gosqlite {
 
         /**
          * Executes a SQL SELECT query and returns the first row as an object
-         * 
+         *
          * @param query Query string. Use `?` for parameter placeholders
          * @param params Optional parameters
          */
@@ -125,7 +129,7 @@ declare module gosqlite {
 
         /**
          * Executes a SQL SELECT query that retrieves a single field and returns it
-         * 
+         *
          * @param query Query string. Use `?` for parameter placeholders
          * @param params Optional parameters
          */
@@ -133,7 +137,7 @@ declare module gosqlite {
 
         /**
          * Backup the database to a new filename or in-memory database
-         * 
+         *
          * @param destFilename pathname to backup to, or `:memory:`
          */
         backupTo(destFilename: string): Promise<Database>
