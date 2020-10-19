@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react'
-import { APP_NAME, Project } from '../core'
+import { APP_NAME, VERSION, LICENSE, Project } from '../core'
 
 export default function About() {
     const [sqliteVersion, setSqliteVersion] = React.useState<string>('')
@@ -19,15 +19,20 @@ export default function About() {
     }, [Project.isOpen])
 
     return <div>
-        <h1 className='title'>{APP_NAME}</h1>
+        <h1 className='title'>About {APP_NAME}</h1>
         <div>
             <ul><li>
-                <label>Version:</label> not-yet-released
+                <label>Version:</label> {VERSION}
             </li><li>
-                <label>Sqlite driver:</label> {Project.driver}
+                <label>Sqlite:</label> {Project.driver}
             </li>{sqliteVersion && <li>
                 <label>Sqlite version:</label> {sqliteVersion}
             </li>}<li>
+                <label>License:</label> {LICENSE}
+            </li></ul>
+
+            System Information
+            <ul><li>
                 <label>User agent:</label> {window.navigator.userAgent}
             </li><li>
                 <label>Locale:</label> {navigator.languages ? `[ "${(navigator.languages).join('", "')}" ]` : navigator.language}
