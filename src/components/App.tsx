@@ -130,9 +130,20 @@ function ErrorFallback({error, resetErrorBoundary, stack}: FallbackProps & {stac
     </ErrorPane>
 }
 
-export async function fileMenuAction0(op: string, extra: string, done: (path?: string) => void) {
+export async function fileMenuAction0(op: string, extra: string, done: (path?: string) => void, force = false) {
     let filename = ''
     let redirect = ''
+
+    if (!__WEB__) {
+        if (Project.isOpen() && Project.project!.isModified &&
+            ['new', 'open', 'mru', 'close', 'quit'].indexOf(op) >= 0 && !force) {
+            const proceed = await dialog.confirm('You have unsaved changes which will be lost. Continue?')
+            if (!proceed) {
+                done()
+                return
+            }
+        }    
+    }
 
     switch (op) {
         case 'new':
