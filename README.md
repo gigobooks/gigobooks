@@ -6,9 +6,9 @@
 * Source code that you can extend/hack/customise yourself. Write your own custom scripts.
 * Double entry bookkeeping
 * Multi currency
-* [**Try out the DEMO**](https://gigobooks.github.io/demo)
+* [**Try it out on the web**](https://gigobooks.github.io/webapp)
 
-Technical stuff:
+**Technical stuff:**
 
 GigoBooks is a client-side ReactJS webapp which runs in a system-provided webview. The [webview](https://github.com/bengtan/websqlview) is written in Go. It provides access to sqlite and other native facilities. Hence, GigoBooks acts like native desktop software.
 
@@ -18,15 +18,14 @@ GigoBooks is a client-side ReactJS webapp which runs in a system-provided webvie
 * The community edition (GigoBooks CE) is free and open source.
 * It is intended to be cross-platform desktop (Windows/MacOS/Linux) although it has only been developed and tested on Ubuntu/libgtk so far. Other platforms may or may not yet work.
 
-NOTE: This is alpha/preview quality software and **IS NOT READY TO BE USED IN PRODUCTION**. You have been warned.
+**Web edition:**
 
-## Blog
+There is a separate Web edition which runs on the web. However, it runs fully client-side and your data is stored in an sqlite file on your local filesystem.
 
-https://gigobooks.github.io/
+## Links
 
-## DEMO
-
-https://gigobooks.github.io/demo
+* **Blog:** https://gigobooks.github.io/
+* **Web edition:** https://gigobooks.github.io/webapp (Try it out!)
 
 ## Building
 
@@ -74,6 +73,7 @@ See [Contributing](CONTRIBUTING.md).
 ## License
 
 * GigoBooks CE (community edition) - [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
+* GigoBooks Web (Web edition) - Proprietary
 * GigoBooks PE (premium edition) - [PolyForm Internal Use License 1.0.0](https://polyformproject.org/licenses/internal-use/1.0.0/)
 
 For some background, see https://www.gigobooks.com/blog/commentary-business-model.html
