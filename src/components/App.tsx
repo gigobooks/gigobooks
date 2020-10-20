@@ -11,6 +11,7 @@ import { newHistorySegment, NavBar } from './NavBar'
 import { fileMenu, fileMenuAction } from './FileMenu'
 import ErrorPane from './ErrorPane'
 import { Wrapper } from './Stubs'
+import Front from './Front'
 import About from './About'
 import Settings from './Settings'
 import TaxSettings from './TaxSettings'
@@ -102,7 +103,7 @@ function App() {
                     return <ErrorFallback stack={componentStack} {...props} />
                 }}
             >
-                {open ? <Main refreshApp={refresh} /> : <About />}
+                <Main open={open} refreshApp={refresh} />
             </ErrorBoundary>
         </div>
     </Wrapper></HashRouter>
@@ -306,13 +307,20 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], ref
             {taxReportsMenuItems()}
         </SubMenu>}
         <SubMenu key='help' title="Help">
-            <MenuItem key='/'>About</MenuItem>
+            <MenuItem key='/about'>About</MenuItem>
         </SubMenu>
     </Menu>
 }
 
-function Main({refreshApp}: {refreshApp: () => void}) {
-    return <Switch>
+function Main({open, refreshApp}: {open: boolean, refreshApp: () => void}) {
+    return !open ? <Switch>
+        <Route path='/about'>
+            <About />
+        </Route>
+        <Route path='/'>
+            <Front />
+        </Route>
+    </Switch> : <Switch>
         <Route path='/reports/tax'>
             <TaxReportsRouter />
         </Route>
@@ -376,8 +384,11 @@ function Main({refreshApp}: {refreshApp: () => void}) {
         <Route path='/settings'>
             <Settings />
         </Route>
-        <Route path='/'>
+        <Route path='/about'>
             <About />
+        </Route>
+        <Route path='/'>
+            <Front />
         </Route>
     </Switch>
 }
