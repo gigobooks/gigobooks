@@ -10,7 +10,7 @@ import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
 import { fileMenu, fileMenuAction } from './FileMenu'
 import ErrorPane from './ErrorPane'
-import Preamble from './Preamble'
+import { Wrapper } from './Stubs'
 import About from './About'
 import Settings from './Settings'
 import TaxSettings from './TaxSettings'
@@ -86,10 +86,9 @@ function App() {
         }
     }, [])
 
-    return <HashRouter>
+    return <HashRouter><Wrapper>
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} refreshApp={refresh} />
         <div className='page'>
-            {<Preamble />}
             {open && <NavBar />}
 
             {error && <ErrorPane onDismiss={() => setError('')}>
@@ -106,7 +105,7 @@ function App() {
                 {open ? <Main refreshApp={refresh} /> : <About />}
             </ErrorBoundary>
         </div>
-    </HashRouter>
+    </Wrapper></HashRouter>
 }
 
 function ErrorFallback({error, resetErrorBoundary, stack}: FallbackProps & {stack?: string}) {
