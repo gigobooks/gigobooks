@@ -11,3 +11,7 @@ import * as React from 'react'
 export function Wrapper({children}: {children: any}) {
     return <>{children}</>
 }
+
+export function AboutExtra() {
+    return null
+}
