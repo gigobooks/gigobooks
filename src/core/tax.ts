@@ -296,7 +296,7 @@ export class TaxAuthority {
     // These are stubs that should be overridden by subclasses
     get taxIdLabel() { return 'Tax Id' }
     get taxIdVariableName() { return `${this.id.toLowerCase()}:taxId` }
-    settings(homeAuthority: string): Record<string, TaxSetting> { return {} }
+    settings(homeAuthority: string): Record<string, TaxSetting> { return {[this.taxIdVariableName]: { type: 'text', label: this.taxIdLabel }} }
     taxesInfo(): Record<string, TaxInfo> { return {} }
     taxes(homeAuthority: string, isSale: boolean): string[] { return [] }
     tagOptions(homeAuthority: string, isSale: boolean, info: TaxCodeInfo): Record<string, string> { return {} }
@@ -360,8 +360,7 @@ export class TaxAuthorityNZ extends TaxAuthority {
     }
 
     taxes(homeAuthority: string, isSale: boolean) {
-        const items = ['GST:15', 'GST:zero:0']
-        return items.map(s => `${this.id}:${s}`)
+        return ['GST:15', 'GST:zero:0'].map(s => `${this.id}:${s}`)
     }
 }
 
@@ -433,38 +432,43 @@ export class TaxAuthorityEU extends TaxAuthority {
 
 const fallbackTaxAuthority = new TaxAuthority('', '', false)
 
-export const taxAuthorities: Record<string, TaxAuthority> = {
-    'AT': new TaxAuthorityEU('AT', 'Federal Ministry of Finance'),
-    'AU': new TaxAuthorityAU('AU', 'Australian Tax Office', true),
-    'BE': new TaxAuthorityEU('BE', 'Ministry of Finance'),
-    'BG': new TaxAuthorityEU('BG', 'National Revenuue Agency'),
-    'HR': new TaxAuthorityEU('HR', 'Ministry of Finance'),
-    'CY': new TaxAuthorityEU('CY', 'Ministry of Finance'),
-    'CZ': new TaxAuthorityEU('CZ', 'Development of Taxpayer Services Unit'),
-    'DK': new TaxAuthorityEU('DK', 'Danish Customs and Tax Administration'),
-    'EE': new TaxAuthorityEU('EE', 'Tax and Customs Board'),
-    'DE': new TaxAuthorityEU('DE', 'Federal Ministry of Finance'),
-    'EL': new TaxAuthorityEU('EL', 'Independent Authority for Public Revenue'),
-    'FI': new TaxAuthorityEU('FI', 'Finnish Tax Administration'),
-    'FR': new TaxAuthorityEU('FR', 'Ministry of Action and public accounts'),
-    'HU': new TaxAuthorityEU('HU', 'National Tax and Customs Administration'),
-    'IE': new TaxAuthorityEU('IE', 'Irish Tax and Customs', true),
-    'IT': new TaxAuthorityEU('IT', 'Ministry of Economy and Finance'),
-    'LV': new TaxAuthorityEU('LV', 'State Revenue Service'),
-    'LT': new TaxAuthorityEU('LT', 'Ministry of Finance'),
-    'LU': new TaxAuthorityEU('LU', 'Administration for registration, domains and VAT'),
-    'MT': new TaxAuthorityEU('MT', 'Ministry of Finance'),
-    'NL': new TaxAuthorityEU('NL', 'Dutch Tax and Customs Administration'),
-    'NZ': new TaxAuthorityNZ('NZ', 'Inland Revenue Department', true),
-    'PL': new TaxAuthorityEU('PL', 'Ministry of Finance'),
-    'PT': new TaxAuthorityEU('PT', 'Tax and Customs Authority'),
-    'RO': new TaxAuthorityEU('RO', 'Ministry of Public Finance'),
-    'SK': new TaxAuthorityEU('SK', 'Financial Administration of Slovak Republic'),
-    'SI': new TaxAuthorityEU('SI', 'Financial Administration of the Republic of Slovenia'),
-    'ES': new TaxAuthorityEU('ES', 'Tax Agency'),
-    'SE': new TaxAuthorityEU('SE', 'Swedish Tax Agency'),
-    'UK': new TaxAuthorityEU('UK', 'HM Revenue and Customs', true),
-}
+const taxAuthoritiesList: TaxAuthority[] = [
+    new TaxAuthorityEU('AT', 'Federal Ministry of Finance'),
+    new TaxAuthorityAU('AU', 'Australian Tax Office', true),
+    new TaxAuthorityEU('BE', 'Ministry of Finance'),
+    new TaxAuthorityEU('BG', 'National Revenue Agency'),
+    new TaxAuthorityEU('HR', 'Ministry of Finance'),
+    new TaxAuthorityEU('CY', 'Ministry of Finance'),
+    new TaxAuthorityEU('CZ', 'Development of Taxpayer Services Unit'),
+    new TaxAuthorityEU('DK', 'Danish Customs and Tax Administration'),
+    new TaxAuthorityEU('EE', 'Tax and Customs Board'),
+    new TaxAuthorityEU('DE', 'Federal Ministry of Finance'),
+    new TaxAuthorityEU('EL', 'Independent Authority for Public Revenue'),
+    new TaxAuthorityEU('FI', 'Finnish Tax Administration'),
+    new TaxAuthorityEU('FR', 'Ministry of Action and public accounts'),
+    new TaxAuthorityEU('HU', 'National Tax and Customs Administration'),
+    new TaxAuthorityEU('IE', 'Irish Tax and Customs', true),
+    new TaxAuthorityEU('IT', 'Ministry of Economy and Finance'),
+    new TaxAuthorityEU('LV', 'State Revenue Service'),
+    new TaxAuthorityEU('LT', 'Ministry of Finance'),
+    new TaxAuthorityEU('LU', 'Administration for registration, domains and VAT'),
+    new TaxAuthorityEU('MT', 'Ministry of Finance'),
+    new TaxAuthorityEU('NL', 'Dutch Tax and Customs Administration'),
+    new TaxAuthorityNZ('NZ', 'Inland Revenue Department', true),
+    new TaxAuthorityEU('PL', 'Ministry of Finance'),
+    new TaxAuthorityEU('PT', 'Tax and Customs Authority'),
+    new TaxAuthorityEU('RO', 'Ministry of Public Finance'),
+    new TaxAuthorityEU('SK', 'Financial Administration of Slovak Republic'),
+    new TaxAuthorityEU('SI', 'Financial Administration of the Republic of Slovenia'),
+    new TaxAuthorityEU('ES', 'Tax Agency'),
+    new TaxAuthorityEU('SE', 'Swedish Tax Agency'),
+    new TaxAuthorityEU('UK', 'HM Revenue and Customs'),
+]
+
+export const taxAuthorities: Record<string, TaxAuthority> = {}
+taxAuthoritiesList.forEach(authority => {
+    taxAuthorities[authority.id] = authority
+})
 
 // Return a list of tax authority IDs which are selected/configured,
 // The home authority, if configured, appears first

@@ -5,7 +5,7 @@
 import * as React from 'react'
 import { useForm, useFieldArray, FormContextValues as FCV } from 'react-hook-form'
 import { Link } from 'react-router-dom'
-import { Project, TaxAuthority, taxAuthorities } from '../core'
+import { Project, TaxAuthority, taxAuthorities, regionName } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { hashSelectOptions } from './SelectOptions'
 
@@ -16,21 +16,43 @@ type FormData = {
 }
 
 function taxAuthorityOptions() {
+    // Convert authorities from a flat list to a two-level hierarchical list (preserve order)
+    const list: Record<string, TaxAuthority[]> = {}
+    Object.keys(taxAuthorities).forEach((k: string) => {
+        const authority = taxAuthorities[k]
+        if (authority.enable) {
+            const group = authority.id.split('-')[0]
+
+            if (!list[group]) {
+                list[group] = []
+            }
+            list[group].push(authority)
+        }
+    })
+
     return <>
-        {Object.keys(taxAuthorities).filter(k => {
-            return taxAuthorities[k].enable
-        }).map(k =>
-            <option key={k} value={k}>{taxAuthorities[k].regionName}: {taxAuthorities[k].title}</option>
-        )}
+        {Object.keys(list).map(group => {
+            const optgroup = list[group].length > 1 && list[group][0].id != group
+            return optgroup ?
+                <optgroup key={group} label={regionName(group)}>
+                    {list[group].map(a => <option key={a.id} value={a.id}>
+                        {a.regionName}: {a.title}
+                    </option>)}
+                </optgroup> :
+                list[group].map((a, index) => <option key={a.id} value={a.id}>
+                    {index != 0 && '-- '}{a.regionName}: {a.title}
+                </option>)
+        })}
     </>
 }
 
-export default function SettingsTax({refreshApp}: {refreshApp: () => void}) {
+export default function TaxSettings({refreshApp}: {refreshApp: () => void}) {
     const homeAuthority = Project.variables.get('taxAuthority')
     const form = useForm<FormData>({
         defaultValues: extractFormValues(),
     })
     const {fields, append} = useFieldArray({control: form.control, name: 'otherTaxAuthorities'})
+    const options = taxAuthorityOptions()
 
     const onSubmit = async (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -64,7 +86,7 @@ export default function SettingsTax({refreshApp}: {refreshApp: () => void}) {
                 </th><td>
                     <select name='taxAuthority' ref={form.register}>
                         <option key='none' value='none'>Not in this list</option>
-                        {taxAuthorityOptions()}
+                        {options}
                     </select>
                     <button type='button' onClick={() => append({name: 'otherTaxAuthorities'})}>
                         Add tax authority
@@ -84,7 +106,7 @@ export default function SettingsTax({refreshApp}: {refreshApp: () => void}) {
                         ref={form.register()}
                     >
                         <option key='none' value='none'>None</option>
-                        {taxAuthorityOptions()}
+                        {options}
                     </select>
                 </td></tr>
             )}
