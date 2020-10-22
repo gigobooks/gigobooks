@@ -44,6 +44,7 @@ export type FormData = {
             rate: string
             amount: string
             _amount?: number    // Needed for calculation. Not a form element
+            _info?: TaxCodeInfo  // Needed for calculation. Not a form element
         }[]
     }[]
     submit?: string    // Only for displaying general submit error messages
@@ -554,6 +555,7 @@ export function extractFormValues(t: Transaction): FormData {
                         rate: e.taxCode ? info.rate : '',
                         amount: toFormatted(e.amount!, e.currency!),
                         _amount: e.amount!,
+                        _info: info,
                     })
 
                     orphan = false
@@ -579,7 +581,9 @@ export function extractFormValues(t: Transaction): FormData {
         for (let e of values.elements) {
             let amount = e._amount!
             for (let t of e.taxes!) {
-                amount += t._amount!
+                if (!t._info!.reverse) {
+                    amount += t._amount!
+                }
             }
             e.grossAmount = toFormatted(amount, e.currency)
         }

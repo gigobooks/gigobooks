@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react'
-import { Transaction, TransactionType, formatDateOnly, toFormatted } from '../core'
+import { Transaction, TransactionType, formatDateOnly, toFormatted, TaxCodeInfo } from '../core'
 import { Column, ReactTable, filterQuery, Filter, sortQuery, SelectFilter, DateRangeFilter } from './ReactTable'
 import { QueryBuilder } from 'objection'
 import { Link } from 'react-router-dom'
@@ -78,9 +78,15 @@ function renderActor(data: any) {
     return data.cell.value
 }
 
-function renderDebitSum(data: any) {
+function renderTotal(data: any) {
     const t: Transaction = data.row.original
-    const sums = Transaction.getSums(t.elements!.filter(e => e.drcr == Transaction.Debit))
+    const sums = Transaction.getSums(t.elements!.filter(e => {
+        // Reverse charges aren't included in the total
+        if (e.taxCode && new TaxCodeInfo(e.taxCode).reverse) {
+            return false
+        }
+        return e.drcr == Transaction.Debit
+    }))
 
     return <>
         {sums.map(money =>
@@ -116,7 +122,7 @@ function TransactionTable({types, typesFilter, viewRaw = false, actorHeading = '
             { Header: 'Type', accessor: 'type', disableFilters: !typesFilter,
                 Filter: typesFilter && typesFilter.filter, FilterOptions: typesFilter && typesFilter.options, Cell: renderType },
             { Header: actorHeading, accessor: 'actorTitle', disableFilters: false, Cell: renderActor },
-            { Header: 'Amount', id: 'debit-sum', Cell: renderDebitSum },
+            { Header: 'Amount', id: 'total', Cell: renderTotal },
         ]
         if (viewRaw) {
             columns.push({ Header: 'View raw', id: 'raw-link', Cell: renderRaw })
