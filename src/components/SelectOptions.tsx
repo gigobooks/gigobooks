@@ -202,6 +202,14 @@ export function taxSelectOptions(isSale: boolean, info0?: TaxCodeInfo) {
                     return a.geoParts[1] < b.geoParts[1] ? -1 : 1
                 }
                 if (a.weight == b.weight) {
+                    // For some taxes, sort by ascending tax rate
+                    const ascendingTypes = [
+                        'HST'   // Canada HST
+                    ]
+                    if (ascendingTypes.indexOf(a.type) >= 0) {
+                        return Number(a.rate) < Number(b.rate) ? -1 : 1
+                    }
+
                     // Reversed so tax rates are descending
                     return Number(a.rate) > Number(b.rate) ? -1 : 1
                 }

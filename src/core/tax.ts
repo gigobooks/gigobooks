@@ -31,9 +31,10 @@ To ensure a consistent canonical representation, the strings in `flags-and-tags`
 
 A flag indicates a feature or modification. Multiple flags are supported.
 
-Currently, two flags are defined: `r` and `x`.
+The following flags are defined:
 
-The flag `r` indicates a reverse charge (ie. EU reverse charge) on a purchase
+The flag `r` indicates a VAT/GST reverse charge (ie. EU reverse charge) on a purchase
+The flag `u` indicates a (consumer) 'use tax' on a purchase (ie. a purchaser pays sale tax on something which sales tax wasn't already charged on)
 The flag `x` indicates that the tax rate can be modified/supplied/overridden by the user
 
 A tag is any arbitrary four-or-more character string. The meaning of a tag is dependent on the tax authority or system albeit it's generally informational-only. At the moment, only up to one tag is supported.
@@ -138,6 +139,7 @@ export class TaxCodeInfo {
     authorityExtra: string
     type: string
     reverse: boolean
+    useTax: boolean
     variable: boolean
     tag: string
     variant: string
@@ -154,6 +156,7 @@ export class TaxCodeInfo {
         const typeList = parts.length < 2 ? [''] : parts[1].split(';')
         this.type = ''
         this.reverse = false
+        this.useTax = false
         this.variable = false
         this.tag = ''
 
@@ -163,6 +166,9 @@ export class TaxCodeInfo {
             }
             else if (s == 'r') {
                 this.reverse = true
+            }
+            else if (s == 'u') {
+                this.useTax = true
             }
             else if (s == 'x') {
                 this.variable = true
@@ -183,6 +189,9 @@ export class TaxCodeInfo {
         const typeParts = [this.type]
         if (this.reverse) {
             typeParts.push('r')
+        }
+        if (this.useTax) {
+            typeParts.push('u')
         }
         if (this.variable) {
             typeParts.push('x')
@@ -307,6 +316,9 @@ export class TaxAuthority {
         if (info.reverse) {
             k += ';r'
         }
+        if (info.useTax) {
+            k += ';u'
+        }
         if (info.variant) {
             k += `:${info.variant}`
         }
@@ -361,6 +373,72 @@ export class TaxAuthorityNZ extends TaxAuthority {
 
     taxes(homeAuthority: string, isSale: boolean) {
         return ['GST:15', 'GST:zero:0'].map(s => `${this.id}:${s}`)
+    }
+}
+
+export class TaxAuthorityCA extends TaxAuthority {
+    get taxIdLabel() { return 'GST' }
+
+    taxesInfo() {
+        return {
+            'GST': { label: 'GST', shortLabel: 'GST', weight: 0 },
+            'HST': { label: 'HST', shortLabel: 'HST', weight: 1 },
+            'GST:zero': { label: 'GST/HST (zero-rated)', shortLabel: '0-rated', weight: 2 },
+        }
+    }
+
+    taxes(homeAuthority: string, isSale: boolean) {
+        return ['GST:5', 'GST:zero:0', 'HST:13', 'HST:15'].map(s => `${this.id}:${s}`)
+    }
+}
+
+export class TaxAuthorityCASales extends TaxAuthority {
+    get taxIdLabel() {
+        const map: Record<string, string> = {
+            'CA-BC': 'PST',
+            'CA-MB': 'RST',
+            'CA-QC': 'QST',
+            'CA-SK': 'PST',
+        }
+        return map[this.id]
+    }
+
+    taxesInfo() {
+        const map: Record<string, Record<string, TaxInfo>> = {
+            'CA-BC': {
+                'PST': { label: '(B.C.) PST', shortLabel: 'PST', weight: 0 },
+                'PST;u': { label: '(B.C.) PST (consump.)', shortLabel: 'PST', weight: 0 },
+            },
+            'CA-MB': {
+                'RST': { label: '(Man) RST', shortLabel: 'RST', weight: 0 },
+                'RST;u': { label: '(Man) RST (consump.)', shortLabel: 'RST', weight: 0 },
+            },
+            'CA-QC': {
+                'QST': { label: '(Que) QST', shortLabel: 'QST', weight: 0 },
+                'QST;u': { label: '(Que) QST (consump.)', shortLabel: 'QST', weight: 0 },
+            },
+            'CA-SK': {
+                'PST': { label: '(Sas) PST', shortLabel: 'PST', weight: 0 },
+                'PST;u': { label: '(Sas) PST (consump.)', shortLabel: 'PST', weight: 0 },
+            },
+        }
+        return map[this.id]
+    }
+
+    taxes(homeAuthority: string, isSale: boolean) {
+        const saleMap: Record<string, string[]> = {
+            'CA-BC': ['PST:7'],
+            'CA-MB': ['RST:7'],
+            'CA-QC': ['QST:9.975'],
+            'CA-SK': ['PST:6'],
+        }
+        const purchaseMap: Record<string, string[]> = {
+            'CA-BC': ['PST;u:7'],
+            'CA-MB': ['RST;u:7'],
+            'CA-QC': ['QST;u:9.975'],
+            'CA-SK': ['PST;u:6'],
+        }
+        return (isSale ? saleMap : purchaseMap)[this.id].map(s => `${this.id}:${s}`)
     }
 }
 
@@ -437,6 +515,11 @@ const taxAuthoritiesList: TaxAuthority[] = [
     new TaxAuthorityAU('AU', 'Australian Tax Office', true),
     new TaxAuthorityEU('BE', 'Ministry of Finance'),
     new TaxAuthorityEU('BG', 'National Revenue Agency'),
+    new TaxAuthorityCA('CA', 'Canada Revenue Agency', true),
+    new TaxAuthorityCASales('CA-BC', 'Ministry of Finance', true),
+    new TaxAuthorityCASales('CA-MB', 'Taxation Division', true),
+    new TaxAuthorityCASales('CA-QC', 'Revenu Quebec', true),
+    new TaxAuthorityCASales('CA-SK', 'Ministry of Finance', true),
     new TaxAuthorityEU('HR', 'Ministry of Finance'),
     new TaxAuthorityEU('CY', 'Ministry of Finance'),
     new TaxAuthorityEU('CZ', 'Development of Taxpayer Services Unit'),

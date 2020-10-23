@@ -444,7 +444,7 @@ function ElementFamily(props: ElementFamilyProps) {
                     onChange={e => {
                         const info = new TaxCodeInfo(e.target.value)
                         form.setValue(`elements[${index}].taxes[${subIndex}].rate`, info.rate)
-                        state.rates[subIndex] = (info.reverse ? '#' : '') + info.rate
+                        state.rates[subIndex] = (info.reverse || (useGross && info.useTax) ? '#' : '') + info.rate
                         formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
 
                         ratesEnabled[subIndex] = info.variable
@@ -482,7 +482,7 @@ function ElementFamily(props: ElementFamilyProps) {
                     defaultValue={subItem.rate}
                     onChange={e => {
                         const info = new TaxCodeInfo(baseCodes[subIndex])
-                        state.rates[subIndex] = (info.reverse ? '#' : '') + e.target.value
+                        state.rates[subIndex] = (info.reverse || (useGross && info.useTax) ? '#' : '') + e.target.value
                         formCalculateTaxes(form, `elements[${index}]`, state, 'rates')
                     }}
                     disabled={!ratesEnabled[subIndex]}
@@ -581,7 +581,12 @@ export function extractFormValues(t: Transaction): FormData {
         for (let e of values.elements) {
             let amount = e._amount!
             for (let t of e.taxes!) {
-                if (!t._info!.reverse) {
+                const info = t._info!
+                const useGross = e.useGross
+                if (info.reverse || (useGross && info.useTax)) {
+                    // skip
+                }
+                else {
                     amount += t._amount!
                 }
             }
@@ -683,6 +688,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
             e0.taxes.forEach(sub => {
                 let taxCode = ''
                 let reverseCharge = false
+                let useTax = false
                 if (sub.baseCode) {
                     const info = new TaxCodeInfo(sub.baseCode)
                     if (sub.tag) {
@@ -691,11 +697,12 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                     info.rate = sub.rate
                     taxCode = info.taxCode
                     reverseCharge = info.reverse
+                    useTax = info.useTax
                 }
 
                 elements.push({
                     id: sub.eId ? Number(sub.eId) : undefined,
-                    accountId: Account.Reserved.TaxReceivable,
+                    accountId: useTax ? Number(e0.accountId) : Account.Reserved.TaxReceivable,
                     drcr: Transaction.Debit,
                     // Note: Use the currency value of the first item
                     amount: parseFormatted(sub.amount, data.elements[0].currency),
@@ -707,7 +714,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
                     parentId: -1,
                 })
 
-                if (reverseCharge) {
+                if (reverseCharge || useTax) {
                     // Inject a reverse charge
                     elements.push({
                         id: ids.shift(),

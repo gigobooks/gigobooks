@@ -126,6 +126,7 @@ export async function taxItems(startDate: string, endDate: string, accrual: bool
     else {
         query.where('txnElement.taxCode', '<>', '')
     }
+    query.whereIn('txnElement.accountId', [Account.Reserved.TaxReceivable, Account.Reserved.TaxPayable])
 
     const elements: (Element & TaxItem)[] = await query as any
 
