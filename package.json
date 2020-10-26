@@ -54,7 +54,7 @@
     "sqlite3": "^4.1.1",
     "style-loader": "^2.0.0",
     "ts-jest": "^25.4.0",
-    "ts-loader": "^8.0.6",
+    "ts-loader": "^8.0.7",
     "typescript": "^3.9.7",
     "url-loader": "^4.1.1",
     "vatrates": "^2.0.2",
