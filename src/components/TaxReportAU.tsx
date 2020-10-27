@@ -30,7 +30,7 @@ type ReportInfo = {
 }
 
 async function reportInfo(startDate: string, endDate: string, accrual: boolean, g7: number, g15: number, g18: number) : Promise<ReportInfo> {
-    const items = await taxItems(startDate, endDate, accrual, ['AU'])
+    const items = await taxItems(startDate, endDate, accrual, ['AU:'])
     const result: ReportInfo = { startDate, endDate, accrual,
         sales: {items: [], taxTotals: [], totals: []},
         exportSales: {items: [], taxTotals: [], totals: []},

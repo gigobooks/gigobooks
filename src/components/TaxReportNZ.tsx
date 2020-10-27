@@ -26,7 +26,7 @@ type ReportInfo = {
 }
 
 async function reportInfo(startDate: string, endDate: string, accrual: boolean, line9: number, line13: number) : Promise<ReportInfo> {
-    const items = await taxItems(startDate, endDate, accrual, ['NZ'])
+    const items = await taxItems(startDate, endDate, accrual, ['NZ:'])
     const result: ReportInfo = { startDate, endDate, accrual,
         sales: {items: [], taxTotals: [], totals: []},
         zeroSales: {items: [], taxTotals: [], totals: []},
@@ -182,7 +182,7 @@ export function TaxReportGST() {
         </tr></tbody></table>
 
         {error && <div className='error'>{error}</div>}
-        {report && <PDFView _key={nonce} filename='gst-calculation-for-bas.pdf'>{report}</PDFView>}
+        {report && <PDFView _key={nonce} filename='gst-101A-helper.pdf'>{report}</PDFView>}
     </div>
 }
 
