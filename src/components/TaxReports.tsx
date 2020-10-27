@@ -7,6 +7,7 @@ import { MenuItem } from 'rc-menu'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 import { Project, taxAuthorities } from '../core'
 import TaxReportsAU from './TaxReportAU'
+import TaxReportsCA from './TaxReportCA'
 import TaxReportsNZ from './TaxReportNZ'
 
 export type TaxReport = {
@@ -31,6 +32,7 @@ function injectFields(reports0: Record<string, (TaxReport)[]>): Record<string, T
 
 const Reports: Record<string, TaxReportInternal[]> = injectFields({
     ...TaxReportsAU,
+    ...TaxReportsCA,
     ...TaxReportsNZ,
 })
 
