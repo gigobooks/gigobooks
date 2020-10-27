@@ -37,14 +37,19 @@ function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
     const [hasFilename, setHasFilename] = React.useState<boolean>(false)
     const [mru, setMru] = React.useState<string[]>(mruList())
+    const [nonce, setNonce] = React.useState<number>(0)
     const [error, setError] = React.useState<string>('')
     const [componentStack, setComponentStack] = React.useState<string>('')
 
-    function refresh() {
+    function refresh(newMain?: boolean) {
         refreshWindowTitle()
         setOpen(Project.isOpen())
         setHasFilename(!!Project.project && !!Project.project.filename)
         setMru(mruList())
+
+        if (newMain) {
+            setNonce(nonce + 1)
+        }
     }
 
     function beforeUnloadListener(e: BeforeUnloadEvent) {
@@ -103,7 +108,7 @@ function App() {
                     return <ErrorFallback stack={componentStack} {...props} />
                 }}
             >
-                <Main open={open} refreshApp={refresh} />
+                <Main key={nonce} open={open} refreshApp={refresh} />
             </ErrorBoundary>
         </div>
     </Wrapper></HashRouter>
@@ -230,7 +235,7 @@ type RedirectSpec = {
     push?: boolean
 }
 
-function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], refreshApp: () => void}) {
+function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], refreshApp: (newMain?: boolean) => void}) {
     const [redirect, setRedirect] = React.useState<RedirectSpec>({path: ''})
     const [trigger, setTrigger] = React.useState<'hover' | 'click'>('hover')
     const [nonce, setNonce] = React.useState<number>(0)
@@ -250,8 +255,11 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], ref
             fileMenuAction(keyParts[0], extra, function (path) {
                 if (path) {
                     setRedirect({path})
+                    props.refreshApp(true)
                 }
-                props.refreshApp()
+                else {
+                    props.refreshApp()
+                }
             })
         }
         else if (key.startsWith('/')) {
