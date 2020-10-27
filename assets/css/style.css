@@ -158,7 +158,7 @@ form textarea { width: 20em; height: 5em; }
     background: cornsilk; text-transform: uppercase; font-size: 0.875em;
 }
 
-.transaction-payments td { background: white; vertical-align: top; }
+.transaction-payments td { background: white; }
 .transaction-payments .payment-0 td { border-top: 1px solid #444; padding-top: 0.5em; }
 
 .transaction-payments .description { width: 75%; }
