@@ -122,7 +122,7 @@ const Reports: Record<string, TaxReport[]> = {
 
 export default Reports
 
-export function TaxReportGST() {
+function TaxReportGST() {
     const [summary, setSummary] = React.useState<boolean>(true)
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
@@ -161,8 +161,8 @@ export function TaxReportGST() {
 
     React.useEffect(() => {
         const amounts = {g7, g15, g18}
-        const parsed: Record<string, number> = amounts as any // typecast
         if (validate(amounts) && startDate && endDate) {
+            const parsed: Record<string, number> = amounts as any // typecast
             reportInfo(startDate, endDate, accrual, parsed.g7, parsed.g15, parsed.g18).then(data => {
                 setInfo(data)
                 setError('')

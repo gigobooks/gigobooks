@@ -97,7 +97,7 @@ const Reports: Record<string, TaxReport[]> = {
 
 export default Reports
 
-export function TaxReportGST() {
+function TaxReportGST() {
     const [summary, setSummary] = React.useState<boolean>(true)
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
@@ -138,8 +138,8 @@ export function TaxReportGST() {
 
     React.useEffect(() => {
         const amounts = {line104, line107, line110, line111, line205, line405}
-        const parsed: Inputs = amounts as any // typecast
         if (validate(amounts) && startDate && endDate) {
+            const parsed: Inputs = amounts as any // typecast
             reportInfo(startDate, endDate, parsed).then(data => {
                 setInfo(data)
                 setError('')
@@ -303,14 +303,14 @@ function renderReport(info: ReportInfo, taxId: string, summary: boolean) {
     </Page></Document>
 }
 
-function LineItem({label, amount, marginBottom = 12}: {label: string, amount: number, marginBottom?: number}) {
+export function LineItem({label, amount, marginBottom = 12}: {label: string, amount: number, marginBottom?: number}) {
     return <Tr key={label} style={{marginBottom}}>
         <ThLeft width={85}>{label}</ThLeft>
         <ThRight width={15}>{toFormatted(amount, 'CAD')} CAD</ThRight>
     </Tr>
 }
 
-function LineItemSummary({label, amount, marginBottom = 12}: {label: string, amount: number, marginBottom?: number}) {
+export function LineItemSummary({label, amount, marginBottom = 12}: {label: string, amount: number, marginBottom?: number}) {
     return <Tr key={label} style={{marginBottom}}>
         <ThLeft width={65}>{label}</ThLeft>
         <ThRight width={15}>{toFormatted(amount, 'CAD')} CAD</ThRight>
