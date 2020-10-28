@@ -9,6 +9,7 @@ import { Project, taxAuthorities } from '../core'
 import TaxReportsAU from './TaxReportAU'
 import TaxReportsCA from './TaxReportCA'
 import TaxReportsCA_BC from './TaxReportCA_BC'
+import TaxReportsCA_MB from './TaxReportCA_MB'
 import TaxReportsNZ from './TaxReportNZ'
 
 export type TaxReport = {
@@ -33,7 +34,7 @@ function injectFields(reports0: Record<string, (TaxReport)[]>): Record<string, T
 
 const Reports: Record<string, TaxReportInternal[]> = injectFields({
     ...TaxReportsAU,
-    ...TaxReportsCA, ...TaxReportsCA_BC,
+    ...TaxReportsCA, ...TaxReportsCA_BC, ...TaxReportsCA_MB,
     ...TaxReportsNZ,
 })
 

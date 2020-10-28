@@ -14,7 +14,7 @@ import { GroupItems, GroupTotal } from './TransactionTaxes'
 import { datePresetSelectOptions } from './SelectOptions'
 
 type Inputs = {
-    commission: boolean, h: number, i: number
+    outstanding: number
 }
 
 type ReportInfo = {
@@ -27,7 +27,7 @@ type ReportInfo = {
 }
 
 async function reportInfo(startDate: string, endDate: string, inputs: Inputs) : Promise<ReportInfo> {
-    const items = await taxItems(startDate, endDate, true, ['CA-BC:'])
+    const items = await taxItems(startDate, endDate, true, ['CA-MB:'])
     const result: ReportInfo = { startDate, endDate,
         sales: {items: [], taxTotals: [], totals: []},
         purchases: {items: [], taxTotals: [], totals: []},
@@ -59,39 +59,34 @@ async function reportInfo(startDate: string, endDate: string, inputs: Inputs) : 
         }
     })
 
-    result.lines['a'] = result.sales.totals[0].amount
-    result.lines['b'] = result.sales.taxTotals[0].amount
+    result.lines['1'] = result.sales.taxTotals[0].amount
 
-    if (inputs.commission) {
-        if (result.lines['b'] <= 2200) {
-            result.lines['c'] = result.lines['b']
-        }
-        else if (result.lines['b'] <= 33333) {
-            result.lines['c'] = 2200
+    if (result.lines['1'] <= 300) {
+        result.lines['2'] = result.lines['1']
+    }
+    else if (result.lines['1'] <= 2000) {
+        result.lines['2'] = 300
+    }
+    else if (result.lines['1'] <= 300000) {
+        if (result.lines['1'] <= 20000) {
+            result.lines['2'] = result.lines['1'] * 0.15
         }
         else {
-            result.lines['c'] = Math.min(result.lines['b'] * 0.066, 19800)
+            result.lines['2'] = (result.lines['1'] - 20000) * 0.01 + (20000 * 0.15)
         }
     }
     else {
-        result.lines['c'] = 0
+        result.lines['2'] = 0
     }
-    result.lines['d'] = result.lines['b'] - result.lines['c']
 
-    result.lines['e'] = result.purchases.totals[0].amount
-    result.lines['f'] = result.purchases.taxTotals[0].amount
-    result.lines['g'] = result.lines['d'] + result.lines['f']
-
-    result.lines['h'] = inputs.h
-    result.lines['i'] = inputs.i
-    result.lines['j'] = result.lines['h'] + result.lines['i']
-
-    result.lines['k'] = result.lines['g'] - result.lines['j']
+    result.lines['3'] = result.purchases.taxTotals[0].amount
+    result.lines['outstanding'] = inputs.outstanding
+    result.lines['4'] = result.lines['1'] - result.lines['2'] + result.lines['3'] + result.lines['outstanding']
     return result
 }
 
 const Reports: Record<string, TaxReport[]> = {
-    'CA-BC': [{id: 'st', label: '(BC) PST Return Worksheet', element: TaxReportImpl}]
+    'CA-MB': [{id: 'st', label: '(MB) RST Return Worksheet', element: TaxReportImpl}]
 }
 
 export default Reports
@@ -101,9 +96,7 @@ function TaxReportImpl() {
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')
-    const [commission, setCommission] = React.useState<boolean>(true)
-    const [inputH, setInputH] = React.useState<string>('')
-    const [inputI, setInputI] = React.useState<string>('')
+    const [outstanding, setOutstanding] = React.useState<string>('')
     const [formErrors, setFormErrors] = React.useState<Record<string, string>>({})
     const [info, setInfo] = React.useState<ReportInfo>()
     const [error, setError] = React.useState<string>('')
@@ -132,10 +125,10 @@ function TaxReportImpl() {
     }
 
     React.useEffect(() => {
-        const amounts = {h: inputH, i: inputI}
+        const amounts = {outstanding}
         if (validate(amounts) && startDate && endDate) {
             const parsed: Inputs = amounts as any // typecast
-            reportInfo(startDate, endDate, {...parsed, commission}).then(data => {
+            reportInfo(startDate, endDate, parsed).then(data => {
                 setInfo(data)
                 setError('')
                 setNonce(Date.now())
@@ -143,14 +136,14 @@ function TaxReportImpl() {
                 setError(e.toString())
             })
         }
-    }, [startDate, endDate, ...debounce([commission, inputH, inputI])])
+    }, [startDate, endDate, ...debounce([outstanding])])
 
     const report = React.useMemo(() => {
         return info ? renderReport(info, summary) : null
     }, [info && nonce ? nonce : 0, summary])
 
     return <div>
-        <h1 className='title'>BC PST Return Worksheet</h1>
+        <h1 className='title'>MB RST Return Worksheet</h1>
         <table className='horizontal-table-form'><tbody><tr className='row row-summary'>
             <th scope='row'>
                 <label htmlFor='summary'>Summary:</label>
@@ -167,37 +160,24 @@ function TaxReportImpl() {
                 </select>
                 {preset == 'custom' && <DateRange onChange={onDateChange} startDate={startDate} endDate={endDate} />}
             </td>
-        </tr><tr className='row row-commission'>
+        </tr><tr className='row row-outstanding'>
             <th scope='row'>
-                <label htmlFor='commission'>Commission:</label>
+                <label htmlFor='outstanding'>Outstanding Balance Including Interest:</label>
             </th><td>
-                <input type='checkbox' name='commission' checked={commission} onChange={e => {setCommission((e.target.checked))}} />
-            </td>
-        </tr><tr className='row row-inputH'>
-            <th scope='row'>
-                <label htmlFor='inputH'>[ H ] PST on Bad Debt Write-Off :</label>
-            </th><td>
-                <input name='inputH' onChange={e => {setInputH(e.target.value)}}></input> CAD
-                {formErrors['h'] && <div className='error'>{formErrors['h']}</div>}
-            </td>
-        </tr><tr className='row row-inputI'>
-            <th scope='row'>
-                <label htmlFor='inputI'>[ I ] PST on Amounts Refunded or Credited to Customers:</label>
-            </th><td>
-                <input name='inputI' onChange={e => {setInputI(e.target.value)}}></input> CAD
-                {formErrors['i'] && <div className='error'>{formErrors['i']}</div>}
+                <input name='outstanding' onChange={e => {setOutstanding(e.target.value)}}></input> CAD
+                {formErrors['outstanding'] && <div className='error'>{formErrors['outstanding']}</div>}
             </td>
         </tr></tbody></table>
 
         {error && <div className='error'>{error}</div>}
-        {report && <PDFView _key={nonce} filename='bc-pst-return-worksheet.pdf'>{report}</PDFView>}
+        {report && <PDFView _key={nonce} filename='mb-rst-return-worksheet.pdf'>{report}</PDFView>}
     </div>
 }
 
 function renderReport(info: ReportInfo, summary: boolean) {
     return <Document><Page size="A4" style={[Styles.page, {fontSize: summary ? 9 : 8}]}>
         <View fixed={true}>
-            <ReportHeader startDate={info.startDate} endDate={info.endDate} title={`British Columbia PST Return Worksheet${summary ? '' : ': Detail'}`} />
+            <ReportHeader startDate={info.startDate} endDate={info.endDate} title={`Manitoba Retail Sales Tax Return Worksheet${summary ? '' : ': Detail'}`} />
             {!summary && <Tr key='header' style={{marginBottom: 6}}>
                 <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
                 <ThLeft width={10} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>
@@ -211,45 +191,28 @@ function renderReport(info: ReportInfo, summary: boolean) {
         </View>
 
         {summary ? <>
-            <LineItemSummary label='[ A ] Total Sales and Leases' amount={info.lines['a']} />
-            <LineItemSummary label='[ B ] PST Collectable on Sales and Leases' amount={info.lines['b']} />
-            <LineItemSummary label='[ C ] Commission' amount={info.lines['c']} />
-            <LineItemSummary label='[ D ] Net PST Due on Sales and Leases' amount={info.lines['d']} />
-
-            <LineItemSummary label='[ E ] Purchase and Lease Price of Taxable Goods, Software and Services' amount={info.lines['e']} />
-            <LineItemSummary label='[ F ] PST Due on Purchases and Leases' amount={info.lines['f']} />
-            <LineItemSummary label='[ G ] PST Payable Before Adjustments' amount={info.lines['g']} />
-
-            <LineItemSummary label='[ H ] PST on Bad Debt Write-off' amount={info.lines['h']} />
-            <LineItemSummary label='[ I ] PST on Amounts Refunded or Credited to Customers' amount={info.lines['i']} />
-            <LineItemSummary label='[ J ] Total Adjustments' amount={info.lines['j']} />
-
-            <LineItemSummary label='[ K ] Total Amount Due' amount={info.lines['k']} />
+            <LineItemSummary label='1. Tax Collectable On Sales' amount={info.lines['1']} />
+            <LineItemSummary label='2. Deduct Commission' amount={info.lines['2']} />
+            <LineItemSummary label='3. Tax Owing On Purchases' amount={info.lines['3']} />
+            <LineItemSummary label='Outstanding Balance Including Interest' amount={info.lines['outstanding']} />
+            <LineItemSummary label='4. TOTAL AMOUNT DUE' amount={info.lines['4']} />
         </> : <>
             {info.sales.items.length > 0 && <>
                 <Tr><Th width={100}>Sales</Th></Tr>
                 <GroupItems group={info.sales} />
                 <GroupTotal group={info.sales} />
             </>}
-            <LineItem label='[ A ] Total Sales and Leases' amount={info.lines['a']} />
-            <LineItem label='[ B ] PST Collectable on Sales and Leases' amount={info.lines['b']} />
-            <LineItem label='[ C ] Commission' amount={info.lines['c']} />
-            <LineItem label='[ D ] Net PST Due on Sales and Leases' amount={info.lines['d']} />
+            <LineItem label='1. Tax Collectable On Sales' amount={info.lines['1']} />
+            <LineItem label='2. Deduct Commission' amount={info.lines['2']} />
 
             {info.purchases.items.length > 0 && <>
                 <Tr><Th width={100}>Purchases</Th></Tr>
                 <GroupItems group={info.purchases} />
                 <GroupTotal group={info.purchases} />
             </>}
-            <LineItem label='[ E ] Purchase and Lease Price of Taxable Goods, Software and Services' amount={info.lines['e']} />
-            <LineItem label='[ F ] PST Due on Purchases and Leases' amount={info.lines['f']} />
-            <LineItem label='[ G ] PST Payable Before Adjustments' amount={info.lines['g']} />
-
-            <LineItem label='[ H ] PST on Bad Debt Write-off' amount={info.lines['h']} />
-            <LineItem label='[ I ] PST on Amounts Refunded or Credited to Customers' amount={info.lines['i']} />
-            <LineItem label='[ J ] Total Adjustments' amount={info.lines['j']} />
-
-            <LineItem label='[ K ] Total Amount Due' amount={info.lines['k']} />
+            <LineItem label='3. Tax Owing On Purchases' amount={info.lines['3']} />
+            <LineItem label='Outstanding Balance Including Interest' amount={info.lines['outstanding']} />
+            <LineItem label='4. TOTAL AMOUNT DUE' amount={info.lines['4']} />
         </>}
 
         <ExchangeRates rates={info.exchangeRates} />
