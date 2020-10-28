@@ -109,7 +109,6 @@ function TaxReportImpl() {
     const [info, setInfo] = React.useState<ReportInfo>()
     const [error, setError] = React.useState<string>('')
     const [nonce, setNonce] = React.useState<number>(0)
-    const taxId: string = Project.variables.get('ca-bc:taxId')
 
     function onPresetChange(e: any) {
         const value = e.target.value
@@ -148,8 +147,8 @@ function TaxReportImpl() {
     }, [startDate, endDate, ...debounce([commission, inputH, inputI])])
 
     const report = React.useMemo(() => {
-        return info ? renderReport(info, taxId, summary) : null
-    }, [info && nonce ? nonce : 0, taxId, summary])
+        return info ? renderReport(info, summary) : null
+    }, [info && nonce ? nonce : 0, summary])
 
     return <div>
         <h1 className='title'>PST Return Worksheet</h1>
@@ -196,12 +195,10 @@ function TaxReportImpl() {
     </div>
 }
 
-function renderReport(info: ReportInfo, taxId: string, summary: boolean) {
+function renderReport(info: ReportInfo, summary: boolean) {
     return <Document><Page size="A4" style={[Styles.page, {fontSize: summary ? 9 : 8}]}>
         <View fixed={true}>
-            <ReportHeader startDate={info.startDate} endDate={info.endDate} title={`PST Return Worksheet${summary ? '' : ': Detail'}`}>
-                <T style={{fontSize: 10}}>(PST {taxId})</T>
-            </ReportHeader>
+            <ReportHeader startDate={info.startDate} endDate={info.endDate} title={`PST Return Worksheet${summary ? '' : ': Detail'}`} />
             {!summary && <Tr key='header' style={{marginBottom: 6}}>
                 <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
                 <ThLeft width={10} innerStyle={{borderBottomWidth: 1}}>Date</ThLeft>

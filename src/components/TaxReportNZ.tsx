@@ -105,7 +105,6 @@ function TaxReportGST() {
     const [error, setError] = React.useState<string>('')
     const [nonce, setNonce] = React.useState<number>(0)
     const accrual: boolean = Project.variables.get('nz:accrual')
-    const taxId: string = Project.variables.get('nz:taxId')
 
     function onPresetChange(e: any) {
         const value = e.target.value
@@ -144,8 +143,8 @@ function TaxReportGST() {
     }, [startDate, endDate, accrual, ...debounce([line9, line13])])
 
     const report = React.useMemo(() => {
-        return info ? renderReport(info, taxId, summary) : null
-    }, [info && nonce ? nonce : 0, taxId, summary])
+        return info ? renderReport(info, summary) : null
+    }, [info && nonce ? nonce : 0, summary])
 
     return <div>
         <h1 className='title'>GST101A helper</h1>
@@ -186,11 +185,11 @@ function TaxReportGST() {
     </div>
 }
 
-function renderReport(info: ReportInfo, taxId: string, summary: boolean) {
+function renderReport(info: ReportInfo, summary: boolean) {
     return <Document><Page size="A4" style={[Styles.page, {fontSize: summary ? 9 : 8}]}>
         <View fixed={true}>
             <ReportHeader startDate={info.startDate} endDate={info.endDate} title={`GST101A${summary ? '' : ': Detail'}`}>
-                <T style={{fontSize: 10}}>(GST {taxId}, {info.accrual ? 'invoice' : 'payments'} basis)</T>
+                <T style={{fontSize: 10}}>({info.accrual ? 'invoice' : 'payments'} basis)</T>
             </ReportHeader>
             {!summary && <Tr key='header' style={{marginBottom: 6}}>
                 <ThLeft width={14} innerStyle={{borderBottomWidth: 1}}>Item</ThLeft>
