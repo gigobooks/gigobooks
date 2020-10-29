@@ -21,7 +21,7 @@
     "knex": "^0.21.8",
     "objection": "^2.2.3",
     "pdfjs-dist": "^2.4.456",
-    "rc-menu": "^8.7.1",
+    "rc-menu": "^8.9.0",
     "react": "^16.14.0",
     "react-datepicker": "^3.2.2",
     "react-dom": "^16.14.0",
