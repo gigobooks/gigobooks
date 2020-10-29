@@ -44,7 +44,18 @@ function renderDate(data: any) {
 
 function renderDescription(data: any) {
     const t = data.row.original
-    const part1 = maybeLink(t, data.cell.value)
+    let text = data.cell.value
+
+    // If description is empty, use the first element description which exists
+    if (!text) {
+        for (let e of t.elements) {
+            if (e.description) {
+                text = e.description
+                break
+            }
+        }
+    }
+    const part1 = maybeLink(t, text)
 
     let part2
     if (t.type == Transaction.InvoicePayment || t.type == Transaction.BillPayment) {
