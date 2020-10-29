@@ -443,18 +443,21 @@ export class TaxAuthorityCASales extends TaxAuthority {
 }
 
 export class TaxAuthorityEU extends TaxAuthority {
+    static moreSettings: Record<string, Record<string, TaxSetting>> = {
+        'IE': {'cash': { type: 'checkbox', label: 'Cash receipts basis of accounting' }},
+    }
+
     get taxIdLabel() { return 'VAT ID' }
     settings(homeAuthority: string) {
         const fields: Record<string, TaxSetting> = {
             [this.taxIdVariableName]: { type: 'text', label: this.taxIdLabel }
         }
 
-        /*
-        if (this.id == 'IE') {
-            fields[`${this.id.toLowerCase()}:cash`] = { type: 'checkbox', label: 'Cash receipts basis of accounting' }
+        if (TaxAuthorityEU.moreSettings[this.id]) {
+            Object.keys(TaxAuthorityEU.moreSettings[this.id]).forEach(k => {
+                fields[`${this.id.toLowerCase()}:${k}`] = TaxAuthorityEU.moreSettings[this.id][k]
+            })
         }
-        */
-
         return fields
     }
 
