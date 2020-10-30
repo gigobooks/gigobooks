@@ -503,11 +503,23 @@ export class TaxAuthorityEU extends TaxAuthority {
     }
 
     tagOptions(homeAuthority: string, isSale: boolean, info: TaxCodeInfo) {
-        return isEUAuthority(homeAuthority) ? {
-            'eu-goods': `Intra-EU goods`,
-            'eu-service': `Intra-EU service`,
-            [isSale ? 'export' : 'import']: isSale ? 'Export out of EU' : 'Import into EU'
-        } : {} as any
+        const options: Record<string, string> = {}
+        if (isEUAuthority(homeAuthority)) {
+            options['eu-goods'] = 'Intra-EU goods'
+            options['eu-service'] = 'Intra-EU service'
+        }
+
+        /*
+        if (isSale && [].indexOf(this.id) >= 0) {
+            options['export'] = 'Export out of EU'
+        }
+
+        if (!isSale && [].indexOf(this.id) >= 0) {
+            options['import'] = 'Import into EU'
+        }
+        */
+
+        return options
     }
 }
 
