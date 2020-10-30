@@ -48,10 +48,10 @@ export class Base extends Model {
     // When loading from the database, datetime/timestamp fields are ISO strings.
     // Convert them into Date objects
     $afterFind() {
-        if (!(this.createdAt instanceof Date)) {
+        if ('createdAt' in this && !(this.createdAt instanceof Date)) {
             this.createdAt = new Date(this.createdAt!)
         }
-        if (!(this.updatedAt instanceof Date)) {
+        if ('updatedAt' in this && !(this.updatedAt instanceof Date)) {
             this.updatedAt = new Date(this.updatedAt!)
         }
     }
