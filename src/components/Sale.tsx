@@ -54,6 +54,8 @@ export default function Sale(props: Props) {
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
     const [transaction, setTransaction] = React.useState<Transaction>()
+    const [prevId, setPrevId] = React.useState<number>(-1)
+    const [nextId, setNextId] = React.useState<number>(-1)
     const [revenueOptions, setRevenueOptions] = React.useState<{}>()
     const [customerOptions, setCustomerOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
@@ -114,6 +116,20 @@ export default function Sale(props: Props) {
                     // take care not to modify unmounted components ??
                     if (mounted) {
                         form.reset(extractFormValues(t))
+
+                        // Prev
+                        Transaction.prevId(t, [Transaction.Sale, Transaction.Invoice]).then(id => {
+                            if (mounted) {
+                                setPrevId(id)
+                            }
+                        })
+
+                        // Next
+                        Transaction.nextId(t, [Transaction.Sale, Transaction.Invoice]).then(id => {
+                            if (mounted) {
+                                setNextId(id)
+                            }
+                        })
                     }
                 }
             })
@@ -121,6 +137,16 @@ export default function Sale(props: Props) {
         else {
             setTransaction(Transaction.construct({}))
             clearForm()
+
+            // Prev
+            Transaction.prevId(undefined, [Transaction.Sale, Transaction.Invoice]).then(id => {
+                if (mounted) {
+                    setPrevId(id)
+                }
+            })
+
+            // Next
+            setNextId(0)
         }
 
         return () => {mounted=false}
@@ -160,14 +186,19 @@ export default function Sale(props: Props) {
     if (redirectId >= 0 && redirectId != argId) {
         return <Redirect to={`/sales/${redirectId ? redirectId : 'new'}`} />
     }
-    else if (transaction && revenueOptions && customerOptions) {
+    else if (transaction && prevId >= 0 && nextId >= 0 && revenueOptions && customerOptions) {
         const saleForm = <div>
             <div className='title-pane'>
                 <span className='breadcrumb'><Link to='/sales'>Sales</Link> » </span>
                 <h1 className='title inline'>
                     {transaction.id ? `${Transaction.TypeInfo[transaction.type!].label} ${transaction.id}` : 'New sale'}
                 </h1>
-                {transaction.id && <span className='tasks'><Link to={`/sales/${transaction.id}/pdf`}>PDF</Link></span>}
+                <span className='tasks'>
+                    {transaction.id && <><Link to={`/sales/${transaction.id}/pdf`}>PDF</Link>&nbsp;|&nbsp;</>}
+                    {prevId ? <Link to={`/sales/${prevId}`}>Prev</Link> : <span className='disabled'>Prev</span>}
+                    &nbsp;|&nbsp;
+                    {argId == 0 ? <span className='disabled'>Next</span> : <Link to={`/sales/${nextId ? nextId : 'new'}`}>Next</Link>}
+                </span>
             </div>
             <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
                 <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-type'>

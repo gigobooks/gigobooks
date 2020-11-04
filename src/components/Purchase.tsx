@@ -55,6 +55,8 @@ export default function Purchase(props: Props) {
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
     const [transaction, setTransaction] = React.useState<Transaction>()
+    const [prevId, setPrevId] = React.useState<number>(-1)
+    const [nextId, setNextId] = React.useState<number>(-1)
     const [accountOptions, setAccountOptions] = React.useState<{}>()
     const [supplierOptions, setSupplierOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
@@ -120,6 +122,20 @@ export default function Purchase(props: Props) {
                     // take care not to modify unmounted components ??
                     if (mounted) {
                         form.reset(extractFormValues(t))
+
+                        // Prev
+                        Transaction.prevId(t, [Transaction.Purchase, Transaction.Bill]).then(id => {
+                            if (mounted) {
+                                setPrevId(id)
+                            }
+                        })
+
+                        // Next
+                        Transaction.nextId(t, [Transaction.Purchase, Transaction.Bill]).then(id => {
+                            if (mounted) {
+                                setNextId(id)
+                            }
+                        })
                     }
                 }
             })
@@ -127,6 +143,16 @@ export default function Purchase(props: Props) {
         else {
             setTransaction(Transaction.construct({}))
             clearForm()
+
+            // Prev
+            Transaction.prevId(undefined, [Transaction.Purchase, Transaction.Bill]).then(id => {
+                if (mounted) {
+                    setPrevId(id)
+                }
+            })
+
+            // Next
+            setNextId(0)
         }
 
         return () => {mounted=false}
@@ -166,13 +192,18 @@ export default function Purchase(props: Props) {
     if (redirectId >= 0 && redirectId != argId) {
         return <Redirect to={`/purchases/${redirectId ? redirectId : 'new'}`} />
     }
-    else if (transaction && accountOptions && supplierOptions) {
+    else if (transaction && prevId >= 0 && nextId >= 0 && accountOptions && supplierOptions) {
         const purchaseForm = <div>
             <div className='title-pane'>
                 <span className='breadcrumb'><Link to='/purchases'>Purchases</Link> » </span>
                 <h1 className='title inline'>
                     {transaction.id ? `${Transaction.TypeInfo[transaction.type!].label} ${transaction.id}` : 'New purchase'}
                 </h1>
+                <span className='tasks'>
+                    {prevId ? <Link to={`/purchases/${prevId}`}>Prev</Link> : <span className='disabled'>Prev</span>}
+                    &nbsp;|&nbsp;
+                    {argId == 0 ? <span className='disabled'>Next</span> : <Link to={`/purchases/${nextId ? nextId : 'new'}`}>Next</Link>}
+                </span>
             </div>
             <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
                 <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-type'>

@@ -25,6 +25,7 @@ h1.inline { display: inline-block; }
 .tasks { position: absolute; right: 0; margin-top: 1.5em; }
 .tasks:before { content: '[ '; }
 .tasks:after { content: ' ]'; }
+.tasks .disabled { color: grey; }
 
 
 /***********************************************************

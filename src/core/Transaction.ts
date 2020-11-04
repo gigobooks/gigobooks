@@ -368,6 +368,72 @@ export class Transaction extends Base {
         )`, [accountId])
     }
 
+    // Returns a promise which resolves to the id of the 'previous' transaction
+    // of the specified type(s), or 0 if none exists
+    static prevId(t?: {id?: number, date?: string}, type?: TransactionType | TransactionType[]): Promise<number> {
+        const q = Transaction.query().select('id')
+
+        if (type) {
+            if (typeof type === 'string') {
+                q.where('type', type)
+            }
+            else if (Array.isArray(type)) {
+                q.whereIn('type', type)
+            }
+        }
+
+        if (t && t.id && t.date) {
+            q.where(function () {
+                this.where(function () {
+                    this.where('date', '<', t.date!)
+                }).orWhere(function () {
+                    this.where('date', t.date!).where('id', '<', t.id!)
+                })                
+            })
+        }
+
+        q.orderBy([{column: 'date', order: 'desc'}, {column: 'id', order: 'desc'}])
+        .limit(1)
+
+        return new Promise((resolve, reject) => {
+            q.then(rows => resolve(rows.length > 0 ? rows[0].id : 0))
+            .catch(reject)
+        })
+    }
+
+    // Returns a promise which resolves to the id of the 'previous' transaction
+    // of the specified type(s), or 0 if none exists
+    static nextId(t?: {id?: number, date?: string}, type?: TransactionType | TransactionType[]): Promise<number> {
+        const q = Transaction.query().select('id')
+
+        if (type) {
+            if (typeof type === 'string') {
+                q.where('type', type)
+            }
+            else if (Array.isArray(type)) {
+                q.whereIn('type', type)
+            }
+        }
+
+        if (t && t.id && t.date) {
+            q.where(function () {
+                this.where(function () {
+                    this.where('date', '>', t.date!)
+                }).orWhere(function () {
+                    this.where('date', t.date!).where('id', '>', t.id!)
+                })                
+            })
+        }
+
+        q.orderBy([{column: 'date', order: 'asc'}, {column: 'id', order: 'asc'}])
+        .limit(1)
+
+        return new Promise((resolve, reject) => {
+            q.then(rows => resolve(rows.length > 0 ? rows[0].id : 0))
+            .catch(reject)
+        })
+    }
+
     // Calculates totals for each currency and returns them as an array
     static getSums(elements: IElement[]) {
         return Transaction._getBalances(elements, true)
