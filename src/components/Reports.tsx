@@ -68,8 +68,9 @@ type ReportHeaderProps = {
 }
 
 export function ReportHeader(props: ReportHeaderProps) {
+    const format = dfs()
+    const monthBeforeDate = format[0] == 'm' || format[0] == 'M'
     const endDate = parseISO(props.endDate)
-    let endOptions: any = {day: 'numeric', month: 'long', year: 'numeric'}
     let interval: string
 
     if (!props.startDate) {
@@ -77,21 +78,23 @@ export function ReportHeader(props: ReportHeaderProps) {
     }
     else {
         const startDate = parseISO(props.startDate)
-        let startOptions: any = {day: 'numeric', month: 'long', year: 'numeric'}
 
         if (isSameMonth(startDate, endDate)) {
             if (isFirstDayOfMonth(startDate) && isLastDayOfMonth(endDate)) {
                 interval = `${startDate.toLocaleDateString(LOCALE, {month: 'long', year: 'numeric'})}`
             }
             else {
-                startOptions = {day: 'numeric'}
-                endOptions = {day: 'numeric', month: 'long', year: 'numeric'}
-                interval = `${startDate.toLocaleDateString(LOCALE, startOptions)} to ${endDate.toLocaleDateString(LOCALE, endOptions)}`
+                if (monthBeforeDate) {
+                    interval = `${startDate.toLocaleDateString(LOCALE, {day: 'numeric', month: 'long'})} to ${endDate.toLocaleDateString(LOCALE, {day: 'numeric'})}, ${endDate.toLocaleDateString(LOCALE, {year: 'numeric'})}`
+                }
+                else {
+                    interval = `${startDate.toLocaleDateString(LOCALE, {day: 'numeric'})} to ${endDate.toLocaleDateString(LOCALE, {day: 'numeric', month: 'long', year: 'numeric'})}`
+                }
             }
         }
         else {
-            startOptions = {day: 'numeric', month: 'long', year: 'numeric'}
-            endOptions = {day: 'numeric', month: 'long', year: 'numeric'}
+            const startOptions: any = {day: 'numeric', month: 'long', year: 'numeric'}
+            const endOptions: any = {day: 'numeric', month: 'long', year: 'numeric'}
 
             if (isSameYear(startDate, endDate)) {
                 delete startOptions.year
