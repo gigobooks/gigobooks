@@ -87,10 +87,14 @@ export default function TaxSettings({refreshApp}: {refreshApp: () => void}) {
                     <select name='taxAuthority' ref={form.register}>
                         <option key='none' value='none'>Not in this list</option>
                         {options}
+                        <option key='more' value='more'>More...</option>
                     </select>
                     <button type='button' onClick={() => append({name: 'otherTaxAuthorities'})}>
                         Add tax authority
                     </button>
+                    {form.errors.taxAuthority && <div className='error'>
+                        {form.errors.taxAuthority.message}
+                    </div>}
                 </td>
             </tr>
 
@@ -107,7 +111,11 @@ export default function TaxSettings({refreshApp}: {refreshApp: () => void}) {
                     >
                         <option key='none' value='none'>None</option>
                         {options}
+                        <option key='more' value='more'>More...</option>
                     </select>
+                    {form.errors.otherTaxAuthorities && form.errors.otherTaxAuthorities[index] && <div className='error'>
+                        {form.errors.otherTaxAuthorities[index].message}
+                    </div>}
                 </td></tr>
             )}
 
@@ -171,7 +179,24 @@ function extractFormValues(): FormData {
 
 // Returns true if validation succeeded, false otherwise
 export function validateFormData(form: FCV<FormData>, data: FormData) {
-    return true
+    let result = true
+
+    const text = 'If your tax region or authority is not listed, please contact us and help us add it.'
+    if (data.taxAuthority == 'more') {
+        form.setError('taxAuthority', '', text)
+        result = false
+    }
+
+    if (data.otherTaxAuthorities) {
+        for (let i in data.otherTaxAuthorities) {
+            if (data.otherTaxAuthorities[i] == 'more') {
+                form.setError(`otherTaxAuthorities[${i}]`, '', text)
+                result = false
+            }
+        }
+    }
+
+    return result
 }
 
 // Returns: positive for success, 0 otherwise
