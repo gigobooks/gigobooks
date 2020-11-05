@@ -1,3 +1,6 @@
+__COMMITDATE__ = ''
+__COMMITHASH__ = ''
+
 var sqlite3 = require('sqlite3')
 
 // Emulate part of sqlite.Database using sqlite3 so the tests can run

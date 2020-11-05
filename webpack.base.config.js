@@ -1,6 +1,14 @@
 const webpack = require('webpack')
 const CopyPlugin = require('copy-webpack-plugin')
 
+const commitDate = require('child_process')
+  .execSync('git log -1 --format=%cs HEAD')
+  .toString().replace(/-/g, '').trim()
+
+const commitHash = require('child_process')
+  .execSync('git log -1 --format=%h HEAD')
+  .toString().trim()
+
 module.exports = (env, argv) => {
   return {
     mode: argv.mode,
@@ -55,6 +63,8 @@ module.exports = (env, argv) => {
     plugins: [
       new webpack.DefinePlugin({
         __DEV__: argv.mode === 'development',
+        __COMMITDATE__: JSON.stringify(commitDate),
+        __COMMITHASH__: JSON.stringify(commitHash),
       }),
 
       // https://github.com/knex/knex/issues/1446#issuecomment-537715431
