@@ -11,6 +11,7 @@ export { Account, AccountType } from './Account'
 export { Actor, ActorType } from './Actor'
 export { Transaction, TransactionType } from './Transaction'
 export { Element, IElement } from './Element'
+export { LOCALE } from './locale'
 export { dateFormatString, isDateOnly, toDateOnly, formatDateOnly,
   fiscalYearStart, lastSavedDate, DatePreset, datePresetDates } from './date'
 export { parseISO } from 'date-fns'

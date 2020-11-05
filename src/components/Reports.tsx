@@ -5,7 +5,7 @@
 import * as React from 'react'
 import { isFirstDayOfMonth, isLastDayOfMonth, isSameMonth, isSameYear } from 'date-fns'
 import DatePicker from 'react-datepicker'
-import { Project, parseISO, toDateOnly, dateFormatString as dfs } from '../core'
+import { LOCALE, Project, parseISO, toDateOnly, dateFormatString as dfs } from '../core'
 import { View } from '@react-pdf/renderer'
 import { B, T } from './PDFView'
 
@@ -73,7 +73,7 @@ export function ReportHeader(props: ReportHeaderProps) {
     let interval: string
 
     if (!props.startDate) {
-        interval = `${endDate.toLocaleDateString(undefined, {day: 'numeric', month: 'long', year: 'numeric'})}`
+        interval = `${endDate.toLocaleDateString(LOCALE, {day: 'numeric', month: 'long', year: 'numeric'})}`
     }
     else {
         const startDate = parseISO(props.startDate)
@@ -81,12 +81,12 @@ export function ReportHeader(props: ReportHeaderProps) {
 
         if (isSameMonth(startDate, endDate)) {
             if (isFirstDayOfMonth(startDate) && isLastDayOfMonth(endDate)) {
-                interval = `${startDate.toLocaleDateString(undefined, {month: 'long', year: 'numeric'})}`
+                interval = `${startDate.toLocaleDateString(LOCALE, {month: 'long', year: 'numeric'})}`
             }
             else {
                 startOptions = {day: 'numeric'}
                 endOptions = {day: 'numeric', month: 'long', year: 'numeric'}
-                interval = `${startDate.toLocaleDateString(undefined, startOptions)} to ${endDate.toLocaleDateString(undefined, endOptions)}`
+                interval = `${startDate.toLocaleDateString(LOCALE, startOptions)} to ${endDate.toLocaleDateString(LOCALE, endOptions)}`
             }
         }
         else {
@@ -102,11 +102,11 @@ export function ReportHeader(props: ReportHeaderProps) {
             if (isLastDayOfMonth(endDate)) {
                 delete endOptions.day
             }
-            interval = `${startDate.toLocaleDateString(undefined, startOptions)} to ${endDate.toLocaleDateString(undefined, endOptions)}`
+            interval = `${startDate.toLocaleDateString(LOCALE, startOptions)} to ${endDate.toLocaleDateString(LOCALE, endOptions)}`
         }
     }
 
-    const now = new Intl.DateTimeFormat(undefined, {
+    const now = new Intl.DateTimeFormat(LOCALE, {
         year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'
     }).format(new Date())
 

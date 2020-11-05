@@ -3,6 +3,7 @@
  */
 
 import * as CurrencyCodes from 'currency-codes'
+import { LOCALE } from './locale'
 import { Project } from './Project'
 import { orderByField } from '../util/util'
 
@@ -14,17 +15,14 @@ type Info = {
     formatter: Intl.NumberFormat
 }
 
-const locale = 'en'
-const cache: Record<string, Record<string, Info>> = {}
+const cache: Record<string, Info> = {}
 
-export function getCurrencyInfo(currency: string, loc = locale): Info {
-    cache[loc] = cache[loc] || []
-
-    if (!cache[loc][currency]) {
+export function getCurrencyInfo(currency: string): Info {
+    if (!cache[currency]) {
         const data = CurrencyCodes.code(currency)
 
         if (data) {
-            const formatter = new Intl.NumberFormat(loc, {
+            const formatter = new Intl.NumberFormat(LOCALE, {
                 style: 'currency',
                 currency: currency,
                 currencyDisplay: 'code',
@@ -37,7 +35,7 @@ export function getCurrencyInfo(currency: string, loc = locale): Info {
             const grouper = formatter.format(Number.MAX_SAFE_INTEGER)
                 .replace(/[A-Z]/g, '').trim().replace(/[0-9]/g, '')[0]
 
-            cache[loc][currency] = {
+            cache[currency] = {
                 code: currency,
                 scale: 10**(data.digits),
                 separator,
@@ -50,14 +48,14 @@ export function getCurrencyInfo(currency: string, loc = locale): Info {
         }
     }
 
-    return cache[loc][currency]
+    return cache[currency]
 }
 
 // Formats a monetary amount of the specified currency
 // Space is used as the group separator
 // amount is in subunits
-export function toFormatted(amount: number, currency: string, loc = locale): string {
-    const info = getCurrencyInfo(currency, loc)
+export function toFormatted(amount: number, currency: string): string {
+    const info = getCurrencyInfo(currency)
     if (!info) {
         throw new Error(`toFormatted: Unknown currency code: ${currency}`)
     }
@@ -92,18 +90,18 @@ export function toFormatted(amount: number, currency: string, loc = locale): str
 }
 
 // Like toFormatted(), but display negative values with a bracket instead of negative sign
-export function toFormattedAbs(amount: number, currency: string, loc = locale): string {
-    return amount >= 0 ? toFormatted(amount, currency, loc) : `(${toFormatted(-amount, currency, loc)})`
+export function toFormattedAbs(amount: number, currency: string): string {
+    return amount >= 0 ? toFormatted(amount, currency) : `(${toFormatted(-amount, currency)})`
 }
 
 // Parses a formatted string into a number which is the amount in currency subunits
 // Spaces are allowed (as alternative group separators)
-export function parseFormatted(formatted: string | undefined, currency: string, loc = locale): number {
+export function parseFormatted(formatted: string | undefined, currency: string): number {
     if (!formatted) {
         return 0
     }
 
-    const info = getCurrencyInfo(currency, loc)
+    const info = getCurrencyInfo(currency)
     if (!info) {
         throw new Error(`parseFormatted: Unknown currency code: ${currency}`)
     }

@@ -6,14 +6,15 @@ import { parseISO, addDays, subDays,
     endOfMonth, startOfMonth, addMonths, subMonths,
     endOfQuarter, startOfQuarter, addQuarters, subQuarters,
     addYears, subYears } from 'date-fns'
+import { LOCALE } from './locale'
 import { Project } from './Project'
 
-const cache: Record<string, string> = {}
+let cache: string = ''
 
-// Extract the date format string of a locale
-export function dateFormatString(locale?: string): string {
-    if (!cache[locale!]) {
-        const formatter = new Intl.DateTimeFormat(locale, {
+// Extract the date format string (of current locale)
+export function dateFormatString(): string {
+    if (!cache) {
+        const formatter = new Intl.DateTimeFormat(LOCALE, {
             year: 'numeric', month: 'numeric', day: 'numeric'
         })
 
@@ -27,10 +28,10 @@ export function dateFormatString(locale?: string): string {
             }
         })
 
-        cache[locale!] = parts.join('')
+        cache = parts.join('')
     }
 
-    return cache[locale!]
+    return cache
 }
 
 // Returns true if the supplied string is an ISO-8601-ish 'date-only' string.
@@ -48,7 +49,7 @@ export function toDateOnly(date: Date): string {
 }
 
 export function formatDateOnly(s: string) {
-    return new Intl.DateTimeFormat(undefined, {
+    return new Intl.DateTimeFormat(LOCALE, {
         year: 'numeric', month: 'numeric', day: 'numeric'
     }).format(parseISO(s))
 }
