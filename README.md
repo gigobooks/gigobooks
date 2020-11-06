@@ -8,7 +8,7 @@
 * Multi currency
 * [**Try it out on the web**](https://gigobooks.github.io/webapp)
 
-**Technical stuff:**
+**Technical stuff / Desktop edition:**
 
 GigoBooks is a client-side ReactJS webapp which runs in a system-provided webview. The [webview](https://github.com/bengtan/websqlview) is written in Go. It provides access to sqlite and other native facilities. Hence, GigoBooks acts like native desktop software.
 
@@ -16,11 +16,15 @@ GigoBooks is a client-side ReactJS webapp which runs in a system-provided webvie
 * GigoBooks runs entirely offline and does not access the Internet.
 * Data is stored in an sqlite database file. The schema and code are open so you can interact with your data yourself (if you so wish).
 * The community edition (GigoBooks CE) is free and open source.
-* It is intended to be cross-platform desktop (Windows/MacOS/Linux) although it has only been developed and tested on Ubuntu/libgtk so far. Other platforms may or may not yet work.
+* It is intended to be cross-platform desktop (Windows/MacOS/Linux) although it has only been tested on MacOS and Ubuntu/libgtk so far. Windows should work but may require some tweaking.
 
 **Web edition:**
 
 There is a separate Web edition which runs on the web. However, it runs fully client-side and your data is stored in an sqlite file on your local filesystem.
+
+## Status
+
+GigoBooks is beta software and is suitable for production use. Remember to make backups of your data files (which, in the general case, you should be doing anyway).
 
 ## Links
 
@@ -29,7 +33,7 @@ There is a separate Web edition which runs on the web. However, it runs fully cl
 
 ## Building
 
-(Only tested on Ubuntu Linux so far. It might work on Windows and MacOS, or it might not.)
+(Only tested on MacOS and Ubuntu Linux so far. It may require tweaks or small changes to work on Windows.)
 
 Install dependencies:
 
@@ -50,13 +54,13 @@ yarn webpack --mode=development
 
 (These instructions are for running in development mode.)
 
-Run `websqlview` and point it to `index.html` of the top level directory as a file:/// URL. For example:
+Run `websqlview` and point it to `dist/index.html`. For example:
 
 ```
-websqlview file:///<path-to-top-level-directory>/index.html
+websqlview dist/index.html
 ```
 
-If you are making frequent changes to the source code, you probably want to do:
+If you are making changes to the source code, you probably want to do:
 
 ```
 yarn watch
@@ -73,7 +77,7 @@ See [Contributing](CONTRIBUTING.md).
 ## License
 
 * GigoBooks CE (community edition) - [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
-* GigoBooks Web (Web edition) - Proprietary
+* GigoBooks Web (web edition) - Proprietary
 * GigoBooks PE (premium edition) - [PolyForm Internal Use License 1.0.0](https://polyformproject.org/licenses/internal-use/1.0.0/)
 
 For some background, see https://www.gigobooks.com/blog/commentary-business-model.html
