@@ -1,35 +1,41 @@
-# GigoBooks
+# Gig'o'Books
 
-* Clean and simple accounting software for solopreneurs, consultants, freelancers and other micro-businesses.
-* Privacy focused desktop software. Not cloud-based SaaS. Retain control over your data.
+* Non-cloud accounting app for solopreneurs, consultants, freelancers and gig economy workers.
+* Privacy focused. Not cloud-based SaaS. Retain control over your data.
 * Open data format. No lock-in. Retain control over your data.
 * Source code that you can extend/hack/customise yourself. Write your own custom scripts.
 * Double entry bookkeeping
 * Multi currency
-* [**Try it out on the web**](https://gigobooks.github.io/webapp)
+* Quick Start: [**Try the web edition**](https://www.gigobooks.com/webapp)
 
-**Technical stuff / Desktop edition:**
+There are multiple editions of Gig'o'Books.
 
-GigoBooks is a client-side ReactJS webapp which runs in a system-provided webview. The [webview](https://github.com/bengtan/websqlview) is written in Go. It provides access to sqlite and other native facilities. Hence, GigoBooks acts like native desktop software.
+**Community / Desktop edition:**
+
+Gig'o'Books is a client-side ReactJS webapp which runs in a system-provided webview. The [webview](https://github.com/bengtan/websqlview) is written in Go and provides access to sqlite and other native facilities. Hence, Gig'o'Books acts like native desktop software.
 
 * Your data is stored in an sqlite file on your local filesystem.
-* GigoBooks runs entirely offline and does not access the Internet.
+* Gig'o'Books runs entirely offline and does not access the Internet.
 * Data is stored in an sqlite database file. The schema and code are open so you can interact with your data yourself (if you so wish).
-* The community edition (GigoBooks CE) is free and open source.
+* The community edition (Gig'o'Books CE) is free and open source.
 * It is intended to be cross-platform desktop (Windows/MacOS/Linux) although it has only been tested on MacOS and Ubuntu/libgtk so far. Windows should work but may require some tweaking.
 
 **Web edition:**
 
-There is a separate Web edition which runs on the web. However, it runs fully client-side and your data is stored in an sqlite file on your local filesystem.
+There is a separate Web edition which is available at https://www.gigobooks.com/webapp
+
+Despite being a webapp, it is non-SaaS, runs fully client-side and your data is stored in an sqlite file on your local filesystem.
+
+The Web edition is very much like the Desktop edition except that it runs in a regular web browser.
 
 ## Status
 
-GigoBooks is beta software and is suitable for production use. Remember to make backups of your data files (which, in the general case, you should be doing anyway).
+Gig'o'Books is beta software that is suitable for production use. Remember to make backups of your data files (which, in the general case, you should be doing anyway).
 
 ## Links
 
-* **Blog:** https://gigobooks.github.io/
-* **Web edition:** https://gigobooks.github.io/webapp (Try it out!)
+* **Website and blog:** https://www.gigobooks.com
+* **Web edition:** https://www.gigobooks.com/webapp
 
 ## Building
 
@@ -76,8 +82,9 @@ See [Contributing](CONTRIBUTING.md).
 
 ## License
 
-* GigoBooks CE (community edition) - [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
-* GigoBooks Web (web edition) - Proprietary
-* GigoBooks PE (premium edition) - [PolyForm Internal Use License 1.0.0](https://polyformproject.org/licenses/internal-use/1.0.0/)
+* Gig'o'Books CE (community edition) - [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-For some background, see https://www.gigobooks.com/blog/commentary-business-model.html
+<!--
+* Gig'o'Books Web (web edition) - Proprietary
+* Gig'o'Books PE (premium edition) - [PolyForm Internal Use License 1.0.0](https://polyformproject.org/licenses/internal-use/1.0.0/)
+-->
