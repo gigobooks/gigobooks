@@ -60,7 +60,7 @@
     "vatrates": "^2.0.2",
     "webpack": "^4.44.2",
     "webpack-cli": "^4.2.0",
-    "worker-loader": "^2.0.0"
+    "worker-loader": "^3.0.5"
   },
   "husky": {
     "hooks": {
