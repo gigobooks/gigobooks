@@ -45,6 +45,15 @@ h1.inline { display: inline-block; }
 
 
 /***********************************************************
+* About                                                    *
+************************************************************/
+
+.page-about .logo { width: 60px; height: 60px; float: left; }
+.page-about .info { margin-left: 70px; }
+.page-about ul { list-style: none; margin-left: 0; padding-left: 0; }
+
+
+/***********************************************************
 * data tables                                              *
 ************************************************************/
 
