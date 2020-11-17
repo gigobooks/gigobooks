@@ -41,7 +41,7 @@ module.exports = (env, argv) => {
           use: ['url-loader'],
         },
         {
-          test: /\.(db)$/i,
+          test: /\.(gig)$/i,
           loader: 'file-loader',
           options: {
             name: '[path][name].[ext]',
