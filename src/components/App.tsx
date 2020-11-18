@@ -13,6 +13,7 @@ import ErrorPane from './ErrorPane'
 import { Wrapper } from './Stubs'
 import Front from './Front'
 import About from './About'
+import PreferencesPage from './Preferences'
 import Settings from './Settings'
 import TaxSettings from './TaxSettings'
 import AccountOverview from './AccountOverview'
@@ -248,7 +249,11 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], ref
 
     function onClick(info: MenuInfo) {
         const key = info.key as string
-        if (info.keyPath.length > 1 && info.keyPath[info.keyPath.length - 1] == 'file') {
+
+        if (key.startsWith('/')) {
+            setRedirect({path: key, push: true})
+        }
+        else if (info.keyPath.length > 1 && info.keyPath[info.keyPath.length - 1] == 'file') {
             const keyParts = key.split(':')
             const extra = keyParts[0] == 'mru' ? props.mru[Number(keyParts[1])] : ''
 
@@ -261,9 +266,6 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], ref
                     props.refreshApp()
                 }
             })
-        }
-        else if (key.startsWith('/')) {
-            setRedirect({path: key, push: true})
         }
         setNonce(nonce + 1)
     }
@@ -322,6 +324,9 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], ref
 
 function Main({open, refreshApp}: {open: boolean, refreshApp: () => void}) {
     return !open ? <Switch>
+        <Route path='/preferences'>
+            <PreferencesPage />
+        </Route>
         <Route path='/about'>
             <About />
         </Route>
@@ -391,6 +396,9 @@ function Main({open, refreshApp}: {open: boolean, refreshApp: () => void}) {
         </Route>
         <Route path='/settings'>
             <Settings />
+        </Route>
+        <Route path='/preferences'>
+            <PreferencesPage />
         </Route>
         <Route path='/about'>
             <About />

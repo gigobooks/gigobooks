@@ -4,6 +4,7 @@
 
 export { Model, TransactionOrKnex } from 'objection'
 export * from './settings'
+export {default as Preferences} from './preferences'
 export { Project } from './Project'
 export { Variables } from './Variables'
 export { Base } from './Base'

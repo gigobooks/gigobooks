@@ -20,6 +20,7 @@ export function fileMenu(props: {open: boolean, hasFilename: boolean, mru: strin
         <MenuItem key='save' disabled={!props.open || !props.hasFilename}>Save</MenuItem>
         <MenuItem key='save-as' disabled={!props.open}>Save as</MenuItem>
         <MenuItem key='close' disabled={!props.open}>Close</MenuItem>
+        {/* <MenuItem key='/preferences'>Preferences</MenuItem> */}
         <MenuItem key='quit'>Quit</MenuItem>
     </SubMenu>
 }
