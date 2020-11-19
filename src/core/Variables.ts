@@ -32,7 +32,7 @@ export class Variables {
         }
     }
 
-    async set(name: string, value: any, sessionOnly = false) {
+    async set(name: string, value: any, sessionOnly = false, skipOnChange = false) {
         if (!sessionOnly) {
             const now = new Date()
             const q = this.knex('variable').insert({
@@ -41,7 +41,12 @@ export class Variables {
                 updatedAt: now,
                 createdAt: now,
             }).toSQL().toNative()
-            await this.knex.raw(q.sql + upsertSuffix, q.bindings)
+
+            const p = this.knex.raw(q.sql + upsertSuffix, q.bindings)
+            if (skipOnChange) {
+                p.options({skipOnChange: true})
+            }
+            await p
         }
 
         // Update the cache

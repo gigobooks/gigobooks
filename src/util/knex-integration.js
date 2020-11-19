@@ -99,7 +99,7 @@ function makeKnex(filename, preExistingConnection, onChange = undefined) {
             let { response } = obj;
 
             // Notify upstream if any rows were changed
-            if (response.rowsAffected && this.config.onChange) {
+            if (response.rowsAffected && !obj.options.skipOnChange && obj.sql.indexOf('knex_migrations_lock') == -1 && this.config.onChange) {
                 this.config.onChange(obj)
             }
 

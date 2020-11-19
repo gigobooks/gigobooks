@@ -185,7 +185,7 @@ export async function fileMenuAction0(op: string, extra: string, done: (path?: s
             break
 
         case 'save':
-            await Project.variables.set('mru', window.location.hash.substring(1))
+            await Project.variables.set('mru', window.location.hash.substring(1), false, true)
             await Project.save()
             break
 
@@ -200,7 +200,7 @@ export async function fileMenuAction0(op: string, extra: string, done: (path?: s
             }
 
             if (filename) {
-                await Project.variables.set('mru', window.location.hash.substring(1))
+                await Project.variables.set('mru', window.location.hash.substring(1), false, true)
                 await Project.saveAs(filename!)
                 mruInsert(filename)
             }
