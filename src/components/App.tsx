@@ -322,7 +322,7 @@ function AppMenu(props: {open: boolean, hasFilename: boolean, mru: string[], ref
     </Menu>
 }
 
-function Main({open, refreshApp}: {open: boolean, refreshApp: () => void}) {
+function Main({open, refreshApp}: {open: boolean, refreshApp: (newMain?: boolean) => void}) {
     return !open ? <Switch>
         <Route path='/preferences'>
             <PreferencesPage />
@@ -331,7 +331,7 @@ function Main({open, refreshApp}: {open: boolean, refreshApp: () => void}) {
             <About />
         </Route>
         <Route path='/'>
-            <Front />
+            <Front refreshApp={refreshApp} />
         </Route>
     </Switch> : <Switch>
         <Route path='/reports/tax'>
@@ -404,7 +404,7 @@ function Main({open, refreshApp}: {open: boolean, refreshApp: () => void}) {
             <About />
         </Route>
         <Route path='/'>
-            <Front />
+            <Front refreshApp={refreshApp} />
         </Route>
     </Switch>
 }
