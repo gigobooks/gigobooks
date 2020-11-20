@@ -1,5 +1,9 @@
 # Unreleased
 
+
+# 1.0.1 - 20201120
+
+* Update dependencies
 * Change name from GigoBooks to Gig'o'Books
 * Add logo, favicon.
 * Add loading indicator and show it until React is ready.
@@ -9,6 +13,6 @@
 * [web] Add snapshot (to indexedDB) functionality and recovery screen
 
 
-# 1.0.0
+# 1.0.0 - 20201106
 
 'mvp'
