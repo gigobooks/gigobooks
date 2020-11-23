@@ -9,6 +9,7 @@ import { Transaction, formatDateOnly, toFormattedAbs,
     Money, ProfitAndLoss, profitAndLoss, datePresetDates } from '../core'
 import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader, ExchangeRates } from './Reports'
 import { currencySelectOptions, datePresetSelectOptions } from './SelectOptions'
+import { ToolTip } from './Misc'
 
 export function ProfitAndLoss({summary}: {summary?: boolean}) {
     const [preset, setPreset] = React.useState<string>('')
@@ -139,6 +140,7 @@ export function ProfitAndLoss({summary}: {summary?: boolean}) {
                     <option key='' value=''>All currencies</option>
                     {currencySelectOptions()}
                 </select>
+                <ToolTip text='Convert all amounts to the selected currency' />
             </td>
         </tr></tbody></table>
 
