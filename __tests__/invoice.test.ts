@@ -172,14 +172,14 @@ test('create and retrieve invoices', async done => {
 })
 
 test('invoice form', async done => {
-    expect(validateFormData(MockForm.clear(), {type: Transaction.Invoice, actorId: 0, date: new Date(), elements: []}))
+    expect(validateFormData(MockForm.clear(), {accrual: true, actorId: 0, date: new Date(), elements: []}))
         .toBe(false)
     expect(MockForm.errorField).toEqual('actorId')
     expect(MockForm.errorMessage).toEqual('Customer is required')
 
     // Save an invoice using form data
     let t0 = Transaction.construct({})
-    let result = await saveFormData(t0, {type: Transaction.Invoice, actorId: 1, date: now, description: 'foo', elements: [
+    let result = await saveFormData(t0, {accrual: true, actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 400, amount: '10', currency: 'USD', useGross: 0, grossAmount: '11', description: 'one', taxes: [
             {baseCode: ':zero:0', tag: 'tagA', rate: '0', amount: '0'},
             {baseCode: '::', tag: 'tagB', rate: '10', amount: '1'},
@@ -248,7 +248,7 @@ test('invoice form', async done => {
 test('invoice form actors', async done => {
     // Save an invoice which also creates a new customer
     const t0 = Transaction.construct({})
-    const result = await saveFormData(t0, {type: Transaction.Invoice, actorId: Actor.NewCustomer, actorTitle: 'John Bloggs', date: now, description: 'inline new customer', elements: [
+    const result = await saveFormData(t0, {accrual: true, actorId: Actor.NewCustomer, actorTitle: 'John Bloggs', date: now, description: 'inline new customer', elements: [
         {accountId: 400, amount: '10', currency: 'USD', useGross: 0, grossAmount: '10', description: 'one'},
     ]})
     expect(result).toBeTruthy()
@@ -259,7 +259,7 @@ test('invoice form actors', async done => {
 
     // Save an invoice which is invalid but also creates a new customer
     const t1 = Transaction.construct({})
-    const p1 = saveFormData(t1, {type: Transaction.Invoice, actorId: Actor.NewCustomer, actorTitle: 'Mary Contrary', date: now, description: 'invalid, new customer', elements: []})
+    const p1 = saveFormData(t1, {accrual: true, actorId: Actor.NewCustomer, actorTitle: 'Mary Contrary', date: now, description: 'invalid, new customer', elements: []})
     await expect(p1).rejects.toMatch(/No items/)
 
     const c1 = await Actor.query().findById(t1.actorId!)
@@ -267,7 +267,7 @@ test('invoice form actors', async done => {
 
     // Using a transaction, save an invoice which is invalid. The new customer will be discarded by the transaction rollback
     const t2 = Transaction.construct({})
-    const data2 = {type: Transaction.Invoice, actorId: Actor.NewCustomer, actorTitle: 'Discarded', date: now, description: 'invalid, discard new customer', elements: []}
+    const data2 = {accrual: true, actorId: Actor.NewCustomer, actorTitle: 'Discarded', date: now, description: 'invalid, discard new customer', elements: []}
     const p2 = Model.transaction(trx => saveFormData(t2, data2, trx))
     await expect(p2).rejects.toMatch(/No items/)
 

@@ -18,14 +18,14 @@ afterAll(() => {
 })
 
 test('sale form', async done => {
-    expect(validateFormData(MockForm.clear(), {type: Transaction.Sale, actorId: 0, date: new Date(), elements: []}))
+    expect(validateFormData(MockForm.clear(), {accrual: false, actorId: 0, date: new Date(), elements: []}))
         .toBe(false)
     expect(MockForm.errorField).toEqual('actorId')
     expect(MockForm.errorMessage).toEqual('Customer is required')
 
     // Save a sale using form data
     let t0 = Transaction.construct({})
-    let result = await saveFormData(t0, {type: Transaction.Sale, actorId: 1, date: now, description: 'foo', elements: [
+    let result = await saveFormData(t0, {accrual: false, actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 400, amount: '10', currency: 'USD', useGross: 0, grossAmount: '11', description: 'one', taxes: [
             {baseCode: ':zero:0', tag: 'tagA', rate: '0', amount: '0'},
             {baseCode: '::', tag: 'tagB', rate: '10', amount: '1'},

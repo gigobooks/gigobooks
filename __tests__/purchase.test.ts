@@ -19,14 +19,14 @@ afterAll(() => {
 })
 
 test('purchase form', async done => {
-    expect(validateFormData(MockForm.clear(), {type: Transaction.Purchase, actorId: 0, date: new Date(), elements: []}))
+    expect(validateFormData(MockForm.clear(), {accrual: false, actorId: 0, date: new Date(), elements: []}))
         .toBe(false)
     expect(MockForm.errorField).toEqual('actorId')
     expect(MockForm.errorMessage).toEqual('Supplier is required')
 
     // Save a sale using form data
     let t0 = Transaction.construct({})
-    let result = await saveFormData(t0, {type: Transaction.Purchase, actorId: 1, date: now, description: 'foo', elements: [
+    let result = await saveFormData(t0, {accrual: false, actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 506, amount: '10', currency: 'USD', useGross: 0, grossAmount: '11', description: 'one', taxes: [
             {baseCode: ':zero:0', tag: 'tagA', rate: '0', amount: '0'},
             {baseCode: '::', tag: 'tagB', rate: '10', amount: '1'},
@@ -95,7 +95,7 @@ test('purchase form', async done => {
 test('purchase form with reverse charge', async done => {
     // Save a sale using form data
     let t0 = Transaction.construct({})
-    let result = await saveFormData(t0, {type: Transaction.Purchase, actorId: 1, date: now, description: 'foo', elements: [
+    let result = await saveFormData(t0, {accrual: false, actorId: 1, date: now, description: 'foo', elements: [
         {accountId: 506, amount: '100', currency: 'USD', useGross: 0, grossAmount: '110', description: 'one', taxes: [
             {baseCode: ':;r:0', tag: 'tagA', rate: '5', amount: '5'},
             {baseCode: '::', tag: 'tagB', rate: '10', amount: '10'},

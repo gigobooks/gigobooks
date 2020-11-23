@@ -15,14 +15,16 @@ import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, hashSelectOptions, flatSelectOptions, accountSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
 import BillPayment from './BillPayment'
-import { Required } from './Misc'
+import { Required, ToolTip } from './Misc'
+
+const ACCRUAL_TOOL_TIP = 'Tick this box if payments are to be recorded separately.<br />If ticked, a Bill transaction will be created and a Payments section will appear below.'
 
 type Props = {
     arg1?: string
 }
 
 export type FormData = {
-    type: TransactionType
+    accrual: boolean
     actorId: number
     actorTitle?: string
     date: Date
@@ -55,17 +57,18 @@ export default function Purchase(props: Props) {
     // argId == 0 means creating a new transaction
     const argId = /^\d+$/.test(props.arg1!) ? Number(props.arg1) : 0
 
-    const [transaction, setTransaction] = React.useState<Transaction>()
+    const [transaction, setTransaction] = React.useState<Transaction & { settledBy?: Element[] }>()
     const [prevId, setPrevId] = React.useState<number>(-1)
     const [nextId, setNextId] = React.useState<number>(-1)
     const [accountOptions, setAccountOptions] = React.useState<{}>()
     const [supplierOptions, setSupplierOptions] = React.useState<{}>()
     const [actorTitleEnable, setActorTitleEnable] = React.useState<boolean>(false)
     const [redirectId, setRedirectId] = React.useState<number>(-1)
+    const [nonce, setNonce] = React.useState<number>(0)
     let action = ''
 
     const form = useForm<FormData>()
-    const type = form.watch('type')
+    const accrual = form.watch('accrual')
     const {fields, append} = useFieldArray({control: form.control, name: 'elements'})
 
     function clearForm() {
@@ -75,6 +78,10 @@ export default function Purchase(props: Props) {
             date: lastSavedDate(),
             elements: [{currency}],
         })
+    }
+
+    function refresh() {
+        setNonce(nonce + 1)
     }
 
     // Initialise a lot of stuff
@@ -113,7 +120,7 @@ export default function Purchase(props: Props) {
         // Load transaction (if exists) and initialise form accordingly
         if (argId > 0) {
             Transaction.query().findById(argId).whereIn('type', [Transaction.Purchase, Transaction.Bill])
-            .withGraphFetched('elements')
+            .withGraphFetched('elements').withGraphFetched('settledBy')
             .then(t => {
                 if (t && mounted) {
                     setTransaction(t)
@@ -157,7 +164,7 @@ export default function Purchase(props: Props) {
         }
 
         return () => {mounted=false}
-    }, [props.arg1, transaction && transaction.id && transaction.updatedAt ? transaction.updatedAt.toString() : 0])
+    }, [props.arg1, transaction && transaction.id && transaction.updatedAt ? transaction.updatedAt.toString() : 0, nonce])
 
     const onSubmit = (data: FormData) => {
         if (!validateFormData(form, data)) {
@@ -207,24 +214,7 @@ export default function Purchase(props: Props) {
                 </span>
             </div>
             <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
-                <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-type'>
-                    <th scope='row'>
-                        <label htmlFor='type'>Type:</label>
-                    </th><td>
-                        <select name='type' ref={form.register} disabled={!!transaction.id}>
-                            {!transaction.type && <option key='' value=''></option>}
-                            <option key={Transaction.Purchase} value={Transaction.Purchase}>
-                                {Transaction.TypeInfo[Transaction.Purchase].label}
-                            </option>
-                            <option key={Transaction.Bill} value={Transaction.Bill}>
-                                {Transaction.TypeInfo[Transaction.Bill].label}
-                            </option>
-                        </select>
-                        {form.errors.type && <span className='error'>
-                            {form.errors.type.message}
-                        </span>}
-                    </td>
-                </tr><tr className='row row-actor'>
+                <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-actor'>
                     <th scope='row'>
                         <label htmlFor='actorId'>Supplier<Required />:</label>
                     </th><td>
@@ -266,7 +256,20 @@ export default function Purchase(props: Props) {
                             {form.errors.date.message}
                         </span>}
                     </td>
-                </tr>{type == TransactionType.Bill && <tr className='row row-due'>
+                </tr><tr className='row row-accrual'>
+                    <th scope='row'>
+                        <label htmlFor='accrual'>Record payments separately:</label>
+                    </th><td>
+                        <input type='checkbox'
+                            name='accrual'
+                            ref={form.register}
+                            disabled={transaction.settledBy && transaction.settledBy.length > 0} />
+                        <ToolTip text={ACCRUAL_TOOL_TIP} />
+                        {form.errors.accrual && <span className='error'>
+                            {form.errors.accrual.message}
+                        </span>}
+                    </td>
+                </tr>{accrual && <tr className='row row-due'>
                     <th scope='row'>
                         <label htmlFor='due'>Due date:</label>
                     </th><td>
@@ -336,7 +339,7 @@ export default function Purchase(props: Props) {
             {purchaseForm}
             {!!transaction.id && transaction.type == Transaction.Bill &&
             transaction.elements && transaction.elements.length > 0 &&
-            <BillPayment transaction={transaction} />}
+            <BillPayment transaction={transaction} refresh={refresh} />}
         </div>
     }
 
@@ -541,7 +544,7 @@ function ElementFamily(props: ElementFamilyProps) {
 
 export function extractFormValues(t: Transaction): FormData {
     const values: FormData = {
-        type: t.type!,
+        accrual: t.type == TransactionType.Bill,
         date: parseISO(t.date!),
         due: t.due ? parseISO(t.due) : undefined,
         description: t.description,
@@ -631,10 +634,6 @@ export function extractFormValues(t: Transaction): FormData {
 
 // Returns true if validation succeeded, false otherwise
 export function validateFormData(form: FCV<FormData>, data: FormData) {
-    if (!data.type) {
-        form.setError('type', '', 'Type is required')
-        return false
-    }
     if (!data.actorId) {
         form.setError('actorId', '', 'Supplier is required')
         return false
@@ -694,7 +693,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
 
     Object.assign(transaction, {
         description: data.description,
-        type: data.type,
+        type: data.accrual ? TransactionType.Bill : TransactionType.Purchase,
         date: toDateOnly(data.date),
         due: data.due ? toDateOnly(data.due) : '',
         actorId: data.actorId,
@@ -770,7 +769,7 @@ export async function saveFormData(transaction: Transaction, data: FormData, trx
     for (let money of Transaction.getDebitBalances(elements)) {
         elements.push({
             id: ids.shift(),
-            accountId: data.type == Transaction.Purchase ? Account.Reserved.Cash : Account.Reserved.AccountsPayable,
+            accountId: data.accrual ? Account.Reserved.AccountsPayable : Account.Reserved.Cash,
             drcr: Transaction.Credit,
             amount: money.amount,
             currency: money.currency,

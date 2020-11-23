@@ -31,10 +31,10 @@ export const TransactionTypeInfo: Record<string, {label: string, shortLabel: str
     [TransactionType.Raw]: { label: 'Raw', shortLabel: 'Raw' },
     [TransactionType.Contribution]: { label: 'Contribution', shortLabel: 'Contrib' },
     // [TransactionType.Dividend]: { label: 'Dividend' },
-    [TransactionType.Sale]: { label: 'Cash sale', shortLabel: 'Sale' },
+    [TransactionType.Sale]: { label: 'Sale', shortLabel: 'Sale' },
     [TransactionType.Invoice]: { label: 'Invoice', shortLabel: 'Inv' },
     [TransactionType.InvoicePayment]: { label: 'Invoice payment', shortLabel: 'Inv pay' },
-    [TransactionType.Purchase]: { label: 'Cash purchase', shortLabel: 'Purch' },
+    [TransactionType.Purchase]: { label: 'Purchase', shortLabel: 'Purch' },
     [TransactionType.Bill]: { label: 'Bill', shortLabel: 'Bill' },
     [TransactionType.BillPayment]: { label: 'Bill payment', shortLabel: 'Bill pay' },
 }

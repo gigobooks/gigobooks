@@ -10,11 +10,12 @@ import {  TransactionOrKnex, Model,
     dateFormatString as dfs, toDateOnly, parseISO, lastSavedDate,
     toFormatted, parseFormatted } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
-import { MaybeSelect, currencySelectOptions } from './SelectOptions'
+import { MaybeSelect } from './SelectOptions'
 import { Required } from './Misc'
 
 type Props = {
     transaction: Transaction
+    refresh: () => void
 }
 
 type FormData = {
@@ -68,6 +69,7 @@ export default function InvoicePayment(props: Props) {
             playAlert()
             form.setError(`payments[${data.index}].submit`, '', e.toString())
         })
+        props.refresh()
     }
 
     if (settlements) {
