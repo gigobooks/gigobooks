@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 import { APP_NAME, VERSION, LICENSE, Project } from '../core'
 import { AboutExtra } from './Stubs'
 
@@ -22,9 +23,13 @@ export default function About() {
     }, [Project.isOpen])
 
     return <div className='page-about'>
+        <div className='title-section'>
+            <span className='breadcrumb'><Link to='/'>Home</Link> » </span>
+            <h1 className='title inline'>About {APP_NAME}</h1>
+        </div>
+
         <img className='logo' src={LOGO_URL} />
         <div className='info'>
-            <h1 className='title' style={{}}>About {APP_NAME}</h1>
             <ul><li>
                 <label>Version:</label> {VERSION}
             </li><li>

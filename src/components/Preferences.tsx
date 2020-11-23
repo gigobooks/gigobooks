@@ -3,9 +3,11 @@
  */
 
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function PreferencesPage() {
     return <div>
-        <h1 className='title'>Preferences</h1>
+        <span className='breadcrumb'><Link to='/'>Home</Link> » </span>
+        <h1 className='title inline'>Preferences</h1>
     </div>
 }

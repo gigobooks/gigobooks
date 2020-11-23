@@ -58,6 +58,8 @@ h1.inline { display: inline-block; }
 
 .page-about .logo { width: 60px; height: 60px; float: left; }
 .page-about .info { margin-left: 70px; }
+.page-about .info ul { margin-top: 0; }
+.page-about .extra, .page-about .disclaimer { clear: both; }
 .page-about ul { list-style: none; margin-left: 0; padding-left: 0; }
 
 
