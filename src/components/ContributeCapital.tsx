@@ -13,6 +13,7 @@ import { TransactionOrKnex, Model,
 import { validateElementAmounts } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, flatSelectOptions, currencySelectOptions } from './SelectOptions'
+import { Required } from './Misc'
 
 type Props = {
     arg1?: string
@@ -108,7 +109,7 @@ export default function ContributeCapital(props: Props) {
             <form onSubmit={form.handleSubmit(onSubmit)} className='transaction-form'>
                 <table className='horizontal-table-form transaction-fields'><tbody><tr className='row row-date'>
                     <th scope='row'>
-                        <label htmlFor='date'>Date:</label>
+                        <label htmlFor='date'>Date<Required />:</label>
                     </th><td>
                         <Controller
                             // No-op for DatePicker.onChange()

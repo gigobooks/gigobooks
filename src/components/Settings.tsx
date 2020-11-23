@@ -8,6 +8,7 @@ import { Project } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { currencySelectOptionsAll } from './SelectOptions'
 import { refreshWindowTitle } from '../util/util'
+import { Required } from './Misc'
 
 type FormData = {
     title: string
@@ -49,9 +50,9 @@ export default function Settings() {
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <table className='horizontal-table-form'><tbody><tr className='row row-title'>
                 <th scope='row'>
-                    <label htmlFor='title'>Title:</label>
+                    <label htmlFor='title'>Title<Required />:</label>
                 </th><td>
-                    <input name='title' ref={form.register} />
+                    <input name='title' ref={form.register} required />
                     {form.errors.title && <span className='error'>
                         {form.errors.title.message}
                     </span>}

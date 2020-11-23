@@ -7,6 +7,7 @@ import { useForm, FormContextValues as FCV } from 'react-hook-form'
 import { Link, Redirect } from 'react-router-dom'
 import { Account, AccountType } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
+import { Required } from './Misc'
 
 type Props = {
     arg1?: string
@@ -82,9 +83,9 @@ export default function AccountDetail(props: Props) {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <table className='horizontal-table-form'><tbody><tr className='row row-title'>
                     <th scope='row'>
-                        <label htmlFor='title'>Title:</label>
+                        <label htmlFor='title'>Title<Required />:</label>
                     </th><td>
-                        <input name='title' ref={form.register} />
+                        <input name='title' ref={form.register} required />
                         {form.errors.title && <span className='error'>
                             {form.errors.title.message}
                         </span>}

@@ -11,6 +11,7 @@ import { TransactionOrKnex, Model,
     toFormatted, parseFormatted } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, currencySelectOptions } from './SelectOptions'
+import { Required } from './Misc'
 
 type Props = {
     transaction: Transaction
@@ -77,11 +78,11 @@ export default function BillPayment(props: Props) {
                     <th>
                         Id
                     </th><th>
-                        Date
+                        Date <Required />
                     </th><th>
                         Description
                     </th><th>
-                        Amount
+                        Amount <Required />
                     </th><th>
                         &nbsp;
                     </th>

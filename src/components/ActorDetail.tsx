@@ -7,6 +7,7 @@ import { useForm, FormContextValues as FCV } from 'react-hook-form'
 import { Link, Redirect } from 'react-router-dom'
 import { Project, Actor } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
+import { Required } from './Misc'
 
 const taxIdLabelOptions0 = ['ABN', 'GST', 'VAT ID']
 
@@ -104,9 +105,9 @@ export default function ActorDetail(props: Props) {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <table className='horizontal-table-form'><tbody><tr className='row row-title'>
                     <th scope='row'>
-                        <label htmlFor='title'>Name:</label>
+                        <label htmlFor='title'>Name<Required />:</label>
                     </th><td>
-                        <input name='title' ref={form.register} />
+                        <input name='title' ref={form.register} required />
                         {form.errors.title && <span className='error'>
                             {form.errors.title.message}
                         </span>}

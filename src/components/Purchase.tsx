@@ -15,6 +15,7 @@ import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, hashSelectOptions, flatSelectOptions, accountSelectOptions, currencySelectOptions, taxSelectOptions } from './SelectOptions'
 import { formCalculateTaxes } from './form'
 import BillPayment from './BillPayment'
+import { Required } from './Misc'
 
 type Props = {
     arg1?: string
@@ -225,7 +226,7 @@ export default function Purchase(props: Props) {
                     </td>
                 </tr><tr className='row row-actor'>
                     <th scope='row'>
-                        <label htmlFor='actorId'>Supplier:</label>
+                        <label htmlFor='actorId'>Supplier<Required />:</label>
                     </th><td>
                         <select
                             name='actorId'
@@ -250,7 +251,7 @@ export default function Purchase(props: Props) {
                     </td>
                 </tr><tr className='row row-date'>
                     <th scope='row'>
-                        <label htmlFor='date'>Date:</label>
+                        <label htmlFor='date'>Date<Required />:</label>
                     </th><td>
                         <Controller
                             // No-op for DatePicker.onChange()
@@ -291,11 +292,11 @@ export default function Purchase(props: Props) {
                 </tr></tbody></table>
                 <table className='transaction-elements'><thead><tr>
                     <th rowSpan={2}>
-                        Account
+                        Account <Required />
                     </th><th rowSpan={2} colSpan={3}>
                         Description
                     </th><th scope='colgroup' colSpan={3}>
-                        Amount
+                        Amount <Required />
                     </th><td rowSpan={2}>
                         &nbsp;
                     </td>
@@ -468,7 +469,7 @@ function ElementFamily(props: ElementFamilyProps) {
                 value={subItem.eId}
                 ref={form.register()}
             />}
-            <label htmlFor={`elements[${index}].taxes[${subIndex}].baseCode`}>Tax:
+            <label htmlFor={`elements[${index}].taxes[${subIndex}].baseCode`}>Tax<Required />:
                 <select
                     name={`elements[${index}].taxes[${subIndex}].baseCode`}
                     defaultValue={subItem.baseCode}

@@ -13,6 +13,7 @@ import { TransactionOrKnex, Model,
 import { validateElementDrCr } from '../util/util'
 import { playSuccess, playAlert } from '../util/sound'
 import { MaybeSelect, accountSelectOptions, actorSelectOptions, currencySelectOptions } from './SelectOptions'
+import { Required } from './Misc'
 
 type Props = {
     arg1?: string
@@ -152,7 +153,7 @@ export default function TransactionDetail(props: Props) {
                     </td>
                 </tr><tr className='row row-date'>
                     <th scope='row'>
-                        <label htmlFor='date'>Date:</label>
+                        <label htmlFor='date'>Date<Required />:</label>
                     </th><td>
                         <Controller
                             // No-op for DatePicker.onChange()
