@@ -9,6 +9,7 @@ import { playSuccess, playAlert } from '../util/sound'
 import { currencySelectOptionsAll } from './SelectOptions'
 import { refreshWindowTitle } from '../util/util'
 import { Required } from './Misc'
+import { refreshOnboarding } from './Onboarding'
 
 type FormData = {
     title: string
@@ -187,4 +188,5 @@ async function saveFormData(data: FormData) {
         data.exchangeRates = rates
     }
     await Project.variables.setMultiple(data)
+    refreshOnboarding('save-settings')
 }

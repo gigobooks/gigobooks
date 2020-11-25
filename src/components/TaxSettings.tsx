@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom'
 import { Project, TaxAuthority, taxAuthorities, regionName } from '../core'
 import { playSuccess, playAlert } from '../util/sound'
 import { hashSelectOptions } from './SelectOptions'
+import { refreshOnboarding } from './Onboarding'
 
 type FormData = {
     taxAuthority: string
@@ -209,4 +210,5 @@ async function saveFormData(data: FormData) {
     }))].sort()
 
     await Project.variables.setMultiple(data)
+    refreshOnboarding('save-tax-settings')
 }

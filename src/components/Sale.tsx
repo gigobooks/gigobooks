@@ -16,6 +16,7 @@ import { MaybeSelect, hashSelectOptions, flatSelectOptions, currencySelectOption
 import { formCalculateTaxes } from './form'
 import InvoicePayment from './InvoicePayment'
 import { Required, ToolTip } from './Misc'
+import { refreshOnboarding } from './Onboarding'
 
 const ACCRUAL_TOOL_TIP = 'Tick this box if payments are to be recorded separately.<br />If ticked, an Invoice transaction will be created and a Payments section will appear below.'
 
@@ -169,6 +170,8 @@ export default function Sale(props: Props) {
         Model.transaction(trx => saveFormData(transaction!, data, trx)).then(savedId => {
             if (savedId) {
                 playSuccess()
+                refreshOnboarding('save-a-sale')
+
                 // This form.reset() triggers the warning:
                 // 'Can't perform a React state update on an unmounted component. '
                 // Again, I think this is a bug within form.reset()

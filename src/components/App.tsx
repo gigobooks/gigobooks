@@ -14,6 +14,7 @@ import { Wrapper } from './Stubs'
 import Front from './Front'
 import About from './About'
 import PreferencesPage from './Preferences'
+import Onboarding, { refreshOnboarding } from './Onboarding'
 import Settings from './Settings'
 import TaxSettings from './TaxSettings'
 import AccountOverview from './AccountOverview'
@@ -96,6 +97,7 @@ function App() {
     return <HashRouter><Wrapper>
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} refreshApp={refresh} />
         <div className='page'>
+            {open && <Onboarding key={nonce} />}
             {open && <NavBar />}
 
             {error && <ErrorPane onDismiss={() => setError('')}>
@@ -187,6 +189,7 @@ export async function fileMenuAction0(op: string, extra: string, done: (path?: s
         case 'save':
             await Project.variables.set('mru', window.location.hash.substring(1), false, true)
             await Project.save()
+            refreshOnboarding('save-file')
             break
 
         case 'save-as':
@@ -203,6 +206,7 @@ export async function fileMenuAction0(op: string, extra: string, done: (path?: s
                 await Project.variables.set('mru', window.location.hash.substring(1), false, true)
                 await Project.saveAs(filename!)
                 mruInsert(filename)
+                refreshOnboarding('save-file')
             }
             break
 
