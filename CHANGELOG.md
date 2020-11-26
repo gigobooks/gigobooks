@@ -1,10 +1,13 @@
 # Unreleased
 
 
+# 1.0.2 - 20201126
+
 * Implement tool tips and 'required' asterisk for some forms.
 * Replace `type` field with `Record payments separately` checkbox.
 * Rename 'Cash sale' to just 'Sale', 'Cash purchase' to just 'Purchase'
 * Implement onboarding.
+* Tweak some styling.
 
 
 # 1.0.1 - 20201120
