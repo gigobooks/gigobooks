@@ -232,7 +232,7 @@ export default function Purchase(props: Props) {
                         </span>}
 
                         {actorTitleEnable && <span className='actor-title'>
-                            <label htmlFor='actorTitle'>Name:</label>
+                            <label htmlFor='actorTitle'>Name<Required />:</label>
                             <input name='actorTitle' ref={form.register} />
                             {form.errors.actorTitle && <span className='error'>
                                 {form.errors.actorTitle.message}

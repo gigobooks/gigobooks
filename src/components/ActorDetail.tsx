@@ -107,7 +107,7 @@ export default function ActorDetail(props: Props) {
                     <th scope='row'>
                         <label htmlFor='title'>Name<Required />:</label>
                     </th><td>
-                        <input name='title' ref={form.register} required />
+                        <input name='title' ref={form.register} />
                         {form.errors.title && <span className='error'>
                             {form.errors.title.message}
                         </span>}
