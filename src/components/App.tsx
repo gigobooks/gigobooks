@@ -101,7 +101,7 @@ function App() {
             {open && <NavBar />}
 
             {error && <ErrorPane onDismiss={() => setError('')}>
-                <pre>{error}</pre>
+                {error}
             </ErrorPane>}
             <ErrorBoundary
                 onError={(error: Error, info: { componentStack: string }) => {

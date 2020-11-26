@@ -94,7 +94,7 @@ export default function Onboarding() {
             </p><p>
                 (If you encounter any problems or bugs, or you need a new feature, please let us know. We'd love to talk.)
             </p>
-            <input type='submit' value='Dismiss' className='dismiss' onClick={dismiss} />    
+            <Dismiss onClick={dismiss} />
         </div> :
 
         state.savedASale ? <div>
@@ -103,7 +103,7 @@ export default function Onboarding() {
             </p><p>
                 Finally, save your data to a file: Open the <strong>File</strong> menu, select <strong>{__WEB__ ? 'Save' : 'Save as'}</strong> and follow through.
             </p>
-            <input type='submit' value='Dismiss' className='dismiss' onClick={dismiss} />    
+            <Dismiss onClick={dismiss} />
         </div> :
 
         state.savedTaxSettings ? <div>
@@ -114,7 +114,7 @@ export default function Onboarding() {
                     Please enter your first sale.
                 </span>}
             </p>
-            <input type='submit' value='Dismiss' className='dismiss' onClick={dismiss} />    
+            <Dismiss onClick={dismiss} />
         </div> :
 
         state.savedSettings ? <div>
@@ -137,4 +137,10 @@ export default function Onboarding() {
             </p>
         </div>}
     </div> : null
+}
+
+function Dismiss({onClick}: {onClick: () => void}) {
+    return <div className='onboarding-dismiss'>
+        <input type='submit' value='Dismiss' className='onboarding-dismiss-button' onClick={onClick} />
+    </div>
 }
