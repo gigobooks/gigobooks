@@ -1,6 +1,13 @@
 # Unreleased
 
 
+# 1.0.3 - 20201204
+
+* Update logo.
+* [web] Revise frontpage text. Rename Examples to Demo.
+* [web] Add smartphone landscape tip.
+
+
 # 1.0.2 - 20201126
 
 * Implement tool tips and 'required' asterisk for some forms.
