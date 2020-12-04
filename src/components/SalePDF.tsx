@@ -287,7 +287,7 @@ export default function SalePDF(props: Props) {
                 </Link> » <Link to={`/sales/${argId}`}>
                     {info ? Transaction.TypeInfo[info.type].label : 'Sale'} {argId}
                 </Link> » </span>
-                <h1 className='title inline'>Print</h1>
+                <h1 className='title inline'>PDF</h1>
             </div>
 
             {error && <div className='error'>{error}</div>}
