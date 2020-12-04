@@ -10,7 +10,7 @@ import { Project } from '../core'
 import { newHistorySegment, NavBar } from './NavBar'
 import { fileMenu, fileMenuAction } from './FileMenu'
 import ErrorPane from './ErrorPane'
-import { Wrapper } from './Stubs'
+import { Wrapper, Preamble } from './Stubs'
 import Front from './Front'
 import About from './About'
 import PreferencesPage from './Preferences'
@@ -98,6 +98,7 @@ function App() {
         <AppMenu open={open} hasFilename={hasFilename} mru={mru} refreshApp={refresh} />
         <div className='page'>
             {open && <Onboarding key={nonce} />}
+            <Preamble />
             {open && <NavBar />}
 
             {error && <ErrorPane onDismiss={() => setError('')}>

@@ -15,3 +15,7 @@ export function Wrapper({children}: {children: any}) {
 export function AboutExtra() {
     return null
 }
+
+export function Preamble() {
+    return null
+}

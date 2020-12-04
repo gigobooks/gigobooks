@@ -51,6 +51,12 @@ h1.inline { display: inline-block; }
 .tool-tip-icon { width: 0.875em; height: 0.875em; vertical-align: baseline; }
 .required-asterisk { height: 0.5em; vertical-align: super; }
 
+.smartphone-landscape-tip { display: none; margin: 1em 0; padding: 0 1em; background-color: azure; color: #3655b4; border: 1px solid #3655b4; border-left-width: 4px; }
+.smartphone-landscape-tip .hide { text-align: right; margin: 1em 0; }
+
+@media only screen and (orientation: portrait) and (max-width: 600px) {
+    .smartphone-landscape-tip { display: block; }
+}
 
 /***********************************************************
 * Onboarding                                               *
