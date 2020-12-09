@@ -37,7 +37,7 @@
     "use-debounce": "^5.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.15",
+    "@types/jest": "^26.0.18",
     "@types/lodash": "^4.14.165",
     "@types/pdfjs-dist": "^2.1.6",
     "@types/react": "^17.0.0",
