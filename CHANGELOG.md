@@ -1,6 +1,13 @@
 # Unreleased
 
 
+# 1.0.4 - 20201210
+
+* Insert viewport meta tag. Tweak page/html title.
+* Update some dependencies
+* Change `mru` of examples to point to a PDF invoice
+
+
 # 1.0.3 - 20201204
 
 * Update logo.
