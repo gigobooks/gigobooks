@@ -727,10 +727,10 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
-"@types/pdfjs-dist@^2.1.6":
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/@types/pdfjs-dist/-/pdfjs-dist-2.1.6.tgz#58e2372d6e65f1d59b1ec3632eb2ac34e36622f7"
-  integrity sha512-atQ3Dqgc3uKjNu9lCW/G7jhl875iXVErkSWoH8gEqMEpHP+GSuhkxAEaEImZCefeolz1tvWNGcZ/0/jCaVM9EQ==
+"@types/pdfjs-dist@^2.1.7":
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/@types/pdfjs-dist/-/pdfjs-dist-2.1.7.tgz#a92d94b9d699a93ab8a762839f7819dc04e96484"
+  integrity sha512-nQIwcPUhkAIyn7x9NS0lR/qxYfd5unRtfGkMjvpgF4Sh28IXftRymaNmFKTTdejDNY25NDGSIyjwj/BRwAPexg==
 
 "@types/prettier@^1.19.0":
   version "1.19.1"
