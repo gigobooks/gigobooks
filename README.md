@@ -1,12 +1,8 @@
 # Gig'o'Books
 
-* Non-cloud accounting app for solopreneurs, consultants, freelancers and gig economy workers.
-* Privacy focused. Not cloud-based SaaS. Retain control over your data.
-* Open data format. No lock-in. Retain control over your data.
-* Source code that you can extend/hack/customise yourself. Write your own custom scripts.
-* Double entry bookkeeping
-* Multi currency
-* Quick Start: [**Try the web edition**](https://www.gigobooks.com/webapp)
+Accounting, tax reporting, and invoicing for gigs and side income.
+
+Non-cloud. Privacy-focused. Open. Multi-currency. Double entry bookkeeping. Free.
 
 There are multiple editions of Gig'o'Books.
 
@@ -35,7 +31,7 @@ Gig'o'Books is beta software that is suitable for production use. Remember to ma
 ## Links
 
 * **Website and blog:** https://www.gigobooks.com
-* **Web edition:** https://www.gigobooks.com/webapp
+* **Web edition / Demo:** https://www.gigobooks.com/webapp
 
 ## Building
 
