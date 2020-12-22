@@ -86,6 +86,7 @@ module.exports = (env, argv) => {
       new CopyPlugin({patterns: [
         {from: 'assets/css'},
         {from: 'assets/media/logo.png', to: 'favicon.ico'},
+        {from: 'assets/media/logo-192-opaque.png'},
         {from: 'assets/media/Loading_indicator.gif'},
       ]}),
     ],
