@@ -2,8 +2,8 @@
  * Copyright (c) 2020-present Beng Tan
  */
 
-import Knex = require('knex');
-import cloneDeep = require('lodash/cloneDeep')
+import * as Knex from 'knex'
+import cloneDeep from 'lodash/cloneDeep'
 
 // This is going to be used in a raw query so use snake_case
 const upsertSuffix = ' on conflict(`name`) do update set' +

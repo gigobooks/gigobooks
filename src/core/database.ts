@@ -2,7 +2,7 @@
  * Copyright (c) 2020-present Beng Tan
  */
 
-import Knex = require('knex');
+import * as Knex from 'knex'
 import { PrepopulatedAccounts } from './Account'
 
 export async function maybeMigrate(knex: Knex) {
