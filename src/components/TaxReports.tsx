@@ -6,14 +6,9 @@ import * as React from 'react'
 import { MenuItem } from 'rc-menu'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 import { Project, taxAuthorities } from '../core'
-import TaxReportsAU from './TaxReportAU'
-import TaxReportsCA from './TaxReportCA'
-import TaxReportsCA_BC from './TaxReportCA_BC'
-import TaxReportsCA_MB from './TaxReportCA_MB'
-import TaxReportsCA_QC from './TaxReportCA_QC'
-import TaxReportsCA_SK from './TaxReportCA_SK'
-import TaxReportsIE from './TaxReportIE'
-import TaxReportsNZ from './TaxReportNZ'
+import { TaxReportAU,
+    TaxReportCA, TaxReportCA_BC, TaxReportCA_MB, TaxReportCA_QC, TaxReportCA_SK,
+    TaxReportIE, TaxReportNZ } from './DynamicImports'
 
 export type TaxReport = {
     id: string
@@ -36,10 +31,14 @@ function injectFields(reports0: Record<string, (TaxReport)[]>): Record<string, T
 }
 
 const Reports: Record<string, TaxReportInternal[]> = injectFields({
-    ...TaxReportsAU,
-    ...TaxReportsCA, ...TaxReportsCA_BC, ...TaxReportsCA_MB, ...TaxReportsCA_QC, ...TaxReportsCA_SK,
-    ...TaxReportsIE,
-    ...TaxReportsNZ,
+    'AU': [{id: 'gst', label: 'GST calculation for BAS', element: TaxReportAU}],
+    'CA': [{id: 'gst', label: 'GST/HST Return', element: TaxReportCA}],
+    'CA-BC': [{id: 'st', label: '(BC) PST Return Worksheet', element: TaxReportCA_BC}],
+    'CA-MB': [{id: 'st', label: '(MB) RST Return Worksheet', element: TaxReportCA_MB}],
+    'CA-QC': [{id: 'st', label: '(QC) QST Return Worksheet', element: TaxReportCA_QC}],
+    'CA-SK': [{id: 'st', label: '(SK) PST Return Worksheet', element: TaxReportCA_SK}],
+    'IE': [{id: 'vat', label: 'VAT3 Return', element: TaxReportIE}],
+    'NZ': [{id: 'gst', label: 'GST101A helper', element: TaxReportNZ}],
 })
 
 function taxReports() {

@@ -13,7 +13,7 @@ import { ToolTip } from './Misc'
 const Debit = Transaction.Debit
 const Credit = Transaction.Credit
 
-export function BalanceSheet({summary}: {summary?: boolean}) {
+export default function BalanceSheet({summary}: {summary?: boolean}) {
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')

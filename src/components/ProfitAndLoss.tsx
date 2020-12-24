@@ -10,7 +10,7 @@ import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader, ExchangeRates } from './
 import { currencySelectOptions, datePresetSelectOptions } from './SelectOptions'
 import { ToolTip } from './Misc'
 
-export function ProfitAndLoss({summary}: {summary?: boolean}) {
+export default function ProfitAndLoss({summary}: {summary?: boolean}) {
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')

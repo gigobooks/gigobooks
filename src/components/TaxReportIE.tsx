@@ -96,13 +96,7 @@ async function reportInfo(startDate: string, endDate: string, cash: boolean) : P
     return result
 }
 
-const Reports: Record<string, TaxReport[]> = {
-    'IE': [{id: 'vat', label: 'VAT3 Return', element: TaxReportImpl}]
-}
-
-export default Reports
-
-function TaxReportImpl() {
+export default function TaxReport() {
     const [summary, setSummary] = React.useState<boolean>(true)
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')

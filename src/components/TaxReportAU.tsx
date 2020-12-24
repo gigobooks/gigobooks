@@ -115,13 +115,7 @@ async function reportInfo(startDate: string, endDate: string, accrual: boolean, 
     return result
 }
 
-const Reports: Record<string, TaxReport[]> = {
-    'AU': [{id: 'gst', label: 'GST calculation for BAS', element: TaxReportGST}]
-}
-
-export default Reports
-
-function TaxReportGST() {
+export default function TaxReport() {
     const [summary, setSummary] = React.useState<boolean>(true)
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')

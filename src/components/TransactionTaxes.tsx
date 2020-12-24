@@ -71,7 +71,7 @@ export async function transactionTaxes(startDate: string, endDate: string, accru
     return result
 }
 
-export function TransactionTaxesDetail() {
+export default function TransactionTaxesDetail() {
     const [preset, setPreset] = React.useState<string>('')
     const [startDate, setStartDate] = React.useState<string>('')
     const [endDate, setEndDate] = React.useState<string>('')

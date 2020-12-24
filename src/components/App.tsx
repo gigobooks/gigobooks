@@ -26,14 +26,16 @@ import { TransactionOverview, SalesOverview, PurchasesOverview } from './Transac
 import TransactionDetail from './TransactionDetail'
 import 'react-datepicker/dist/react-datepicker.css'
 import Sale from './Sale'
-import SalePDF from './SalePDF'
+import { SalePDF } from './DynamicImports'
 import Purchase from './Purchase'
 import { refreshWindowTitle } from '../util/util'
 import { mruList, mruInsert, mruClear, mruDir } from '../util/mru'
-import { ProfitAndLoss } from './ProfitAndLoss'
-import { BalanceSheet } from './BalanceSheet'
-import { TransactionTaxesDetail } from './TransactionTaxes'
-import { taxReportsMenuItems, TaxReportsRouter } from './TaxReports'
+import { ProfitAndLoss } from './DynamicImports'
+import { BalanceSheet }  from './DynamicImports'
+import { TransactionTaxesDetail } from './DynamicImports'
+import { TaxReportsRouter, taxReportsMenuItems } from './TaxReports'
+
+const LOADING_GIF_URL = require('../../assets/media/Loading_indicator.gif').default
 
 function App() {
     const [open, setOpen] = React.useState<boolean>(Project.isOpen())
@@ -112,7 +114,9 @@ function App() {
                     return <ErrorFallback stack={componentStack} {...props} />
                 }}
             >
-                <Main key={nonce} open={open} refreshApp={refresh} />
+                <React.Suspense fallback={<div style={{textAlign: 'center'}}><p>Loading ...</p><p><img src={LOADING_GIF_URL} /></p></div>}>
+                    <Main key={nonce} open={open} refreshApp={refresh} />
+                </React.Suspense>
             </ErrorBoundary>
         </div>
     </Wrapper></HashRouter>
