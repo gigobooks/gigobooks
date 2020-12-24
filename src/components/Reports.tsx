@@ -6,8 +6,7 @@ import * as React from 'react'
 import { isFirstDayOfMonth, isLastDayOfMonth, isSameMonth, isSameYear } from 'date-fns'
 import DatePicker from 'react-datepicker'
 import { LOCALE, Project, parseISO, toDateOnly, dateFormatString as dfs } from '../core'
-import { View } from '@react-pdf/renderer'
-import { B, T } from './PDFView'
+import { View, B, T } from './PDFView'
 
 // Keep lists of currencies together (ie. no wrapping) unless there are a lot of them
 export const CURRENCY_TOTALS_WRAP = 7

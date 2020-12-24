@@ -4,8 +4,7 @@
 
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { Document, Page, View } from '@react-pdf/renderer'
-import { PDFView, Styles, T, B, Tr, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
+import { Document, Page, View, PDFView, Styles, T, B, Tr, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
 import { CREDITS, Project, Element, Transaction, TransactionType, Actor,
     toFormatted, TaxCodeInfo, formatDateOnly, addSubtractMoney } from '../core'
 import { orderByField } from '../util/util'

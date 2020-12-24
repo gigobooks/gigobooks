@@ -3,8 +3,7 @@
  */
 
 import * as React from 'react'
-import { Document, Page, View } from '@react-pdf/renderer'
-import { PDFView, Styles, T, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
+import { Document, Page, View, PDFView, Styles, T, Tr, Th, ThLeft, ThRight, Td, TdLeft, TdRight } from './PDFView'
 import { Transaction, formatDateOnly, toFormatted, datePresetDates, TaxAuthority, taxAuthorities, TaxItemGroup, taxItems } from '../core'
 import { CURRENCY_TOTALS_WRAP, DateRange, ReportHeader } from './Reports'
 import { orderByField } from '../util/util'

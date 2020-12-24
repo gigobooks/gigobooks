@@ -3,8 +3,7 @@
  */
 
 import * as React from 'react'
-import { Document, Page, View } from '@react-pdf/renderer'
-import { PDFView, Styles, Tr, Th, ThLeft, ThRight } from './PDFView'
+import { Document, Page, View, PDFView, Styles, Tr, Th, ThLeft, ThRight } from './PDFView'
 import { Transaction, datePresetDates, convertCurrency, exchangeRates, TaxItemGroup, taxItems, TaxCodeInfo } from '../core'
 import { DateRange, ReportHeader, ExchangeRates } from './Reports'
 import { TaxReport } from './TaxReports'
