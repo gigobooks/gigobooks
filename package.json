@@ -33,7 +33,7 @@
     "react-router-dom": "^5.2.0",
     "react-table": "^7.6.2",
     "react-tooltip": "^4.2.11",
-    "sql.js": "^1.3.2",
+    "sql.js": "^1.4.0",
     "use-debounce": "^5.1.0"
   },
   "devDependencies": {
