@@ -1,6 +1,14 @@
 # Unreleased
 
 
+# 1.0.5 - 20201228
+
+* Change credits string to match new market positioning.
+* [web] Progressive Web App (PWA)
+  * Add Apple touch icon.
+  * Lots of restructure, changes, code splitting etc.
+
+
 # 1.0.4 - 20201210
 
 * Insert viewport meta tag. Tweak page/html title.
