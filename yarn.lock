@@ -5513,18 +5513,18 @@ rc-align@^4.0.0:
     rc-util "^5.0.1"
     resize-observer-polyfill "^1.5.1"
 
-rc-menu@^8.7.1:
-  version "8.7.1"
-  resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-8.7.1.tgz#f3dcaeb25308568a07871b79f8ddd9515a64e8be"
-  integrity sha512-CuuJ9oS1oPAfenqAMa3CZZE7RrPcPTHV3310cf6RO2uJgE9ztqasRFMEBwtruH16OexTr0igTCXySm+e2/TBQg==
+rc-menu@^8.10.2:
+  version "8.10.2"
+  resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-8.10.2.tgz#c5ef5f8e90a63aa68dac593f14d6bbd1c742c9ee"
+  integrity sha512-esYb3FLm4PT7YqxNEWSpRbBO+NCMGacWUx+5hHzXWjUB7UuRg4GEqkgDHyokGNk0WDat6V9JsmgAMN5qNY4NPA==
   dependencies:
     "@babel/runtime" "^7.10.1"
     classnames "2.x"
     mini-store "^3.0.1"
     omit.js "^2.0.0"
     rc-motion "^2.0.1"
-    rc-trigger "^5.0.4"
-    rc-util "^5.0.1"
+    rc-trigger "^5.1.2"
+    rc-util "^5.5.0"
     resize-observer-polyfill "^1.5.0"
     shallowequal "^1.1.0"
 
@@ -5537,21 +5537,21 @@ rc-motion@^2.0.0, rc-motion@^2.0.1:
     classnames "^2.2.1"
     rc-util "^5.2.1"
 
-rc-trigger@^5.0.4:
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/rc-trigger/-/rc-trigger-5.0.6.tgz#7e84717525871a7923a671edb5a290e9e616525b"
-  integrity sha512-L/xIX5OO7a/bdTH0yYT9mwAsV6oM1inAqAbLjoUzpcIW+UUE3jjVOjm5VaKDfHd41rzDzOfN05URmhet5QzXKQ==
+rc-trigger@^5.1.2:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/rc-trigger/-/rc-trigger-5.2.0.tgz#a17f1a5cba6b8faff62e658a5c9a21f97af2ef06"
+  integrity sha512-fpC1ZkM/IgIIDfF6XHx3Hb2zXy9wvdI5eMh+6DdLygk6Z3HGmkri6ZCXg9a0wfF9AFuzlYTeBLS1uRASZRsnMQ==
   dependencies:
     "@babel/runtime" "^7.11.2"
     classnames "^2.2.6"
     rc-align "^4.0.0"
     rc-motion "^2.0.0"
-    rc-util "^5.3.4"
+    rc-util "^5.5.0"
 
-rc-util@^5.0.1, rc-util@^5.2.1, rc-util@^5.3.4:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-5.4.0.tgz#688eaeecfdae9dae2bfdf10bedbe884591dba004"
-  integrity sha512-kXDn1JyLJTAWLBFt+fjkTcUtXhxKkipQCobQmxIEVrX62iXgo24z8YKoWehWfMxPZFPE+RXqrmEu9j5kHz/Lrg==
+rc-util@^5.0.1, rc-util@^5.2.1, rc-util@^5.5.0:
+  version "5.6.5"
+  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-5.6.5.tgz#811c314cd64b773b10fed9794683f08ffa1a410f"
+  integrity sha512-WwgwI80qxs+LJkxERKLbjLF4LuBoyH1KSQVphF3P0JPFxrJkiXHPF6hbJy51oHceXmqh1wizVwdNGF1DsSDZmA==
   dependencies:
     react-is "^16.12.0"
     shallowequal "^1.1.0"
