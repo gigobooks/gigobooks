@@ -775,10 +775,10 @@
     "@types/history" "*"
     "@types/react" "*"
 
-"@types/react-table@^7.0.25":
-  version "7.0.25"
-  resolved "https://registry.yarnpkg.com/@types/react-table/-/react-table-7.0.25.tgz#79efba1c58149d75b3c030634ed36215b7ba8390"
-  integrity sha512-MLWxIiFKIW2CjcB8yQ5LfLNyVfwXfIYm2yrQfTkroK5tJ3Ai+Xzq73EQcdKWQvi/nLk431v2WV0cf30VQV+5Ow==
+"@types/react-table@^7.0.27":
+  version "7.0.27"
+  resolved "https://registry.yarnpkg.com/@types/react-table/-/react-table-7.0.27.tgz#afb2b668113dc1d5cb34006cc606a2e0cffa97b6"
+  integrity sha512-YrFYYzf6/ZqDSaB6sAerBjMZB7JtVdO8kRrOAYRozaIpQZKB8DCjRonNJrR9TcKUTkrpZV8EdCJgMJHunYa3SA==
   dependencies:
     "@types/react" "*"
 

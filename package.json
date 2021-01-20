@@ -44,7 +44,7 @@
     "@types/react-datepicker": "^3.1.2",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.6",
-    "@types/react-table": "^7.0.25",
+    "@types/react-table": "^7.0.27",
     "@types/sql.js": "^1.0.3",
     "@types/webpack-env": "^1.16.0",
     "copy-webpack-plugin": "^6.4.0",
