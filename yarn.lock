@@ -3263,10 +3263,10 @@ icss-utils@^5.0.0:
   resolved "https://registry.yarnpkg.com/icss-utils/-/icss-utils-5.0.0.tgz#03ed56c3accd32f9caaf1752ebf64ef12347bb84"
   integrity sha512-aF2Cf/CkEZrI/vsu5WI/I+akFgdbwQHVE9YRZxATrhH4PVIe6a3BIjwjEcW+z+jP/hNh+YvM3lAAn1wJQ6opSg==
 
-idb-keyval@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/idb-keyval/-/idb-keyval-3.2.0.tgz#cbbf354deb5684b6cdc84376294fc05932845bd6"
-  integrity sha512-slx8Q6oywCCSfKgPgL0sEsXtPVnSbTLWpyiDcu6msHOyKOLari1TD1qocXVCft80umnkk3/Qqh3lwoFt8T/BPQ==
+idb-keyval@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/idb-keyval/-/idb-keyval-5.0.2.tgz#243cf2b7db1bee2a8a41b78c14a18a85db0e1646"
+  integrity sha512-1DYjY/nX2U9pkTkwFoAmKcK1ZWmkNgO32Oon9tp/9+HURizxUQ4fZRxMJZs093SldP7q6dotVj03kIkiqOILyA==
 
 ieee754@^1.1.4:
   version "1.1.13"

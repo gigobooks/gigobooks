@@ -17,7 +17,7 @@
     "currency-codes": "^2.1.0",
     "file-loader": "^6.2.0",
     "history": "^5.0.0",
-    "idb-keyval": "^3.2.0",
+    "idb-keyval": "^5.0.2",
     "iso-3166-2": "^1.0.0",
     "knex": "^0.21.12",
     "objection": "^2.2.3",
