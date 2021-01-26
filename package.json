@@ -20,7 +20,7 @@
     "idb-keyval": "^3.2.0",
     "iso-3166-2": "^1.0.0",
     "knex": "^0.21.12",
-    "objection": "^2.2.3",
+    "objection": "^2.2.11",
     "pdfjs-dist": "^2.4.456",
     "prop-types": "^15.7.2",
     "rc-menu": "^8.7.1",
