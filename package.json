@@ -25,7 +25,7 @@
     "prop-types": "^15.7.2",
     "rc-menu": "^8.7.1",
     "react": "^16.14.0",
-    "react-datepicker": "^3.3.0",
+    "react-datepicker": "^3.5.0",
     "react-dom": "^16.14.0",
     "react-error-boundary": "^3.1.0",
     "react-ga": "^3.3.0",
