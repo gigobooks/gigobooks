@@ -1,5 +1,10 @@
 # Unreleased
 
+
+# 1.0.6 - 20220126
+
+* Prospective fix: 'arrayBuffer is not a function'
+* Temporarily disable dependabot.
 * Invoice PDFs: Show invoice number in title. Display dates in ISO format.
 
 
