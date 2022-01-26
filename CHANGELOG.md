@@ -1,5 +1,7 @@
 # Unreleased
 
+* Invoice PDFs: Show invoice number in title. Display dates in ISO format.
+
 
 # 1.0.5 - 20201228
 

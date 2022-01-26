@@ -315,7 +315,7 @@ function renderReport(info: ReportInfo) {
 
     return <Document><Page size="A4" style={[Styles.page, {fontSize: 10}]}>
         <View style={{fontSize: 24, marginBottom: 12}}>
-            <B>TAX INVOICE</B>
+            <B>TAX INVOICE {info.id}</B>
         </View>
 
         <View style={{flexDirection: 'row'}}>
@@ -335,10 +335,10 @@ function renderReport(info: ReportInfo) {
                 <Td width={70}>{info.id}</Td>
             </Tr><Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}>Issue Date:</ThLeft>
-                <Td width={70}>{formatDateOnly(info.date)}</Td>
+                <Td width={70}>{info.date}</Td>
             </Tr>{!!info.due && <Tr style={{marginBottom: 3}}>
                 <ThLeft width={30}>Due Date:</ThLeft>
-                <Td width={70}>{formatDateOnly(info.due)}</Td>
+                <Td width={70}>{info.due}</Td>
             </Tr>}</View>
 
             <View style={{width: '35%', marginLeft: '15%'}}><Tr style={{marginBottom: 3}}>
