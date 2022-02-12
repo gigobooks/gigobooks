@@ -52,7 +52,6 @@ export function getCurrencyInfo(currency: string): Info {
 }
 
 // Formats a monetary amount of the specified currency
-// Space is used as the group separator
 // amount is in subunits
 export function toFormatted(amount: number, currency: string): string {
     const info = getCurrencyInfo(currency)
@@ -66,11 +65,9 @@ export function toFormatted(amount: number, currency: string): string {
     const abs = negative ? -amount : amount
 
     // This is yucky. Render the number into something like '1,234 USD'
-    // and then: delete the currency code (ie. uppercase letters),
-    // replace the group separator with space, and then trim whitespace.
+    // and then: delete the currency code (ie. uppercase letters), trim whitespace.
     const formatted = info.formatter.format(abs / info.scale)
-        .replace(new RegExp(`[A-Z]`, 'g'), '')
-        .replace(new RegExp(`${info.grouper}`, 'g'), ' ').trim()
+        .replace(new RegExp(`[A-Z]`, 'g'), '').trim()
 
     return negative ? `-${formatted}` : formatted
 

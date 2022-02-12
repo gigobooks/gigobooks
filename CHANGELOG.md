@@ -1,6 +1,9 @@
 # Unreleased
 
 
+* Use locale-dependent grouper in currency formatting instead of space.
+
+
 # 1.0.6 - 20220126
 
 * Prospective fix: 'arrayBuffer is not a function'
