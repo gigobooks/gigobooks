@@ -1,6 +1,8 @@
 # Unreleased
 
 
+# 1.0.7 - 20220212
+
 * Use locale-dependent grouper in currency formatting instead of space.
 
 
